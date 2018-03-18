@@ -11,8 +11,8 @@ function Waypoint() {
     this.latitude = 0;
     this.longitude = 0;
     this.fix = -1;
-    this.visible = true;
-    this.labelVisible = true;
+    this.visible = false;
+    this.labelVisible = false;
     this.visibleTemp = false;
     this.labelVisibleTemp = false;
 
@@ -30,14 +30,12 @@ createjs.extend(Waypoint, createjs.Container);
 createjs.promote(Waypoint, "Container");
 
 Waypoint.prototype.getDisplayData = function( scale ) {
-    scale = scale + 0.4;
-
+    // scale = scale + 0.4;
+    scale = scale + 0.4 / 1.2;
     this.gLabel.scaleX = scale;
     this.gLabel.scaleY = scale;
-
-    this.gBox.scaleX = scale / 1.5;
-    this.gBox.scaleY = scale / 1.5;
-
+    this.gBox.scaleX = scale; //  / 1.5;
+    this.gBox.scaleY = scale; // / 1.5;
     this.setScreenPosition(scale);
 }
 
@@ -71,13 +69,16 @@ Waypoint.prototype.setScreenPosition = function(scale) {
 
 Waypoint.prototype.setLabel = function(label) {
     this.label = label;
+    this.type = 'WP';
+    /*
     for(var c=0; c<label.length; c++) {
         if (parseInt(label.substr(c,1)) > 0) {
             this.type = 'WP';
             return;
         }
     }
-    this.type = 'FIX';
+    this.type = 'WP';
+    */
 }
 
 Waypoint.prototype.show = function(visible, isTemporary) {

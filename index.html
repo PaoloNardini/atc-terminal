@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Experiment 1</title>
+    <title>ATC-TERMINAL</title>
     <!-- <link href='http://fonts.googleapis.com/css?family=Courier' rel='stylesheet' type='text/css'> -->
     <script src="http://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js"></script>
     <script src="assets/createjs.min.js"></script>
@@ -585,6 +585,7 @@
         // $('#scale').html( Math.round(mainContainer.scaleX * 100) + ' - ' + currentScale); //  + ' / ' + mainContainer.regX + ' - ' + mainContainer.regY);
 
         updateWaypoints();
+        updateFixes();
         updateNavaids();
         updateRoutes();
         mainStage.update();
@@ -642,6 +643,16 @@
             }
         }
         return -1;
+    }
+
+    function findFixByLabel(label) {
+        var c;
+        for (f=0; f < fixes.length; f++) {
+            if (fixes[f].label == label) {
+                return fixes[f];
+            }
+        }
+        return undefined;
     }
 
     function findFixById(identifier) {

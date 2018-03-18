@@ -474,13 +474,22 @@ function loadProcedures(icao) {
                         if (words.length > 10) {
                             fixes[f].altitude = parseFloat(words[11])
                         }
-                        if (fix_type == 'IF') {
-                            if (findWaypoint(fix_label) == undefined) {
-                                // Show fix only if it's not also a waypoint
-                                fixes[f].show(true, false);
-                                fixes[f].setScreenPosition();
-                                mainContainer.addChild(fixes[f]);
+                        if (fix_type == 'IF' || fix_type == 'TF') {
+                            var c;
+                            if ((c = waypointsById[fix_label]) != undefined) {
+                                // TODO
+                                if (waypoints[c] != undefined && waypoints[c].type != undefined) {
+                                    // Delete waypoint with the same name of the fix
+                                    waypoints.splice(c, 1);
+                                }
+                                waypointsById[fix_label] = undefined;
                             }
+                            // var o_wp = findWaypoint(fix_label);
+                            // if (o_wp != undefined) {
+                            // Show fix
+                            fixes[f].show(true, false);
+                            fixes[f].setScreenPosition();
+                            mainContainer.addChild(fixes[f]);
                         }
                     }
                     if (mode == 'SID' || mode == 'STAR' || mode == 'APPTR' || mode == 'FINAL') {
@@ -765,13 +774,11 @@ function loadATS() {
                         var steps = o_route.getLegs();
                         for (var s=0; s<steps.length; s++) {
                             o_step = steps[s];
-                            var o_fix = findFixById(o_step.identifier);
-                            if (o_step.identifier == 'TAQ') {
-                                var stop = 1;
-                            }
+                            var o_fix = findFixByLabel(o_step.identifier);
                             if (o_fix == undefined || (Math.abs(o_fix.latitude - o_step.latitude) > 0.05)) {
-                                o_wp = addWaypoint(o_step.identifier, '', o_step.latitude, o_step.longitude);
-                                mainContainer.addChild(o_wp);
+                                o_fix = addFix(o_step.identifier, '', o_step.latitude, o_step.longitude);
+                                // o_wp = addWaypoint(o_step.identifier, '', o_step.latitude, o_step.longitude);
+                                mainContainer.addChild(o_fix);
                             }
                         }
                     }
