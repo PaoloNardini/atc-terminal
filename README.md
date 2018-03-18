@@ -79,7 +79,7 @@ Note: planes without instructions usually holds over the last waypoint of their 
 # Console switches
 The first line of switches control the show/hide status of the following screen elements:
 - NAV -> navigation aids (vor/dme/ndb/ils markers)
-- FIX -> main fix
+- FIX -> main fixes
 - WPT -> minor waypoints
 - RWY -> runways
 - CEN -> runways centerline extensions
@@ -105,12 +105,18 @@ By clicking a plane strip or the plane itself on the screen the planned route wi
 
 
 # Planned features
+_(not_ ordered by importance or implementation time)
 - Parameters configuration panel
 - Runway status configuration panel with wind indication
 - Departures clearence must include final ATS route to intercept and follow
+- Fix displaying must be filtered by importance / sid / star / ats
 - Planes clearence (sid/star/ats) selected by operator
 - Audio playback of pilots voices
 - Airlines prefix to planes callsign
 - Different plane models with different performances
 - ... more
 
+
+# Licence
+This software is released under the GNU GPL v3 Licence
+See the file LICENCE for the whole text. 
