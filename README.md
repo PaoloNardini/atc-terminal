@@ -11,13 +11,14 @@ The operator is required to interact with planes sending commands and instructio
 
 A future audio expansion, will allow to hear the voices of pilots to increase the realism of simulation (a raw test is present in current version)
 
-The simulation works fully in the browser and could not require any server installation.
+The simulation works fully in the browser and require only minimal server installation.
 
-The software is written in plain Javscript and make use of the following dependant libraries:
+Due to screen graphic complexity a high resolution screen (at least 1920x1080 and 24") is recommended. A normal graphic card is acceptable. 
+
+The software is written in plain Javascript and use the following libraries:
 - createjs: a powerful canvas base graphic library to handle all the aspects of the screen rendering and future audio playing - www.createjs.com
 - jQuery + jQuery mousewheel: to handle mouse interactions and others minor aspects
 - Geo mathematical functions by Chris Veness - www.movable-type.co.uk
-
 
 # Project Status
 

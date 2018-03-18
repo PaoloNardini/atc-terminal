@@ -180,15 +180,21 @@ function loadNavaids() {
                             navaids[f].longitude = longitude;
                             navaids[f].freq = parseFloat(words[2]);
                             navaids[f].gLabel.text = navaids[f].label;
-                            navaids[f].visible = false;
+                            // navaids[f].visible = false;
                         }
-                        if (navaid_name.includes('ILS CAT/III')) {
+                        if (navaid_name.includes('ILS/CAT III')) {
                             navaids[f].type = FIX_TYPE_ILS_CAT_3;
                         }
-                        else if (navaid_name.includes('ILS CAT/II')) {
+                        else if (navaid_name.includes('ILS/CAT II')) {
                             navaids[f].type = FIX_TYPE_ILS_CAT_2;
                         }
-                        else if (navaid_name.includes('ILS CAT/I')) {
+                        else if (navaid_name.includes('ILS/CAT I')) {
+                            navaids[f].type = FIX_TYPE_ILS_CAT_1;
+                        }
+                        else if (navaid_name.includes('ILS/LLZ')) {
+                            navaids[f].type = FIX_TYPE_ILS_CAT_1;
+                        }
+                        else if (navaid_name.includes('LDA/FACILITY')) {
                             navaids[f].type = FIX_TYPE_ILS_CAT_1;
                         }
                         else if (freq >= 108 && freq <= 116) {
@@ -208,7 +214,12 @@ function loadNavaids() {
                             }
                         }
                         if (navaids[f].type == FIX_TYPE_VORDME || navaids[f].type == FIX_TYPE_VORDMENDB || navaids[f].type == FIX_TYPE_NDB) {
-                            navaids[f].visible = true;
+                            navaids[f].show(true,false);
+                            navaids[f].showLabel(true,false);
+                        }
+                        else {
+                            navaids[f].show(false,false);
+                            navaids[f].showLabel(false,false);
                         }
                     }
                 }

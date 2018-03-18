@@ -121,7 +121,7 @@ Director.prototype.schedulePlaneArrival = function(o_airport, o_runway) {
 
     var o_route = this.assignArrivalRoute(o_plane, o_airport, o_runway);
     if (o_route != undefined) {
-        o_plane.assignRoute(o_route);
+        o_plane.assignRoute(o_route, o_runway.label1);
 
         // Assign a random cruise level
         o_plane.fl = Math.floor((25000 + (Math.random() * 12000))/1000)*1000;
@@ -149,8 +149,8 @@ Director.prototype.schedulePlaneArrival = function(o_airport, o_runway) {
                 var lon2 = o_plane.steps[1].longitude;
                 var pos2 = new LatLon(lat2, lon2);
                 o_plane.heading = pos1.finalBearingTo(pos2);
-                var rev_heading = Math.inverseBearing(o_plane.heading);
-                var pos = Math.coordsFromCoarseDistance(lat1, lon1, rev_heading, (5 + (Math.random() * 20)));
+                var rev_heading = (Math.inverseBearing(o_plane.heading) + (-10 + (Math.random() * 20))) % 360;
+                var pos = Math.coordsFromCoarseDistance(lat1, lon1, rev_heading, (5 + (Math.random() * 30)));
                 o_plane.latitude = pos.lat;
                 o_plane.longitude = pos.lon;
             }

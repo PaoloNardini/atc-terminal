@@ -68,13 +68,14 @@ function Plane() {
     this.turn = 0;
 
     // Route data
-    this.route = -1; // [ 'SBOL01','BOL','FRZ','PSA'];
+    this.route = -1;
     this.o_route = undefined;   // Route object
-    this.tracks = [];   // OLD Tracks
-    this.steps = [];    // NEW Legs Steps
-    this.fix_next = -1;     // OLD
-    this.fix_step = -1;     // OLD
-    this.step_current = -1; // NEW
+    this.tracks = [];           // OLD Tracks
+    this.steps = [];            // NEW Legs Steps
+    this.fix_next = -1;         // OLD
+    this.fix_step = -1;         // OLD
+    this.step_current = -1;     // NEW
+    this.runway = undefined;    // Landing only
 
     // Radial intercept data
     this.intercepting = false;          // Intercepting a radial
@@ -1429,7 +1430,7 @@ Plane.prototype.assignRandomRoute = function() {
     this.assignRoute(o_route);
 }
 
-Plane.prototype.assignRoute = function(o_route) {
+Plane.prototype.assignRoute = function(o_route, runway) {
     this.o_route = o_route;
     if (o_route.type == 'SID') {
         this.arrival = false;
@@ -1443,6 +1444,10 @@ Plane.prototype.assignRoute = function(o_route) {
         this.arrival = true;
         this.departure = false;
         this.transit = false;
+        if (runway != undefined) {
+            // Route runway could be ALL ... store assigned runway
+            this.runway = runway;
+        }
     }
     else if (o_route.type == 'FINAL') {
         this.arrival = true;
@@ -1523,7 +1528,7 @@ Plane.prototype.assignRouteByWaypoints = function(a_wp) {
  * Show the assigned plane route on the screen
  */
 Plane.prototype.showRoute = function() {
-    if (this.steps.length > 0 && this.current_step != -1) {
+    if (this.steps.length > 0) {
         var v = 0;
         var vt = 0;
         var valid = false;
@@ -1546,6 +1551,8 @@ Plane.prototype.showRoute = function() {
                     if (!o_fix.visible) {
                         // Show fix with label as temporary
                         o_fix.show(true, true);
+                    }
+                    if (!o_fix.labelVisible) {
                         o_fix.showLabel(true, true);
                     }
                 }
@@ -2078,8 +2085,8 @@ Plane.prototype.getStrip = function() {
 Plane.prototype.updateStrip = function() {
     if (this.o_strip != undefined) {
         var route_description = this.getRouteDescription();
-        var runway = '';
-        if (this.o_route && this.o_route.runway != '') {
+        var runway = this.runway;
+        if (runway == undefined && this.o_route && this.o_route.runway != '') {
             runway = this.o_route.runway;
         }
         this.o_strip.updateStrip(this.stripPosition, route_description, this.speed, this.fl, this.fl_cleared, this.airp_dep, this.airp_dest, runway, this.squack, this.squack_assigned, this.status, this.slot);

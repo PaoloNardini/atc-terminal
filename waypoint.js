@@ -116,9 +116,9 @@ Waypoint.prototype.showLabel = function(visible, isTemporary) {
             return;
         }
         if (!this.labelVisible) {
-            this.labelVisible = false;
+            this.labelVisible = true;
             this.labelVisibleTemp = isTemporary;
-            this.gLabel.visible = false;
+            this.gLabel.visible = true;
         }
     }
     else {

@@ -14,6 +14,9 @@ function Navaid() {
     this.max_speed = -1;     // Maximum speed
     this.freq = '';          // Navaid frequency
     this.visible = false;    // Default visibility
+    this.labelVisible = false;
+    this.visibleTemp = false;
+    this.labelVisibleTemp = false;
 
     // Navaid position
     this.latitude = 0;
@@ -105,9 +108,9 @@ Navaid.prototype.showLabel = function(visible, isTemporary) {
             return;
         }
         if (!this.labelVisible) {
-            this.labelVisible = false;
+            this.labelVisible = true;
             this.labelVisibleTemp = isTemporary;
-            this.gLabel.visible = false;
+            this.gLabel.visible = true;
         }
     }
     else {

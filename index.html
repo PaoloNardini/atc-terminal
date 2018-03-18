@@ -825,7 +825,7 @@
     }
     function showNavLabels(onoff) {
         for (var n = 0; n < navaids.length; n++) {
-            navaids[n].showLabel(onoff);
+            navaids[n].showLabel(onoff, false);
         }
     }
     function showFix(onoff) {
@@ -840,11 +840,11 @@
     }
     function showFixLabels(onoff) {
         for (var n=0; n < fixes.length; n++) {
-            fixes[n].showLabel(onoff);
+            fixes[n].showLabel(onoff, false);
         }
         for (n=0; n < waypoints.length; n++) {
             if (waypoints[n].type == 'FIX') {
-                waypoints[n].showLabel(onoff);
+                waypoints[n].showLabel(onoff, false);
             }
         }
     }
@@ -858,7 +858,7 @@
     function showWaypointsLabels(onoff) {
         for (n=0; n < waypoints.length; n++) {
             if (waypoints[n].type == 'WP') {
-                waypoints[n].showLabel(onoff);
+                waypoints[n].showLabel(onoff, false);
             }
         }
     }
