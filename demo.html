@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link href='http://fonts.googleapis.com/css?family=Dorsa' rel='stylesheet' type='text/css'>
+    <script src="http://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js"></script>
+    <script src="http://code.createjs.com/createjs-2014.12.12.min.js"></script>
+
+    <script type="text/javascript">
+        WebFont.load({
+            google: {
+                families: [ 'Dorsa']
+            },
+            loading: function() {
+                console.log("loading");
+            },
+            active: function () {
+                window.init();
+            },
+            inactive: function() {
+                console.log("inactive")
+            }
+        });
+    </script>
+</head>
+<body onload="init();">
+    <canvas id="demoCanvas" width="1024" height="768"></canvas>
+</body>
+</html>
+<script>
+    var stage, circle;
+
+    function init() {
+
+        var thunder = "Thunder";
+
+        createjs.Sound.registerSound("assets/InTheBottleBank01.mp3", thunder);
+
+        stage = new createjs.Stage("demoCanvas");
+
+        circle = new createjs.Shape();
+        circle.graphics.beginFill("red").drawCircle(0, 0, 40);
+        circle.y = 50;
+        stage.addChild(circle);
+
+        var txt = new createjs.Text();
+        txt.x = txt.y = 0;
+        txt.font = "24px Dorsa";
+        txt.color = "#FF7700";
+        txt.text = "Hello World!";
+        stage.addChild(txt);
+
+        target = stage.addChild(new createjs.Shape());
+        target.graphics.beginFill("red").drawCircle(0,0,45)
+                .beginFill("white").drawCircle(0,0,30)
+                .beginFill("red").drawCircle(0,0,15);
+        target.x = 100;
+        target.y = 180;
+
+        arm = stage.addChild(new createjs.Shape());
+        arm.graphics.beginFill("black").drawRect(-2,-2,100,4)
+                .beginFill("blue").drawCircle(100,0,8);
+        arm.x = 180;
+        arm.y = 100;
+
+        createjs.Ticker.on("tick", tick);
+        createjs.Ticker.setFPS(30);
+
+        // var text = new createjs.Text("Hello World", "bold 86px Arial", "#ff7700");
+        //stage.addChild(text);
+
+        // this lets our drag continue to track the mouse even when it leaves the canvas:
+        // play with commenting this out to see the difference.
+        stage.mouseMoveOutside = true;
+
+        var circledrag = new createjs.Shape();
+        circledrag.graphics.beginFill("red").drawCircle(0, 0, 50);
+
+        var label = new createjs.Text("drag me", "bold 14px Arial", "#FFFFFF");
+        label.textAlign = "center";
+        label.y = -7;
+
+        var dragger = new createjs.Container();
+        dragger.x = dragger.y = 100;
+        dragger.addChild(circledrag, label);
+        stage.addChild(dragger);
+
+        dragger.on("pressmove",function(evt) {
+            // currentTarget will be the container that the event listener was added to:
+            evt.currentTarget.x = evt.stageX;
+            evt.currentTarget.y = evt.stageY;
+            // make sure to redraw the stage to show the change:
+            createjs.Sound.play(thunder);
+            stage.update();
+        });
+
+        var line = new createjs.Shape();
+        //line.graphics.SetStrokeStyle(1).LineTo(50,50);
+        line.graphics.beginStroke('red').moveTo(5, 35).lineTo(410, 250).endStroke();
+        stage.addChild(line);
+
+        stage.update();
+
+
+        // TWEEN DEMO
+        // var stage2 = new createjs.Stage("demoCanvas2");
+        var circle2 = new createjs.Shape();
+        circle2.graphics.beginFill("Crimson").drawCircle(0, 0, 50);
+        circle2.x = 100;
+        circle2.y = 100;
+        stage.addChild(circle2);
+
+        createjs.Tween.get(circle2, {loop: true})
+                .to({x: 400}, 1000, createjs.Ease.getPowInOut(4))
+                .to({alpha: 0, y: 75}, 500, createjs.Ease.getPowInOut(2))
+                .to({alpha: 0, y: 125}, 100)
+                .to({alpha: 1, y: 100}, 500, createjs.Ease.getPowInOut(2))
+                .to({x: 100}, 800, createjs.Ease.getPowInOut(2));
+
+        // createjs.Ticker.setFPS(60);
+        createjs.Ticker.addEventListener("tick", stage);
+    }
+
+    function tick(event) {
+        circle.x = circle.x + 4;
+        if (circle.x > stage.canvas.width) { circle.x = 0; }
+
+        arm.rotation += 5;
+
+        target.alpha = 0.2;
+        var pt = arm.localToLocal(100,0,target);
+        if (target.hitTest(pt.x, pt.y)) { target.alpha = 1; }
+
+        // stage.update(event); // important!!
+
+    }
+
+</script>

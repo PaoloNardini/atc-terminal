@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Experiment 1</title>
+    <!-- <link href='http://fonts.googleapis.com/css?family=Courier' rel='stylesheet' type='text/css'> -->
+    <script src="http://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js"></script>
+    <script src="assets/createjs.min.js"></script>
+    <script src="assets/soundjs.min.js"></script>
+    <script src="assets/preloadjs.js"></script>
+    <script src="assets/jquery-2.2.3.min.js"></script>
+    <script src="assets/jquery.mousewheel.min.js"></script>
+    <script type="text/javascript">
+        /*
+        WebFont.load({
+            google: {
+                families: [ 'Courier']
+            },
+            loading: function() {
+                console.log("loading");
+            },
+            active: function () {
+                console.log('loaded');
+                init();
+            },
+            inactive: function() {
+                console.log("inactive")
+            }
+        });
+        */
+    </script>
+    <script src="config.js"></script>
+    <script src="formulas.js"></script>
+    <script src="geo.js"></script>
+    <script src="graphics.js"></script>
+    <script src="grid.js"></script>
+    <script src="strip.js"></script>
+    <script src="plane.js"></script>
+    <script src="navaid.js"></script>
+    <script src="fix.js"></script>
+    <script src="airport.js"></script>
+    <script src="runway.js"></script>
+    <script src="waypoint.js"></script>
+    <script src="track.js"></script>
+    <script src="step.js"></script>
+    <script src="route.js"></script>
+    <script src="videotrack.js"></script>
+    <script src="holding.js"></script>
+    <script src="consoleswitch.js"></script>
+    <script src="dataload.js"></script>
+    <script src="director.js"></script>
+    <script src="randomize.js"></script>
+    <script src="communications.js"></script>
+    <script src="communicationbar.js"></script>
+    <script src="clockbar.js"></script>
+    <script src="slot.js"></script>
+    <style>
+        #msg {
+            font-size:20px;
+        }
+        #talk {
+            font-size:20px;
+            width:100%;
+            margin: 3px;
+        }
+        #strip-arr, #strip-dep {
+            display:block;
+            width: 400px;
+            height: 400px;
+            /*overflow: scroll; */
+        }
+    </style>
+</head>
+<body>
+<div style="float:left; display:block;">
+    <canvas id="mainCanvas" width="900" height="768" style="float:left; display:block; height:100%;"></canvas>
+</div>
+<div id='stripColumn' style="float:right; display:block;">
+    <!-- <span id="scale" style="color:#000;"></span> -->
+    <!-- <span id="msg">...</span> -->
+    <input type="text" name="command" id="talk" value="" placeholder="enter radio message">
+    <div style="display:block;">
+        <canvas id="consoleCanvas" width="420" height="80"></canvas>
+    </div>
+    <div id="strip-arr">
+        <canvas id="arrStripsCanvas" width="420" height="400"></canvas>
+    </div>
+    <div id="strip-dep">
+        <canvas id="depStripsCanvas" width="420" height="400"></canvas>
+    </div>
+</div>
+</body>
+</html>
+<script>
+    var mainStage,arrStage, depStage, consoleStage;
+    var plane;
+    var planes = [];
+    // var strips = [];
+    var navaids = [];
+    // var waypoints = [];
+    var fixes = [];
+    var routes = [];
+    var ats_routes = [];
+    var ats_videotracks = [];
+    var airports = [];
+    var runways = [];
+    var runway_status = [];
+    var grid = [];
+    var console_switches = [];
+
+    // var nplanes = MAXPLANES;
+    var seconds = 0;
+
+    var suspend = false;
+    var currentX = 0;
+    var currentY = 0;
+    var mouseX = 0;
+    var mouseY = 0;
+
+    var currentScale = 1;
+
+    // var arrStrips = 0;
+    // var depStrips = 0;
+
+    var selectedPlane = -1;
+
+    var director = new Director();
+    var msgbar = new CommunicationBar();
+    var clockbar = new ClockBar();
+
+    var sceneryLoaded = false;
+    var masterPause = 0;
+    var masterTimer = 0;
+    var masterLastUpdate = 0;
+    var speedX2 = 0;
+
+    // Clock variables
+    var start_hours = new Date().getHours();
+    var start_minutes = new Date().getMinutes();
+    var start_seconds = 0; // new Date().getSeconds(); // MUST START AT ZERO TO AVOID TIME PROBLEMS
+    // start_minutes = 59;
+    // start_seconds = 00;
+    var hours = start_hours;
+    var minutes = start_minutes;
+    var seconds = start_seconds;
+    var clockStart = new Date().getTime();
+    var clockCurrent = clockStart;
+    var clockLast = clockStart;
+
+    // Parse url parameters
+    var parameters = getJsonFromUrl();
+
+    function init() {
+
+
+        // var thunder = "Thunder";
+        // createjs.Sound.registerSound("assets/InTheBottleBank01.mp3", thunder);
+
+        console.log('Init Called');
+
+        mainStage    = new createjs.Stage("mainCanvas");
+        arrStage     = new createjs.Stage("arrStripsCanvas");
+        depStage     = new createjs.Stage("depStripsCanvas");
+        consoleStage = new createjs.Stage("consoleCanvas");
+
+        // Main container
+        mainContainer = new createjs.Container();
+        mainContainer.id = 'mainContainer';
+
+        // Strip containers
+        arrStripsContainer = new createjs.Container();
+        arrStripsContainer.id = 'arrStripsContainer';
+        arrStripsContainer.y = STRIP_HEADER_HEIGHT;
+        depStripsContainer  = new createjs.Container();
+        depStripsContainer.id = 'depStripsContainer';
+        depStripsContainer.y = STRIP_HEADER_HEIGHT;
+
+        consoleContainer = new createjs.Container();
+        consoleContainer.id = 'consoleContainer';
+        consoleContainer.y = CONSOLE_HEIGHT;
+
+        // Draw canvas borders
+        var line = new createjs.Shape();
+        line.id = 'borderline';
+        line.graphics.beginFill("black").beginStroke('#00ff00').moveTo(0, 0).lineTo(2000, 0).lineTo(2000, 2000).lineTo(0, 2000).lineTo(0, 0).endStroke();
+        mainStage.addChild(line);
+
+        /*
+        var cross = new createjs.Shape();
+        cross.id = 'center-cross';
+        cross.graphics.beginFill("white").beginStroke('white').moveTo(510,384).lineTo(510,388).lineTo(514,388).lineTo(514,384).lineTo(510,384).endStroke();
+        mainContainer.addChild(cross);
+        */
+
+        var line2 = new createjs.Shape();
+        line2.id = 'arrStripBorder'
+        line2.graphics.beginFill("black").beginStroke('#00ff00').moveTo(0, 0).lineTo(STRIP_WIDTH + 20, 0).lineTo(STRIP_WIDTH + 20, (STRIP_HEIGHT + 10) * MAX_STRIPS).lineTo(0, (STRIP_HEIGHT + 10) * MAX_STRIPS).lineTo(0, 0).endStroke();
+        arrStripsContainer.addChild(line2);
+
+        var line3 = new createjs.Shape();
+        line3.id = 'depStripBorder'
+        line3.graphics.beginFill("black").beginStroke('#00ff00').moveTo(0, 0).lineTo(STRIP_WIDTH + 20, 0).lineTo(STRIP_WIDTH + 20, (STRIP_HEIGHT + 10) * MAX_STRIPS).lineTo(0, (STRIP_HEIGHT + 10) * MAX_STRIPS).lineTo(0, 0).endStroke();
+        depStripsContainer.addChild(line3);
+
+        var arrHeaderBox = new createjs.Shape();
+        arrHeaderBox.graphics.beginFill("black").setStrokeStyle(1).beginStroke('black').dr(0,0, STRIP_WIDTH + 20, STRIP_HEADER_HEIGHT);
+
+        var arrStripsLabel = new createjs.Text("ARRIVALS", "bold 24px Courier", HEADER_COLOR);
+        arrStripsLabel.x = (STRIP_WIDTH - 80)/ 2;
+        arrStripsLabel.y = 0;
+
+        var depHeaderBox = new createjs.Shape();
+        depHeaderBox.graphics.beginFill("black").setStrokeStyle(1).beginStroke('black').dr(0,0, STRIP_WIDTH + 20, STRIP_HEADER_HEIGHT );
+
+        var depStripsLabel = new createjs.Text("DEPARTURES", "bold 24px Courier", HEADER_COLOR);
+        depStripsLabel.x = (STRIP_WIDTH - 100)/ 2;
+        depStripsLabel.y = 0;
+
+        mainStage.addChild(mainContainer);
+        arrStage.addChild(arrStripsContainer, arrHeaderBox, arrStripsLabel);
+        depStage.addChild(depStripsContainer, depHeaderBox, depStripsLabel);
+
+        // Console Switches
+        var cs = 0;
+        console_switches[cs] = new ConsoleSwitch();
+        console_switches[cs].setLabel('NAV');
+        console_switches[cs].setName('NAV');
+        console_switches[cs].setLine(0);
+        console_switches[cs].setPos(0);
+        console_switches[cs].on();
+
+        cs++;
+        console_switches[cs] = new ConsoleSwitch();
+        console_switches[cs].setLabel('LBL');
+        console_switches[cs].setName('NAV-LBL');
+        console_switches[cs].setLine(1);
+        console_switches[cs].setPos(0);
+        console_switches[cs].on();
+
+        cs++;
+        console_switches[cs] = new ConsoleSwitch();
+        console_switches[cs].setLabel('FIX');
+        console_switches[cs].setName('FIX');
+        console_switches[cs].setLine(0);
+        console_switches[cs].setPos(1);
+        console_switches[cs].on();
+
+        cs++;
+        console_switches[cs] = new ConsoleSwitch();
+        console_switches[cs].setLabel('LBL');
+        console_switches[cs].setName('FIX-LBL');
+        console_switches[cs].setLine(1);
+        console_switches[cs].setPos(1);
+        console_switches[cs].on();
+
+        cs++;
+        console_switches[cs] = new ConsoleSwitch();
+        console_switches[cs].setLabel('WPT');
+        console_switches[cs].setName('WPT');
+        console_switches[cs].setLine(0);
+        console_switches[cs].setPos(2);
+        console_switches[cs].off();
+
+        cs++;
+        console_switches[cs] = new ConsoleSwitch();
+        console_switches[cs].setLabel('LBL');
+        console_switches[cs].setName('WPT-LBL');
+        console_switches[cs].setLine(1);
+        console_switches[cs].setPos(2);
+        console_switches[cs].off();
+
+        cs++;
+        console_switches[cs] = new ConsoleSwitch();
+        console_switches[cs].setLabel('RWY');
+        console_switches[cs].setName('RWY');
+        console_switches[cs].setLine(0);
+        console_switches[cs].setPos(3);
+        console_switches[cs].on();
+
+        cs++;
+        console_switches[cs] = new ConsoleSwitch();
+        console_switches[cs].setLabel('LBL');
+        console_switches[cs].setName('RWY-LBL');
+        console_switches[cs].setLine(1);
+        console_switches[cs].setPos(3);
+        console_switches[cs].on();
+
+        cs++;
+        console_switches[cs] = new ConsoleSwitch();
+        console_switches[cs].setLabel('CEN');
+        console_switches[cs].setName('CEN');
+        console_switches[cs].setLine(0);
+        console_switches[cs].setPos(4);
+        console_switches[cs].on();
+
+        cs++;
+        console_switches[cs] = new ConsoleSwitch();
+        console_switches[cs].setLabel('ATS');
+        console_switches[cs].setName('ATS');
+        console_switches[cs].setLine(0);
+        console_switches[cs].setPos(5);
+        console_switches[cs].off();
+
+        cs++;
+        console_switches[cs] = new ConsoleSwitch();
+        console_switches[cs].setLabel('LBL');
+        console_switches[cs].setName('ATS-LBL');
+        console_switches[cs].setLine(1);
+        console_switches[cs].setPos(5);
+        console_switches[cs].off();
+
+        cs++;
+        console_switches[cs] = new ConsoleSwitch();
+        console_switches[cs].setLabel('GRD');
+        console_switches[cs].setName('GRD');
+        console_switches[cs].setLine(0);
+        console_switches[cs].setPos(6);
+        console_switches[cs].on();
+
+        cs++;
+        console_switches[cs] = new ConsoleSwitch();
+        console_switches[cs].setLabel('[P]');
+        console_switches[cs].setName('PAUSE');
+        console_switches[cs].setLine(2);
+        console_switches[cs].setPos(0);
+        console_switches[cs].off();
+
+        cs++;
+        console_switches[cs] = new ConsoleSwitch();
+        console_switches[cs].setLabel('x2');
+        console_switches[cs].setName('X2');
+        console_switches[cs].setLine(2);
+        console_switches[cs].setPos(1);
+        console_switches[cs].off();
+
+        for (cs=0; cs < console_switches.length; cs++) {
+            consoleStage.addChild(console_switches[cs].gDraw);
+        }
+
+        resizePanels();
+        createGrid();
+
+        // createjs.Sound.alternateExtensions = ["mp3"];
+        createjs.Sound.on("fileload", function() {}, this);
+        createjs.Sound.registerSound("data/audio/numbers.wav", "numbers");
+        createjs.Sound.registerSound("data/audio/001.wav", "001");
+        createjs.Sound.registerSound("data/audio/004.wav", "004");
+        createjs.Sound.registerSound("data/audio/alphabet2.wav", "alpha");
+
+
+        mainStage.addChild(msgbar);
+        mainStage.addChild(clockbar);
+        msgbar.showMessage('WELCOME TO ATC-TMA');
+
+        randomize();
+
+
+        /*
+
+        for (p=0; p<nplanes; p++) {
+            planes[p] = new Plane();
+            planes[p].gLabel.text = planes[p].label;
+
+            // planes[p].gTail.graphics.beginStroke(PLANE_COLOR).moveTo(15, 15).lineTo(25, 25).endStroke();
+            planes[p].getTail();
+            mainContainer.addChild(planes[p].gDraw);
+
+            if (planes[p].arrival) {
+                arrStripsContainer.addChild(planes[p].gStrip);
+                planes[p].stripPosition = arrStrips++;
+            }
+            else
+            {
+                depStripsContainer.addChild(planes[p].gStrip);
+                planes[p].stripPosition = depStrips++;
+            }
+        }
+        */
+
+
+        // UPDATE VIEW
+        mainStage.update();
+        arrStage.update();
+        depStage.update();
+        consoleStage.update();
+
+        updateScale();
+
+        createjs.Ticker.on("tick", tick);
+        createjs.Ticker.framerate = 3;
+
+
+        /*
+        setTimeout(function(){
+            consoleSwitchClicked('WPT');
+        }, 3000);
+        */
+
+        line.on("pressmove",function(evt) {
+            // console.log('move X=' + evt.stageX + ' Y=' + evt.stageY);
+            // console.log('current X=' + currentX + ' Y=' + currentY);
+
+            if (evt.stageX < mouseX) {
+                mainContainer.regX = currentX - ((evt.stageX - mouseX) * currentScale);
+            } else {
+                mainContainer.regX = currentX + ((mouseX - evt.stageX) * currentScale);
+            }
+            if (evt.stageY < mouseY) {
+                mainContainer.regY = currentY - ((evt.stageY - mouseY) * currentScale);
+            } else {
+                mainContainer.regY = currentY + ((mouseY - evt.stageY) * currentScale);
+            }
+            updatePlanes(masterTimer);
+            mainStage.update();
+        });
+
+        line.on('mousedown', function(evt) {
+            mouseX = evt.stageX;
+            mouseY = evt.stageY;
+            currentX = mainContainer.regX;
+            currentY = mainContainer.regY;
+            // console.log('mousedown ' + mouseX + ' - ' + mouseY);
+            suspend = true;
+            var p = checkPlaneHit(mouseX, mouseY);
+            if (p != -1) {
+                selectedPlane = p;
+                // centerVideoOnPlane(planes[selectedPlane]);
+                planes[selectedPlane].showRoute();
+            }
+            var r = checkRunwayHit(mouseX, mouseY);
+            if (r != -1) {
+                // TODO
+            }
+        });
+
+        line.on('pressup', function(evt) {
+            // console.log('pressup');
+            if (selectedPlane != -1 && selectedPlane < planes.length) {
+                planes[selectedPlane].hideRoute();
+            }
+            suspend = false;
+        });
+
+        line2.on('mousedown', function(evt) {
+            console.log('mousedown arrivals');
+            mouseX = evt.stageX;
+            mouseY = evt.stageY;
+            var s = checkStripHit(mouseX, mouseY, arrStripsContainer);
+            if (s != -1) {
+                selectedPlane = s;
+                centerVideoOnPlane(planes[selectedPlane]);
+                planes[selectedPlane].showRoute();
+            }
+        });
+        line2.on('pressup', function(evt) {
+            if (selectedPlane != -1) {
+                planes[selectedPlane].hideRoute();
+                planes[selectedPlane].updateStripMode();
+            }
+            suspend = false;
+        });
+
+        line3.on('mousedown', function(evt) {
+            console.log('mousedown departures');
+            mouseX = evt.stageX;
+            mouseY = evt.stageY;
+            var s = checkStripHit(mouseX, mouseY, depStripsContainer);
+            if (s != -1) {
+                selectedPlane = s;
+                centerVideoOnPlane(planes[selectedPlane]);
+                planes[selectedPlane].showRoute();
+            }
+        });
+        line3.on('pressup', function(evt) {
+            // console.log('pressup');
+            if (selectedPlane != -1) {
+                planes[selectedPlane].hideRoute();
+                planes[selectedPlane].updateStripMode();
+            }
+            suspend = false;
+        });
+
+
+        $('#mainCanvas').on('mousewheel', function( event ) {
+            // console.log('mousewheel',event.deltaX, event.deltaY, event.deltaFactor);
+            var scale = (1 / mainContainer.scaleX);
+            if (scale < 10 || event.deltaY > 0) {
+                mainContainer.scaleX = mainContainer.scaleX + (event.deltaY / 20);
+                mainContainer.scaleY = mainContainer.scaleY + (event.deltaY / 20);
+                // scale = (1 / mainContainer.scaleX);
+                updateScale();
+            }
+// console.log('SCALE = ' + scale);
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        });
+
+        $('#arrStripsCanvas').on('mousewheel', function( event ) {
+            // console.log('mousewheel',arrStripsContainer.regY, event.deltaX, event.deltaY, event.deltaFactor);
+            arrStripsContainer.regY = arrStripsContainer.regY - (event.deltaY * (STRIP_HEIGHT + 4));
+            if (arrStripsContainer.regY <= 0) {
+                arrStripsContainer.regY = 0;
+            }
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            updateStrips();
+        });
+
+        $('#depStripsCanvas').on('mousewheel', function( event ) {
+            // console.log('mousewheel',arrStripsContainer.regY, event.deltaX, event.deltaY, event.deltaFactor);
+            depStripsContainer.regY = depStripsContainer.regY - (event.deltaY * (STRIP_HEIGHT + 4));
+            if (depStripsContainer.regY <= 0) {
+                depStripsContainer.regY = 0;
+            }
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            updateStrips();
+        });
+
+        $( window ).resize(function() {
+            resizePanels();
+        });
+
+        $('#talk').on('keydown', function(e) {
+            // console.log(e.keyCode);
+            if (e.keyCode == 13) {
+                // End of Command
+                // var command = e.currentTarget.value;
+                // console.log(command);
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                parseCommand(e.currentTarget.value);
+            }
+            if (e.keyCode == 9) {
+                // Find plane ID
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                var planeID = findPlaneID(e.currentTarget.value);
+                console.log('found ' + planeID);
+                if (planeID != -1) {
+                    e.currentTarget.value = planes[planeID].callsign + ' ';
+                }
+            }
+        });
+    }
+
+    function tick(event) {
+        if (speedX2 == 1) {
+            masterTimer = new Date().getTime() / 500;
+        }
+        else {
+            masterTimer = new Date().getTime() / 1000;
+        }
+        updateClock();
+        if (masterPause == 0) {
+            updatePlanes(masterTimer);
+            updateStrips();
+            consoleStage.update();
+            mainStage.update();
+            if (TEST_MODE == 0) {
+                if (DEPARTURES_ENABLED == 1) {
+                    director.scheduleDepartures();
+                }
+                if (ARRIVALS_ENABLED == 1) {
+                    director.scheduleArrivals();
+                }
+                director.handleSlots();
+            }
+        }
+        else {
+            masterLastUpdate = masterTimer;
+            updatePlanesTimer(masterTimer)
+        }
+    }
+
+    function updatePlanes(masterTimer) {
+        elapsed = masterTimer - masterLastUpdate;
+        if (elapsed < 0 || elapsed > PLANE_REFRESH_SECONDS) {
+            masterLastUpdate = masterTimer;
+            for (p = 0; p < planes.length; p++) {
+                planes[p].move(masterTimer);
+                planes[p].getTail();
+                planes[p].getDisplayData(currentScale);
+            }
+        }
+    }
+
+    function updatePlanesTimer(newTimer) {
+        for (p=0; p<planes.length; p++) {
+            planes[p].updateTimer(newTimer);
+        }
+    }
+
+    function updateStrips() {
+        for (p=0; p<planes.length; p++) {
+            planes[p].updateStrip();
+            /*
+            planes[p].gStrip.x = 10;
+            planes[p].gStrip.y = (planes[p].getStripPosition() * (STRIP_HEIGHT + 4));
+            planes[p].updateStrip();
+            */
+        }
+        arrStage.update();
+        depStage.update();
+    }
+
+    function updateScale() {
+        var scale = (1 / mainContainer.scaleX);
+        var m = 1;
+        if (scale < currentScale) {
+            mainContainer.regX = mainContainer.regX + (scale * m);
+            mainContainer.regY = mainContainer.regY + (scale * m);
+        }
+        else {
+            mainContainer.regX = mainContainer.regX - (scale * m);
+            mainContainer.regY = mainContainer.regY - (scale * m);
+        }
+        currentScale = scale;
+        // DEBUG
+        // $('#scale').html( Math.round(mainContainer.scaleX * 100) + ' - ' + currentScale); //  + ' / ' + mainContainer.regX + ' - ' + mainContainer.regY);
+
+        updateWaypoints();
+        updateNavaids();
+        updateRoutes();
+        mainStage.update();
+    }
+
+    function resizePanels() {
+        console.log($( window ).height(), $( window ).width());
+        $('#mainCanvas').attr('height',$( window ).height()-20).attr('width',$( window ).width() - (STRIP_WIDTH + 40));
+        SCREEN_CENTER_Y = $( window ).height() / 2;
+        SCREEN_CENTER_X = $( window ).width() / 2 - STRIP_WIDTH;
+        $('#stripColumn').css('width',STRIP_WIDTH + 20);
+        $('#arrStripsCanvas').attr('height',($( window ).height() / 2) - 10).attr('width',STRIP_WIDTH + 20);
+        $('#depStripsCanvas').attr('height',($( window ).height() / 2) - 10).attr('width',STRIP_WIDTH + 20);
+
+        msgbar.setX(105);
+        msgbar.setWidth($( window ).width() - STRIP_WIDTH - 200);
+
+    }
+
+    function updateNavaids() {
+        for (n=0; n < navaids.length; n++) {
+            // navaids[n].getDisplayData(currentScale);
+            navaids[n].setScale(currentScale);
+        }
+    }
+
+    function updateRoutes() {
+        for (r=0; r < ats_routes.length; r++) {
+            ats_routes[r].setScale(currentScale);
+        }
+    }
+
+
+    function findPlaneID(value) {
+        console.log('findPlaneID: ' + value);
+        var c;
+        for (p=0; p < planes.length; p++) {
+            c = planes[p].callsign;
+            if (c == value) {
+                return p;
+            }
+            if (c.substring(0, value.length) == value) {
+                return p;
+            }
+        }
+        return -1;
+    }
+
+    function findFixID(value) {
+        var c;
+        value = value.toUpperCase();
+        for (f=0; f < fixes.length; f++) {
+            c = fixes[f].label;
+            if (c == value) {
+                return f;
+            }
+            /*
+            if (c.substring(0, value.length) == value) {
+                return f;
+            }
+            */
+        }
+        return -1;
+    }
+
+    function findFixById(identifier) {
+        var o_wp = findWaypoint(identifier);
+        if (o_wp == undefined) {
+            var o_navaid = findNavaid(identifier);
+            if (o_navaid == undefined) {
+                var o_runway = findRunway('',identifier);
+                if (o_runway == undefined) {
+                    return undefined;
+                }
+                return o_runway;
+            }
+            return o_navaid;
+        }
+        return o_wp;
+    }
+
+    function findNavaid(identifier, latitude, longitude) {
+        for (n=0; n < navaids.length; n++) {
+            if (identifier.toUpperCase() == navaids[n].label) {
+                if (latitude != undefined && longitude != undefined) {
+                    if (latitude == navaids[n].latitude && longitude == navaids[n].longitude) {
+                        return navaids[n];
+                    }
+                }
+                else {
+                    return navaids[n];
+                }
+            }
+        }
+        return undefined;
+    }
+
+
+    function findAirport(icao) {
+        for (var a=0; a<airports.length; a++) {
+            if (airports[a].icao == icao) {
+                return airports[a];
+            }
+        }
+        return undefined;
+    }
+
+    function findRunway(icao, identifier) {
+        for (var r=0; r<runways.length; r++) {
+            if ((icao == '' || runways[r].icao == icao) && runways[r].label1 == identifier || ('RW' + runways[r].label1) == identifier ) {
+                return runways[r];
+            }
+        }
+        return undefined;
+    }
+
+    function checkPlaneHit(mouseX, mouseY) {
+        for(var p=0; p<planes.length; p++) {
+            var x = mainContainer.scaleX * (planes[p].x - mainContainer.regX);
+            var y = mainContainer.scaleY * (planes[p].y - mainContainer.regY);
+            // console.log('hit plane ' + p + ' = ' + Math.abs(mouseX - x) + ' - ' + Math.abs(mouseY - y));
+            if (Math.abs(mouseX - x) < 50 && Math.abs(mouseY - y) < 50) {
+                console.log('Hit plane ' + p + '(' + planes[p].callsign);
+                return p;
+            }
+        }
+        return -1;
+    }
+
+    function checkRunwayHit(mouseX, mouseY) {
+        for (var r = 0; r < runways.length; r++) {
+            var x = mainContainer.scaleX * (runways[r].x - mainContainer.regX);
+            var y = mainContainer.scaleY * (runways[r].y - mainContainer.regY);
+            if (Math.abs(mouseX - x) < 5 && Math.abs(mouseY - y) < 5) {
+                console.log('Hit runway ' + r + '(' + runways[r].label1);
+                return r;
+            }
+        }
+        return -1;
+    }
+
+
+    function consoleSwitchClicked(name) {
+        console.log('clicked ' + name);
+        for(var cs=0; cs<console_switches.length; cs++) {
+            if (console_switches[cs].name == name) {
+                var isOn = console_switches[cs].isOn();
+                if (isOn) {
+                    console_switches[cs].off();
+                    isOn = 0;
+                }
+                else {
+                    console_switches[cs].on();
+                    isOn = 1;
+                }
+                switch (name) {
+                    case 'NAV':
+                        showNav(isOn);
+                        if (isOn != isConsoleSwitchOn('NAV-LBL')) {
+                            consoleSwitchClicked('NAV-LBL');
+                        }
+                        break;
+                    case 'NAV-LBL':
+                        showNavLabels(isOn);
+                        break;
+                    case 'FIX':
+                        showFix(isOn);
+                        if (isOn != isConsoleSwitchOn('FIX-LBL')) {
+                            consoleSwitchClicked('FIX-LBL');
+                        }
+                        break;
+                    case 'FIX-LBL':
+                        showFixLabels(isOn);
+                        break;
+                    case 'WPT':
+                        showWaypoints(isOn);
+                        if (isOn != isConsoleSwitchOn('WPT-LBL')) {
+                            consoleSwitchClicked('WPT-LBL');
+                        }
+                        break;
+                    case 'WPT-LBL':
+                        showWaypointsLabels(isOn);
+                        break;
+                    case 'RWY':
+                        showRunways(isOn);
+                        break;
+                    case 'RWY-LBL':
+                        showRunwaysLabels(isOn);
+                        if (isOn != isConsoleSwitchOn('RWY-LBL')) {
+                            consoleSwitchClicked('RWY-LBL');
+                        }
+                        break;
+                    case 'CEN':
+                        showCenterlines(isOn);
+                        break;
+                    case 'ATS':
+                        showAts(isOn);
+                        if (isOn != isConsoleSwitchOn('ATS-LBL')) {
+                            consoleSwitchClicked('ATS-LBL');
+                        }
+                        break;
+                    case 'ATS-LBL':
+                        showAtsLabels(isOn);
+                        break;
+                    case 'GRD':
+                        showGrid(isOn);
+                        break;
+                    case 'PAUSE':
+                        pauseSimulation(isOn);
+                        break;
+                    case 'X2':
+                        speedX2Simulation(isOn);
+                        break;
+                }
+                consoleStage.update();
+                break;
+            }
+        }
+    }
+
+    function isConsoleSwitchOn(name) {
+        for(var cs=0; cs<console_switches.length; cs++) {
+            if (console_switches[cs].name == name) {
+                return console_switches[cs].isOn();
+            }
+        }
+        return false;
+    }
+
+    function centerVideoOnPlane(o_plane) {
+        if (o_plane != undefined) {
+            if (o_plane.latitude != 0 && o_plane.longitude != 0) {
+                mainContainer.regX = o_plane.x - (SCREEN_CENTER_X / mainContainer.scaleX);
+                mainContainer.regY = o_plane.y - (SCREEN_CENTER_Y / mainContainer.scaleY);
+            }
+        }
+    }
+
+
+    function showNav(onoff) {
+        for (var n=0; n < navaids.length; n++) {
+            navaids[n].show(onoff);
+        }
+    }
+    function showNavLabels(onoff) {
+        for (var n = 0; n < navaids.length; n++) {
+            navaids[n].showLabel(onoff);
+        }
+    }
+    function showFix(onoff) {
+        for (var n=0; n < fixes.length; n++) {
+            fixes[n].show(onoff);
+        }
+        for (n=0; n < waypoints.length; n++) {
+            if (waypoints[n].type == 'FIX') {
+                waypoints[n].show(onoff);
+            }
+        }
+    }
+    function showFixLabels(onoff) {
+        for (var n=0; n < fixes.length; n++) {
+            fixes[n].showLabel(onoff);
+        }
+        for (n=0; n < waypoints.length; n++) {
+            if (waypoints[n].type == 'FIX') {
+                waypoints[n].showLabel(onoff);
+            }
+        }
+    }
+    function showWaypoints(onoff) {
+        for (var n=0; n < waypoints.length; n++) {
+            if (waypoints[n].type == 'WP') {
+                waypoints[n].show(onoff);
+            }
+        }
+    }
+    function showWaypointsLabels(onoff) {
+        for (n=0; n < waypoints.length; n++) {
+            if (waypoints[n].type == 'WP') {
+                waypoints[n].showLabel(onoff);
+            }
+        }
+    }
+    function showAts(onoff) {
+        if (onoff) {
+            for (var a=0; a<ats_routes.length; a++) {
+                var o_route = ats_routes[a];
+                var steps = o_route.getLegs();
+                for (var s = 0; s < (steps.length - 1); s++) {
+                    var v = ats_videotracks.length;
+                    ats_videotracks[v] = new VideoTrack();
+                    ats_videotracks[v].type = 'ATS';
+                    ats_videotracks[v].from_latitude = steps[s].latitude;
+                    ats_videotracks[v].from_longitude = steps[s].longitude;
+                    ats_videotracks[v].to_latitude = steps[s + 1].latitude;
+                    ats_videotracks[v].to_longitude = steps[s + 1].longitude;
+                    ats_videotracks[v].setScreenPosition();
+                    mainContainer.addChildAt(ats_videotracks[v].gDraw,v);
+                }
+                o_route.setScreenPosition(currentScale);
+                mainContainer.addChildAt(o_route,0);
+            }
+        }
+        else {
+            for (var v=0; v<ats_videotracks.length; v++) {
+                mainContainer.removeChild(ats_videotracks[v].gDraw);
+            }
+            ats_videotracks = [];
+            for (var a=0; a<ats_routes.length; a++) {
+                mainContainer.removeChild(ats_routes[a]);
+            }
+        }
+    }
+    function showAtsLabels(onoff) {
+        for (var a=0; a<ats_routes.length; a++) {
+            var o_route = ats_routes[a];
+            o_route.showLabels(onoff);
+        }
+    }
+    function showRunways(onoff) {
+        for (var n=0; n < runways.length; n++) {
+            runways[n].showRunway(onoff);
+        }
+    }
+    function showRunwaysLabels(onoff) {
+        for (var n=0; n < runways.length; n++) {
+            runways[n].showLabels(onoff);
+        }
+    }
+    function showCenterlines(onoff) {
+        for (var n=0; n < runways.length; n++) {
+            runways[n].showCenterline(onoff);
+        }
+    }
+    function showLabels(onoff) {
+        for (var n=0; n < navaids.length; n++) {
+            navaids[n].showLabel(onoff);
+        }
+        for (var n=0; n < fixes.length; n++) {
+            fixes[n].showLabel(onoff);
+        }
+        for (n=0; n < waypoints.length; n++) {
+            waypoints[n].showLabel(onoff);
+        }
+    }
+    function showGrid(onoff) {
+        for (var n=0; n < grid.length; n++) {
+            grid[n].show(onoff);
+        }
+    }
+
+    function pauseSimulation(onOff) {
+        masterPause = onOff;
+    }
+
+    function speedX2Simulation(onOff) {
+        speedX2 = onOff;
+        if (speedX2 == 0) {
+            masterTimer = new Date().getTime() / 1000;
+            masterLastUpdate = masterTimer;
+        }
+        else {
+            masterTimer = new Date().getTime() / 500;
+            masterLastUpdate = masterTimer;
+        }
+        updatePlanesTimer(masterTimer);
+    }
+
+    function updateClock() {
+        var elapsed;
+        clockCurrent = new Date().getTime();
+        if (masterPause == 1) {
+            // Paused!
+            clockStart = clockStart + (clockCurrent - clockLast);
+        }
+        if (speedX2 == 1) {
+            // Double speed!
+            elapsed = clockCurrent - clockLast;
+            clockStart = clockStart - (elapsed);
+        }
+        elapsed = (clockCurrent - clockStart) / 1000;
+        if (elapsed >= 1 ) {
+            seconds = (start_seconds + Math.floor(elapsed)) % 60;
+            minutes = (start_minutes + Math.floor(elapsed / 60)) % 60;
+            hours = (start_hours + Math.floor(elapsed / 3600)) % 24;
+            clockbar.updateTime(hours, minutes, seconds);
+        }
+        clockLast = clockCurrent;
+    }
+
+    function clockFormat(h,m,s) {
+        var hh = '0' + h;
+        hh = hh.substr(-2);
+        var mm = '0' + m;
+        mm = mm.substr(-2);
+        if (s != undefined) {
+            var ss = '0' + s;
+            ss = ss.substr(-2);
+            return hh + ':' + mm + ':' + ss;
+        }
+        return hh + ':' + mm;
+    }
+
+    function getJsonFromUrl() {
+        var query = location.search.substr(1);
+        var result = {};
+        query.split("&").forEach(function(part) {
+            var item = part.split("=");
+            result[item[0]] = decodeURIComponent(item[1]);
+        });
+        return result;
+    }
+
+    $(document).on('ready',function() {
+        console.log('ready');
+        init();
+        resizePanels();
+    })
+</script>

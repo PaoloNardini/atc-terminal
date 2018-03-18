@@ -1,0 +1,11 @@
+.git
+.idea
+old/
+sources/
+docs/
+master/
+data/1712-FULL
+data/audio/test
+assets/src
+*.zip
+*.7z
