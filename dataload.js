@@ -216,7 +216,7 @@ function loadNavaids() {
             for (f = 0; f < navaids.length; f++) {
                 if (navaids[f].visible == true) {
                     navaids[f].setScreenPosition();
-                    mainContainer.addChild(navaids[f].gDraw);
+                    mainContainer.addChild(navaids[f]);
                 }
             }
             resolve(true);
@@ -240,7 +240,7 @@ function loadWaypoints() {
                     if (latitude >= MIN_LATITUDE && latitude <= MAX_LATITUDE && longitude >= MIN_LONGITUDE && longitude <= MAX_LONGITUDE) {
                         // Waypoint is between scenery coordinates
                         o_wp = addWaypoint(words[0], '', latitude, longitude);
-                        mainContainer.addChild(o_wp.gDraw);
+                        mainContainer.addChild(o_wp);
                     }
                 }
             }
@@ -466,9 +466,9 @@ function loadProcedures(icao) {
                         if (fix_type == 'IF') {
                             if (findWaypoint(fix_label) == undefined) {
                                 // Show fix only if it's not also a waypoint
-                                fixes[f].visible = true;
+                                fixes[f].show(true, false);
                                 fixes[f].setScreenPosition();
-                                mainContainer.addChild(fixes[f].gDraw);
+                                mainContainer.addChild(fixes[f]);
                             }
                         }
                     }
@@ -760,7 +760,7 @@ function loadATS() {
                             }
                             if (o_fix == undefined || (Math.abs(o_fix.latitude - o_step.latitude) > 0.05)) {
                                 o_wp = addWaypoint(o_step.identifier, '', o_step.latitude, o_step.longitude);
-                                mainContainer.addChild(o_wp.gDraw);
+                                mainContainer.addChild(o_wp);
                             }
                         }
                     }

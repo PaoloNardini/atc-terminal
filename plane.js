@@ -1519,6 +1519,9 @@ Plane.prototype.assignRouteByWaypoints = function(a_wp) {
 }
 */
 
+/**
+ * Show the assigned plane route on the screen
+ */
 Plane.prototype.showRoute = function() {
     if (this.steps.length > 0 && this.current_step != -1) {
         var v = 0;
@@ -1536,6 +1539,17 @@ Plane.prototype.showRoute = function() {
         this.o_strip.setMode(STRIP_SELECTED);
         for (var w = 0; w < (this.steps.length); w++) {
             var o_step = this.steps[w];
+            if (o_step.identifier != undefined) {
+                // Display step fix with label
+                var o_fix = findFixById(o_step.identifier);
+                if (o_fix != undefined) {
+                    if (!o_fix.visible) {
+                        // Show fix with label as temporary
+                        o_fix.show(true, true);
+                        o_fix.showLabel(true, true);
+                    }
+                }
+            }
             if (o_step.latitude != 0 && o_step.longitude !=0) {
                 if (!valid) {
                     this.videotracks[v] = new VideoTrack();
@@ -1564,6 +1578,18 @@ Plane.prototype.hideRoute = function() {
         mainContainer.removeChild(this.videotracks[v].gDraw);
     }
     this.videotracks = [];
+    for (var w = 0; w < (this.steps.length); w++) {
+        var o_step = this.steps[w];
+        if (o_step.identifier != undefined) {
+            // Hide fix with temporary visibility selected
+            var o_fix = findFixById(o_step.identifier);
+            if (o_fix != undefined) {
+                // Hide fix only if visibility is temporary
+                o_fix.show(false, true);
+                o_fix.showLabel(false, true);
+            }
+        }
+    }
     this.updateStripMode();
 }
 

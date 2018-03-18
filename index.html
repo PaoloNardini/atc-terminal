@@ -6,7 +6,7 @@
     <script src="http://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js"></script>
     <script src="assets/createjs.min.js"></script>
     <script src="assets/soundjs.min.js"></script>
-    <script src="assets/preloadjs.js"></script>
+    <script src="assets/preloadjs.min.js"></script>
     <script src="assets/jquery-2.2.3.min.js"></script>
     <script src="assets/jquery.mousewheel.min.js"></script>
     <script type="text/javascript">
@@ -37,9 +37,9 @@
     <script src="plane.js"></script>
     <script src="navaid.js"></script>
     <script src="fix.js"></script>
+    <script src="waypoint.js"></script>
     <script src="airport.js"></script>
     <script src="runway.js"></script>
-    <script src="waypoint.js"></script>
     <script src="track.js"></script>
     <script src="step.js"></script>
     <script src="route.js"></script>
@@ -340,6 +340,7 @@
         createGrid();
 
         // createjs.Sound.alternateExtensions = ["mp3"];
+        // Load test sounds
         createjs.Sound.on("fileload", function() {}, this);
         createjs.Sound.registerSound("data/audio/numbers.wav", "numbers");
         createjs.Sound.registerSound("data/audio/001.wav", "001");
@@ -349,33 +350,10 @@
 
         mainStage.addChild(msgbar);
         mainStage.addChild(clockbar);
-        msgbar.showMessage('WELCOME TO ATC-TMA');
+        msgbar.showMessage('WELCOME TO ATC-TERMINAL');
 
+        // Randomize all parameters to create an initial situation
         randomize();
-
-
-        /*
-
-        for (p=0; p<nplanes; p++) {
-            planes[p] = new Plane();
-            planes[p].gLabel.text = planes[p].label;
-
-            // planes[p].gTail.graphics.beginStroke(PLANE_COLOR).moveTo(15, 15).lineTo(25, 25).endStroke();
-            planes[p].getTail();
-            mainContainer.addChild(planes[p].gDraw);
-
-            if (planes[p].arrival) {
-                arrStripsContainer.addChild(planes[p].gStrip);
-                planes[p].stripPosition = arrStrips++;
-            }
-            else
-            {
-                depStripsContainer.addChild(planes[p].gStrip);
-                planes[p].stripPosition = depStrips++;
-            }
-        }
-        */
-
 
         // UPDATE VIEW
         mainStage.update();
@@ -387,13 +365,6 @@
 
         createjs.Ticker.on("tick", tick);
         createjs.Ticker.framerate = 3;
-
-
-        /*
-        setTimeout(function(){
-            consoleSwitchClicked('WPT');
-        }, 3000);
-        */
 
         line.on("pressmove",function(evt) {
             // console.log('move X=' + evt.stageX + ' Y=' + evt.stageY);
@@ -593,11 +564,6 @@
     function updateStrips() {
         for (p=0; p<planes.length; p++) {
             planes[p].updateStrip();
-            /*
-            planes[p].gStrip.x = 10;
-            planes[p].gStrip.y = (planes[p].getStripPosition() * (STRIP_HEIGHT + 4));
-            planes[p].updateStrip();
-            */
         }
         arrStage.update();
         depStage.update();
@@ -640,7 +606,6 @@
 
     function updateNavaids() {
         for (n=0; n < navaids.length; n++) {
-            // navaids[n].getDisplayData(currentScale);
             navaids[n].setScale(currentScale);
         }
     }
@@ -675,11 +640,6 @@
             if (c == value) {
                 return f;
             }
-            /*
-            if (c.substring(0, value.length) == value) {
-                return f;
-            }
-            */
         }
         return -1;
     }

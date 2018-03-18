@@ -72,6 +72,7 @@ function Runway() {
     this.addChild(this.cRunway, this.cCenterline);
 
     this.on("click", function(event) {
+        // TEST ONLY
         alert('Runway Clicked:' + event.currentTarget.name + ' - ' + this.label1);
     })
 }
@@ -81,12 +82,10 @@ createjs.promote(Runway, "Container");
 
 Runway.prototype.setX = function ( x ) {
     this.x = x;
-    // this.gDraw.x = x;
 }
 
 Runway.prototype.setY = function ( y ) {
     this.y = y;
-    // this.gDraw.y = y;
 }
 
 Runway.prototype.setScreenPosition = function() {

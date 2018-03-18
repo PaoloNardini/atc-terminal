@@ -1,6 +1,8 @@
 /* The navaid object, representing a radio navigation aid */
 function Navaid() {
 
+    this.Container_constructor();
+
     // General fix data
     this.name = '';         // Fix name
     this.label = '';        // Label on the screen
@@ -23,24 +25,24 @@ function Navaid() {
     this.zoom_max = 9999;   // Max. visible zoom
 
     // Graphic object
-    this.gDraw = new createjs.Container();
     this.gLabel = new createjs.Text("", "normal 12px Courier", FIX_TEXT_COLOR);
     this.gLabel.x = 5 +(Math.random() * 30);
     this.gLabel.y = (Math.random() * -30);
     this.gLabel.lineHeight = 12;
 
     this.gBox = new createjs.Shape();
-    this.gDraw.addChild(this.gBox, this.gLabel);
+    this.addChild(this.gBox, this.gLabel);
 }
+createjs.extend(Navaid, createjs.Container);
+createjs.promote(Navaid, "Container");
+
 
 Navaid.prototype.setX = function ( x ) {
     this.x = x;
-    this.gDraw.x = x;
 }
 
 Navaid.prototype.setY = function ( y ) {
     this.y = y;
-    this.gDraw.y = y;
 }
 
 Navaid.prototype.setScale = function( scale ) {
@@ -67,11 +69,54 @@ Navaid.prototype.setScreenPosition = function() {
     this.setX(coords.x);
 }
 
-Navaid.prototype.show = function(visible) {
-    this.visible = visible;
-    this.gDraw.visible = visible;
+Navaid.prototype.show = function(visible, isTemporary) {
+    if (isTemporary == undefined) {
+        isTemporary = false;
+    }
+    if (visible) {
+        // Show fix
+        if (this.visible && !this.visibleTemp) {
+            // Fix always displayed
+            return;
+        }
+        if (!this.visible) {
+            this.visible = visible;
+            this.visibleTemp = isTemporary;
+        }
+    }
+    else {
+        // Hide fix
+        if (this.visible && ((isTemporary && this.visibleTemp) || !isTemporary)) {
+            // Hide temporary
+            this.visible = visible;
+            this.visibleTemp = false;
+        }
+    }
 }
 
-Navaid.prototype.showLabel = function(visible) {
-    this.gLabel.visible = visible;
+Navaid.prototype.showLabel = function(visible, isTemporary) {
+    if (isTemporary == undefined) {
+        isTemporary = false;
+    }
+    if (visible) {
+        // Show fix label
+        if (this.labelVisible && !this.labelVisibleTemp) {
+            // Fix label is always visible
+            return;
+        }
+        if (!this.labelVisible) {
+            this.labelVisible = false;
+            this.labelVisibleTemp = isTemporary;
+            this.gLabel.visible = false;
+        }
+    }
+    else {
+        // Hide fix label
+        if (this.labelVisible && ((isTemporary && this.labelVisibleTemp) || !isTemporary)) {
+            this.labelVisible = false;
+            this.labelVisibleTemp = false;
+            this.gLabel.visible = false;
+        }
+
+    }
 }

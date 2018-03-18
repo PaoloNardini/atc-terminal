@@ -1,8 +1,9 @@
 var waypoints = [];
 var waypointsById = [];
 
-
 function Waypoint() {
+
+    this.Container_constructor();
 
     // Identification
     this.type = 'FIX';
@@ -11,10 +12,11 @@ function Waypoint() {
     this.longitude = 0;
     this.fix = -1;
     this.visible = true;
+    this.labelVisible = true;
+    this.visibleTemp = false;
+    this.labelVisibleTemp = false;
 
     // Graphic objects
-    // Graphic object
-    this.gDraw = new createjs.Container();
     this.gLabel = new createjs.Text("", "normal 10px Courier", FIX_TEXT_COLOR);
     this.gLabel.x = (Math.random() * 30);
     this.gLabel.y = (Math.random() * -30);
@@ -22,8 +24,10 @@ function Waypoint() {
 
     this.gBox = new createjs.Shape();
     this.gBox.graphics.setStrokeStyle(1).beginStroke(FIX_BODY_COLOR).moveTo(-4,4).lineTo(0,-4).lineTo(4,4).lineTo(-4,4).endStroke();
-    this.gDraw.addChild(this.gBox, this.gLabel);
+    this.addChild(this.gBox, this.gLabel);
 }
+createjs.extend(Waypoint, createjs.Container);
+createjs.promote(Waypoint, "Container");
 
 Waypoint.prototype.getDisplayData = function( scale ) {
     scale = scale + 0.4;
@@ -39,12 +43,10 @@ Waypoint.prototype.getDisplayData = function( scale ) {
 
 Waypoint.prototype.setX = function ( x ) {
     this.x = x;
-    this.gDraw.x = x;
 }
 
 Waypoint.prototype.setY = function ( y ) {
     this.y = y;
-    this.gDraw.y = y;
 }
 
 Waypoint.prototype.setFix = function (f) {
@@ -78,13 +80,56 @@ Waypoint.prototype.setLabel = function(label) {
     this.type = 'FIX';
 }
 
-Waypoint.prototype.show = function(visible) {
-    this.visible = visible;
-    this.gDraw.visible = visible;
+Waypoint.prototype.show = function(visible, isTemporary) {
+    if (isTemporary == undefined) {
+        isTemporary = false;
+    }
+    if (visible) {
+        // Show fix
+        if (this.visible && !this.visibleTemp) {
+            // Fix always displayed
+            return;
+        }
+        if (!this.visible) {
+            this.visible = visible;
+            this.visibleTemp = isTemporary;
+        }
+    }
+    else {
+        // Hide fix
+        if (this.visible && ((isTemporary && this.visibleTemp) || !isTemporary)) {
+            // Hide temporary
+            this.visible = visible;
+            this.visibleTemp = false;
+        }
+    }
 }
 
-Waypoint.prototype.showLabel = function(visible) {
-    this.gLabel.visible = visible;
+Waypoint.prototype.showLabel = function(visible, isTemporary) {
+    if (isTemporary == undefined) {
+        isTemporary = false;
+    }
+    if (visible) {
+        // Show fix label
+        if (this.labelVisible && !this.labelVisibleTemp) {
+            // Fix label is always visible
+            return;
+        }
+        if (!this.labelVisible) {
+            this.labelVisible = false;
+            this.labelVisibleTemp = isTemporary;
+            this.gLabel.visible = false;
+        }
+    }
+    else {
+        // Hide fix label
+        if (this.labelVisible && ((isTemporary && this.labelVisibleTemp) || !isTemporary)) {
+            this.labelVisible = false;
+            this.labelVisibleTemp = false;
+            this.gLabel.visible = false;
+        }
+
+    }
 }
 
 function addWaypoint(name, label, latitude, longitude) {
@@ -96,7 +141,7 @@ function addWaypoint(name, label, latitude, longitude) {
     o_wp.longitude = longitude;
     o_wp.setScreenPosition(1);
     if (o_wp.type == 'FIX') {
-        o_wp.show(true);
+        o_wp.show(true, false);
     }
     else {
         o_wp.show(false);
@@ -140,3 +185,4 @@ function findWaypoint(identifier, latitude, longitude) {
     */
     return undefined;
 }
+

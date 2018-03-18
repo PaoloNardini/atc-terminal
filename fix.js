@@ -1,6 +1,8 @@
 /* The fix object, representing a navigation point */
 function Fix() {
 
+    this.Container_constructor();
+
     // General fix data
     this.name = '';         // Fix name
     this.label = '';        // Label on the screen
@@ -11,7 +13,10 @@ function Fix() {
     this.min_speed = -1;     // Minimum speed
     this.max_speed = -1;     // Maximum speed
     this.freq = '';          // Navaid frequency
-    this.visible = true;    // Default visibility
+    this.visible = true;
+    this.labelVisible = true;
+    this.visibleTemp = false;
+    this.labelVisibleTemp = false;
 
     // Fix position
     this.latitude = 0;
@@ -23,7 +28,6 @@ function Fix() {
     this.zoom_max = 9999;   // Max. visible zoom
 
     // Graphic object
-    this.gDraw = new createjs.Container();
     this.gLabel = new createjs.Text("", "normal 8px Courier", FIX_TEXT_COLOR);
     this.gLabel.x = (Math.random() * 30);
     this.gLabel.y = (Math.random() * -30);
@@ -31,17 +35,17 @@ function Fix() {
 
     this.gBox = new createjs.Shape();
     this.gBox.graphics.setStrokeStyle(1).beginStroke(FIX_BODY_COLOR).moveTo(-4,4).lineTo(0,-4).lineTo(4,4).lineTo(-4,4).endStroke();
-    this.gDraw.addChild(this.gBox, this.gLabel);
+    this.addChild(this.gBox, this.gLabel);
 }
+createjs.extend(Fix, createjs.Container);
+createjs.promote(Fix, "Container");
 
 Fix.prototype.setX = function ( x ) {
     this.x = x;
-    this.gDraw.x = x;
 }
 
 Fix.prototype.setY = function ( y ) {
     this.y = y;
-    this.gDraw.y = y;
 }
 
 Fix.prototype.setScreenPosition = function() {
@@ -50,11 +54,54 @@ Fix.prototype.setScreenPosition = function() {
     this.setX(coords.x);
 }
 
-Fix.prototype.show = function(visible) {
-    this.visible = visible;
-    this.gDraw.visible = visible;
+Fix.prototype.show = function(visible, isTemporary) {
+    if (isTemporary == undefined) {
+        isTemporary = false;
+    }
+    if (visible) {
+        // Show fix
+        if (this.visible && !this.visibleTemp) {
+            // Fix always displayed
+            return;
+        }
+        if (!this.visible) {
+            this.visible = visible;
+            this.visibleTemp = isTemporary;
+        }
+    }
+    else {
+        // Hide fix
+        if (this.visible && ((isTemporary && this.visibleTemp) || !isTemporary)) {
+            // Hide temporary
+            this.visible = visible;
+            this.visibleTemp = false;
+        }
+    }
 }
 
-Fix.prototype.showLabel = function(visible) {
-    this.gLabel.visible = visible;
+Fix.prototype.showLabel = function(visible, isTemporary) {
+    if (isTemporary == undefined) {
+        isTemporary = false;
+    }
+    if (visible) {
+        // Show fix label
+        if (this.labelVisible && !this.labelVisibleTemp) {
+            // Fix label is always visible
+            return;
+        }
+        if (!this.labelVisible) {
+            this.labelVisible = false;
+            this.labelVisibleTemp = isTemporary;
+            this.gLabel.visible = false;
+        }
+    }
+    else {
+        // Hide fix label
+        if (this.labelVisible && ((isTemporary && this.labelVisibleTemp) || !isTemporary)) {
+            this.labelVisible = false;
+            this.labelVisibleTemp = false;
+            this.gLabel.visible = false;
+        }
+
+    }
 }
