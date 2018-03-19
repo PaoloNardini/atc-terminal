@@ -155,8 +155,57 @@ function loadNavaids() {
                         var found = false;
                         var update = false;
                         var freq;
-                        var navaid_label = words[0];
-                        var navaid_name = words[1];
+                        var navaid_label = words[0].toUpperCase();
+                        var navaid_name = words[1].toUpperCase();
+                        var o_navaid = findWaypoint(navaid_label, latitude, lonfitude);
+                        if (o_navaid == undefined) {
+                            o_navaid = addWaypoint(navaid_name, navaid_label, latitude, longitude);
+                        }
+                        o_navaid.isNavaid = true;
+                        o_navaid.freq = parseFloat(words[2]);
+                        if (navaid_name.includes('ILS/CAT III')) {
+                            o_navaid.navaid_type = FIX_TYPE_ILS_CAT_3;
+                        }
+                        else if (navaid_name.includes('ILS/CAT II')) {
+                            o_navaid.navaid_type = FIX_TYPE_ILS_CAT_2;
+                        }
+                        else if (navaid_name.includes('ILS/CAT I')) {
+                            o_navaid.navaid_type = FIX_TYPE_ILS_CAT_1;
+                        }
+                        else if (navaid_name.includes('ILS/LLZ')) {
+                            o_navaid.navaid_type = FIX_TYPE_ILS_CAT_1;
+                        }
+                        else if (navaid_name.includes('LDA/FACILITY')) {
+                            o_navaid.navaid_type = FIX_TYPE_ILS_CAT_1;
+                        }
+                        else if (freq >= 108 && freq <= 116) {
+                            if (o_navaid.navaid_type == FIX_TYPE_NDB && update == true) {
+                                o_navaid.navaid_type = FIX_TYPE_VORDMENDB;
+                            }
+                            else {
+                                o_navaid.navaid_type = FIX_TYPE_VORDME;
+                            }
+                        }
+                        else if (freq >= 200 && freq <= 500) {
+                            if (o_navaid.navaid_type == FIX_TYPE_VORDME && update == true) {
+                                o_navaid.navaid_type = FIX_TYPE_VORDMENDB;
+                            }
+                            else {
+                                o_navaid.navaid_type = FIX_TYPE_NDB
+                            }
+                        }
+                        if (o_navaid.navaid_type == FIX_TYPE_VORDME || o_navaid.navaid_type == FIX_TYPE_VORDMENDB || o_navaid.navaid_type == FIX_TYPE_NDB) {
+                            o_navaid.show(true,false);
+                            o_navaid.showLabel(true,false);
+                            o_navaid.setScreenPosition();
+                            mainContainer.addChild(o_navaid);
+                        }
+                        else {
+                            o_navaid.show(false,false);
+                            o_navaid.showLabel(false,false);
+                        }
+                        
+                        /*
                         for (f = 0; f < navaids.length; f++) {
                             if (navaids[f].label == navaid_label) {
                                 if (navaids[f].latitude == latitude && navaids[f].longitude == longitude) {
@@ -221,15 +270,18 @@ function loadNavaids() {
                             navaids[f].show(false,false);
                             navaids[f].showLabel(false,false);
                         }
+                    */
                     }
                 }
             }
+            /*
             for (f = 0; f < navaids.length; f++) {
                 if (navaids[f].visible == true) {
                     navaids[f].setScreenPosition();
                     mainContainer.addChild(navaids[f]);
                 }
             }
+            */
             resolve(true);
         });
     });

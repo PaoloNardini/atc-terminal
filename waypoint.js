@@ -16,6 +16,17 @@ function Waypoint() {
     this.visibleTemp = false;
     this.labelVisibleTemp = false;
 
+    // The same coordinate point could be more than one type of fix
+    this.isNavaid = false;      // A radio-navigation aid (vor/dme/ndb/ils)
+    this.isFix = false;         // A star/sid/final fix point
+    this.isWaypoint = false;    // A published generic waypoint
+    this.isRunway = false;      // A runway threshold indicator
+    this.isAts = false;         // A Ats route fix
+
+    // Navaid specific
+    this.freq = '';             // Navaid frequency
+    this.navaid_type = '';      // Navaid specific type - see consts NAVAID_TYPE..
+
     // Graphic objects
     this.gLabel = new createjs.Text("", "normal 10px Courier", FIX_TEXT_COLOR);
     this.gLabel.x = (Math.random() * 30);
@@ -133,6 +144,8 @@ Waypoint.prototype.showLabel = function(visible, isTemporary) {
     }
 }
 
+/**** GLOBAL WAYPOINT FUNCTIONS ****/
+
 function addWaypoint(name, label, latitude, longitude) {
     var o_wp = new Waypoint();
     o_wp.name = name.toUpperCase();
@@ -162,7 +175,8 @@ function updateWaypoints() {
 function findWaypoint(identifier, latitude, longitude) {
     if ((c = waypointsById[identifier]) != undefined) {
         if (latitude != undefined && longitude != undefined) {
-            if (latitude == waypoints[c].latitude && longitude == waypoints[c].longitude) {
+            if ((Math.abs(waypoints[c].latitude - latitude) < 0.05) && (Math.abs(waypoints[c].longitude - longitude) < 0.05)) {
+                // Waypoint has the same name and coordinates are within tollerance
                 return waypoints[c];
             }
         }
