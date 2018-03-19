@@ -566,7 +566,7 @@ Plane.prototype.move = function(newTimer) {
 
     var newCoords = new LatLon(this.latitude, this.longitude);
     if (this.fix_next != -1) {
-        var nextFixCoords = new LatLon(fixes[this.fix_next].latitude, fixes[this.fix_next].longitude);
+        var nextFixCoords = new LatLon(waypoints[this.fix_next].latitude, waypoints[this.fix_next].longitude);
     }
     else {
         var nextFixCoords = new LatLon(LATITUDE_CENTER, LONGITUDE_CENTER);
@@ -605,10 +605,10 @@ Plane.prototype.move = function(newTimer) {
 }
 
 
-Plane.prototype.goTo = function(fix) {
-    this.fix_next = fix;
+Plane.prototype.goTo = function(fixNum) {
+    this.fix_next = fixNum;
     var origin = new LatLon(this.latitude, this.longitude);
-    var dest = new LatLon(fixes[fix].latitude, fixes[fix].longitude);
+    var dest = new LatLon(waypoints[fixNum].latitude, waypoints[fixNum].longitude);
     this.setHeading(origin.finalBearingTo(dest));
 }
 
@@ -1009,19 +1009,23 @@ Plane.prototype.refreshRoute = function() {
     */
 }
 
-/* OLD Check distance of plane from a fix */
+/* OLD - Check distance of plane from a fix */
+/*
 Plane.prototype.checkFixDistance = function(fix) {
     var newCoords = new LatLon(this.latitude, this.longitude);
     var nextFixCoords = new LatLon(fixes[this.fix_next].latitude, fixes[this.fix_next].longitude);
     return Math.metersToMiles(newCoords.distanceTo(nextFixCoords));
 }
+*/
 
-/* old Check if plane is near a fix (less than 1 mile) */
+/* OLD - Check if plane is near a fix (less than 1 mile) */
+/*
 Plane.prototype.checkNearFix = function(fix) {
     return (this.checkFixDistance(fix) < 1);
 }
+*/
 
-// Check distance to a coordinate fix
+// Check distance to a coordinate point
 Plane.prototype.checkNearCoords = function(latitude, longitude) {
     var planeCoords = new LatLon(this.latitude, this.longitude);
     var nextFixCoords = new LatLon(latitude, longitude);
@@ -1280,6 +1284,14 @@ Plane.prototype.advance2NextStep = function() {
                 latitude = step.latitude;
                 longitude = step.longitude;
                 this.intercepting = false;  // Clear any previous radial interception
+                o_wp = findWaypoint(wp_id, latitude, longitude);
+                if (o_wp != undefined) {
+                    estimate = this.goToWaypoint(o_wp);
+                }
+                else {
+                    // TODO
+                }
+                /*
                 o_navaid = findNavaid(wp_id, latitude, longitude);
                 if (o_navaid instanceof Navaid) {
                     estimate = this.goToNavaid(o_navaid);
@@ -1290,6 +1302,7 @@ Plane.prototype.advance2NextStep = function() {
                         estimate = this.goToWaypoint(o_wp);
                     }
                 }
+                */
                 // this.checkFixAltitudeConstraint(step.altitude_constraint, step.altitude_1, step.altitude_2, estimate);
                 this.checkAltitudeConstraint();
                 break;

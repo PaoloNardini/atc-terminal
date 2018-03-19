@@ -70,6 +70,7 @@ Waypoint.prototype.setFix = function (f) {
 
 Waypoint.prototype.setScreenPosition = function(scale) {
     var coords = Math.coordsToScreen( this.latitude, this.longitude);
+    /*
     if (this.type == 'FIX') {
         this.gLabel.x = 10 * scale;
         this.gLabel.y = -10 * scale;
@@ -78,6 +79,7 @@ Waypoint.prototype.setScreenPosition = function(scale) {
         this.gLabel.x = -30 * scale;
         this.gLabel.y = 10 * scale;
     }
+    */
     this.setY(coords.y);
     this.setX(coords.x);
 }
@@ -158,12 +160,14 @@ function addWaypoint(name, label, latitude, longitude) {
     o_wp.latitude = latitude;
     o_wp.longitude = longitude;
     o_wp.setScreenPosition(1);
+    /*
     if (o_wp.type == 'FIX') {
         o_wp.show(true, false);
     }
     else {
         o_wp.show(false);
     }
+    */
     var c = waypoints.length;
     waypoints[c] = o_wp;
     waypointsById[name] = c;

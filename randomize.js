@@ -163,6 +163,8 @@ function randomizePlanes() {
     }
 }
 
+// NOT USED
+/*
 function randomizeFixes() {
     var nfix = 1 + (Math.random() * 10);
 
@@ -178,6 +180,7 @@ function randomizeFixes() {
         mainContainer.addChild(fixes[f].gDraw);
     }
 }
+*/
 
 function randomizeAirports() {
     var nairp = 1 + (Math.random() * 2);

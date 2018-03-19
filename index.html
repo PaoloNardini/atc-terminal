@@ -585,8 +585,8 @@
         // $('#scale').html( Math.round(mainContainer.scaleX * 100) + ' - ' + currentScale); //  + ' / ' + mainContainer.regX + ' - ' + mainContainer.regY);
 
         updateWaypoints();
-        updateFixes();
-        updateNavaids();
+        // updateFixes();
+        // updateNavaids();
         updateRoutes();
         mainStage.update();
     }
@@ -605,11 +605,13 @@
 
     }
 
+    /*
     function updateNavaids() {
         for (n=0; n < navaids.length; n++) {
             navaids[n].setScale(currentScale);
         }
     }
+    */
 
     function updateRoutes() {
         for (r=0; r < ats_routes.length; r++) {
@@ -656,6 +658,8 @@
     }
 
     function findFixById(identifier) {
+        return findWaypoint(identifier);
+        /*
         var o_wp = findWaypoint(identifier);
         if (o_wp == undefined) {
             var o_navaid = findNavaid(identifier);
@@ -669,6 +673,7 @@
             return o_navaid;
         }
         return o_wp;
+        */
     }
 
     function findNavaid(identifier, latitude, longitude) {

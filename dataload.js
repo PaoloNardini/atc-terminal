@@ -521,7 +521,7 @@ function loadProcedures(icao) {
 
                  */
 
-                if (true) { // && (words[0] == 'IF' || words[0] == 'TF' || words[0] == 'CF' || words[0] == 'DA' || words[0] == 'DF' || words[0] == 'FA'))
+                if (words.length > 4) { // && (words[0] == 'IF' || words[0] == 'TF' || words[0] == 'CF' || words[0] == 'DA' || words[0] == 'DF' || words[0] == 'FA'))
                     // Fix
                     var fix_type = words[0];
                     var fix_label = words[1];
