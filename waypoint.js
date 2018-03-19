@@ -23,6 +23,12 @@ function Waypoint() {
     this.isRunway = false;      // A runway threshold indicator
     this.isAts = false;         // A Ats route fix
 
+    this.isNavaidVisible = false;
+    this.isFixVisible = false;
+    this.isWaypointVisible = false;
+    this.isRunwayVisible = false;
+    this.isAtsVisible = false;
+
     // Navaid specific
     this.freq = '';             // Navaid frequency
     this.navaid_type = '';      // Navaid specific type - see consts NAVAID_TYPE..
@@ -62,14 +68,24 @@ Waypoint.prototype.setY = function ( y ) {
     this.y = y;
 }
 
+/*
 Waypoint.prototype.setFix = function (f) {
     this.fix = f;
     this.latitude = fixes[f].latitude;
     this.longitude = fixes[f].longitude;
 }
+*/
 
 Waypoint.prototype.setScreenPosition = function(scale) {
     var coords = Math.coordsToScreen( this.latitude, this.longitude);
+    if (this.isWaypoint) {
+        this.gLabel.x = (Math.random() * -30) * scale;
+        this.gLabel.y = (10 + Math.random() * 10) * scale;
+    }
+    else {
+        this.gLabel.x = (Math.random() * 10) * scale;
+        this.gLabel.y = (-10 + Math.random() * -10) * scale;
+    }
     /*
     if (this.type == 'FIX') {
         this.gLabel.x = 10 * scale;
@@ -171,6 +187,7 @@ function addWaypoint(name, label, latitude, longitude) {
     var c = waypoints.length;
     waypoints[c] = o_wp;
     waypointsById[name] = c;
+    mainContainer.addChild(o_wp);
     return o_wp;
 }
 
@@ -209,3 +226,58 @@ function findWaypoint(identifier, latitude, longitude) {
     return undefined;
 }
 
+function showWaypoints(type, onoff, isTemporary) {
+    var o_wp;
+    var x = 0;
+    for (w=0; w < waypoints.length; w++) {
+        o_wp = waypoints[w];
+        if (type == 'WP' && o_wp.isWaypoint) {
+            // if (x++ > 225) break;
+            if (onoff != o_wp.isWaypointVisible) {
+                if (!o_wp.isFixVisible && !o_wp.isNavaidVisible && !o_wp.isRunwayVisible && !o_wp.isAtsVisible) {
+                    o_wp.show(onoff, isTemporary);
+                }
+                o_wp.isWaypointVisible = onoff;
+            }
+        }
+        if (type == 'FIX' && o_wp.isFix) {
+            if (onoff != o_wp.isFixVisible) {
+                if (!o_wp.isWaypointVisible && !o_wp.isNavaidVisible && !o_wp.isRunwayVisible && !o_wp.isAtsVisible) {
+                    o_wp.show(onoff, isTemporary);
+                }
+                o_wp.isFixVisible = onoff;
+            }
+        }
+        if (type == 'NAV' && o_wp.isNavaid) {
+            if (onoff != o_wp.isNavaidVisible) {
+                if (!o_wp.isWaypointVisible && !o_wp.isFixVisible && !o_wp.isRunwayVisible && !o_wp.isAtsVisible) {
+                    o_wp.show(onoff, isTemporary);
+                }
+                o_wp.isNavaidVisible = onoff;
+            }
+        }
+        if (type == 'RWY' && o_wp.isRunway) {
+            if (onoff != o_wp.isRunwayVisible) {
+                if (!o_wp.isWaypointVisible && !o_wp.isFixVisible && !o_wp.isNavaidVisible && !o_wp.isAtsVisible) {
+                    o_wp.show(onoff, isTemporary);
+                }
+                o_wp.isRunwayVisible = onoff;
+            }
+        }
+        if (type == 'ATS' && o_wp.isAts) {
+            if (onoff != o_wp.isAtsVisible) {
+                if (!o_wp.isWaypointVisible && !o_wp.isFixVisible && !o_wp.isNavaidVisible && !o_wp.isRunwayVisible) {
+                    o_wp.show(onoff, isTemporary);
+                }
+                o_wp.isAtsVisible = onoff;
+            }
+        }
+
+        /*
+
+        if ((type == 'WP' && waypoints[w].isWaypoint) ||( type == 'FIX' && waypoints[w].isFix) || (type == 'NAV' && waypoints[w].isNavaid) || (type == 'RWY' && waypoints[w].isRunway) || (type == 'ATS' && waypoints[w].isATs)) {
+            waypoints[w].show(onoff, isTemporary);
+        }
+        */
+    }
+}

@@ -97,7 +97,7 @@
     // var strips = [];
     var navaids = [];
     // var waypoints = [];
-    var fixes = [];
+    // var fixes = [];
     var routes = [];
     var ats_routes = [];
     var ats_videotracks = [];
@@ -762,18 +762,22 @@
                         break;
                     case 'FIX':
                         showFix(isOn);
+                            /*
                         if (isOn != isConsoleSwitchOn('FIX-LBL')) {
                             consoleSwitchClicked('FIX-LBL');
                         }
+                        */
                         break;
                     case 'FIX-LBL':
                         showFixLabels(isOn);
                         break;
                     case 'WPT':
-                        showWaypoints(isOn);
+                        showWps(isOn);
+                            /*
                         if (isOn != isConsoleSwitchOn('WPT-LBL')) {
                             consoleSwitchClicked('WPT-LBL');
                         }
+                        */
                         break;
                     case 'WPT-LBL':
                         showWaypointsLabels(isOn);
@@ -835,9 +839,12 @@
 
 
     function showNav(onoff) {
+        showWaypoints('NAV', onoff, false);
+        /*
         for (var n=0; n < navaids.length; n++) {
             navaids[n].show(onoff);
         }
+        */
     }
     function showNavLabels(onoff) {
         for (var n = 0; n < navaids.length; n++) {
@@ -845,6 +852,8 @@
         }
     }
     function showFix(onoff) {
+        showWaypoints('FIX', onoff, false);
+        /*
         for (var n=0; n < fixes.length; n++) {
             fixes[n].show(onoff);
         }
@@ -853,6 +862,7 @@
                 waypoints[n].show(onoff);
             }
         }
+        */
     }
     function showFixLabels(onoff) {
         for (var n=0; n < fixes.length; n++) {
@@ -864,12 +874,15 @@
             }
         }
     }
-    function showWaypoints(onoff) {
+    function showWps(onoff) {
+        showWaypoints('WP', onoff, false);
+        /*
         for (var n=0; n < waypoints.length; n++) {
             if (waypoints[n].type == 'WP') {
                 waypoints[n].show(onoff);
             }
         }
+        */
     }
     function showWaypointsLabels(onoff) {
         for (n=0; n < waypoints.length; n++) {
@@ -896,6 +909,7 @@
                 }
                 o_route.setScreenPosition(currentScale);
                 mainContainer.addChildAt(o_route,0);
+                showWaypoints('ATS', true, false);
             }
         }
         else {
@@ -906,6 +920,7 @@
             for (var a=0; a<ats_routes.length; a++) {
                 mainContainer.removeChild(ats_routes[a]);
             }
+            showWaypoints('ATS', false, false);
         }
     }
     function showAtsLabels(onoff) {
@@ -915,9 +930,12 @@
         }
     }
     function showRunways(onoff) {
+        showWaypoints('RWY', onoff, false);
+        /*
         for (var n=0; n < runways.length; n++) {
             runways[n].showRunway(onoff);
         }
+        */
     }
     function showRunwaysLabels(onoff) {
         for (var n=0; n < runways.length; n++) {

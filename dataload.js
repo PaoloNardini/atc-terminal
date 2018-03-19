@@ -159,7 +159,7 @@ function loadNavaids() {
                         var navaid_name = words[1].toUpperCase();
                         var o_navaid = findWaypoint(navaid_label, latitude, longitude);
                         if (o_navaid == undefined) {
-                            o_navaid = addWaypoint(navaid_name, navaid_label, latitude, longitude);
+                            o_navaid = addWaypoint(navaid_label, navaid_label, latitude, longitude);
                             o_navaid.freq = parseFloat(words[2]);
                         }
                         else if (o_navaid.isNavaid) {
@@ -310,8 +310,8 @@ function loadWaypoints() {
                         if (o_wp == undefined) {
                             o_wp = addWaypoint(waypoint_name, '', latitude, longitude);
                         }
-                        o_wp.isWaypoint = true;
-                        mainContainer.addChild(o_wp);
+                        o_wp.isWaypoint = false;
+                        // mainContainer.addChild(o_wp);
                     }
                 }
             }
@@ -521,38 +521,55 @@ function loadProcedures(icao) {
 
                  */
 
-                if (words.length > 4) { // && (words[0] == 'IF' || words[0] == 'TF' || words[0] == 'CF' || words[0] == 'DA' || words[0] == 'DF' || words[0] == 'FA'))
+                if (words.length < 2) {
+                    mode = '';
+                }
+                // if (words.length > 4) { // && (words[0] == 'IF' || words[0] == 'TF' || words[0] == 'CF' || words[0] == 'DA' || words[0] == 'DF' || words[0] == 'FA'))
+                if (words.length > 4 && words[0].length == 2) {
                     // Fix
                     var fix_type = words[0];
                     var fix_label = words[1];
                     latitude = parseFloat(words[2]);
                     longitude = parseFloat(words[3]);
-                    var found = false;
-                    var o_fix = findWaypoint(fix_label, latitude, longitude);
-                    if (o_fix != undefined) {
-                        if (o_fix.isFix) {
-                            // Fix already present
-                            found = true;
+                    if (mode == 'SID' || mode == 'STAR' || mode == 'APPTR' || mode == 'FINAL') {
+                        if (latitude != 0 && longitude != 0) {
+                            var found = false;
+                            var o_fix = findWaypoint(fix_label, latitude, longitude);
+                            if (o_fix != undefined) {
+                                if (o_fix.isFix) {
+                                    // Fix already present
+                                    found = true;
+                                }
+                                else {
+                                    // Flag it also as a fix
+                                    o_fix.isWaypoint = true;
+                                    /*
+                                     o_fix.isFix = true;
+                                     if (o_fix.isWaypoint) {
+                                     o_fix.isWaypoint = false;
+                                     }
+                                     */
+                                }
+                            }
+                            else {
+                                o_fix = addWaypoint(fix_label, '', latitude, longitude);
+                                o_fix.isWaypoint = true;
+                                // o_fix.isFix = true;
+                            }
+                            if (words.length > 10) {
+                                o_fix.altitude = parseFloat(words[11])
+                            }
+                            o_fix.isRouteFix = true;
+                            if (fix_type == 'IF') { // || fix_type == 'TF')
+                                o_fix.isFix = true;
+                                o_fix.isWaypoint = false;
+                            }
+                            if (mode == 'FINAL' && ++fixCounter == mapFixPos) {
+                                routes[route].mapFix = fix_label;
+                                mapFixPos = -1;
+                                fixCounter = -1;
+                            }
                         }
-                        else {
-                            // Flag it also as a fix
-                            o_fix.isFix = true;
-                        }
-                    }
-                    else {
-                        o_fix = addWaypoint(fix_label, '', latitude, longitude);
-                        o_fix.isFix = true;
-                    }
-                    if (words.length > 10) {
-                        o_fix.altitude = parseFloat(words[11])
-                    }
-                    if (fix_type == 'IF' || fix_type == 'TF') {
-                        o_fix.isRouteFix = true;
-                    }
-                    if (mode == 'FINAL' && ++fixCounter == mapFixPos) {
-                        routes[route].mapFix = fix_label;
-                        mapFixPos = -1;
-                        fixCounter = -1;
                     }
                     /*
                     if (mode == 'SID' || mode == 'STAR' || mode == 'APPTR' || mode == 'FINAL') {
