@@ -157,48 +157,51 @@ function loadNavaids() {
                         var freq;
                         var navaid_label = words[0].toUpperCase();
                         var navaid_name = words[1].toUpperCase();
-                        var o_navaid = findWaypoint(navaid_label, latitude, lonfitude);
+                        var o_navaid = findWaypoint(navaid_label, latitude, longitude);
                         if (o_navaid == undefined) {
                             o_navaid = addWaypoint(navaid_name, navaid_label, latitude, longitude);
+                            o_navaid.freq = parseFloat(words[2]);
+                        }
+                        else if (o_navaid.isNavaid) {
+                            update = true;
                         }
                         o_navaid.isNavaid = true;
-                        o_navaid.freq = parseFloat(words[2]);
                         if (navaid_name.includes('ILS/CAT III')) {
-                            o_navaid.navaid_type = FIX_TYPE_ILS_CAT_3;
+                            o_navaid.navaid_type = NAVAID_TYPE_ILS_CAT_3;
                         }
                         else if (navaid_name.includes('ILS/CAT II')) {
-                            o_navaid.navaid_type = FIX_TYPE_ILS_CAT_2;
+                            o_navaid.navaid_type = NAVAID_TYPE_ILS_CAT_2;
                         }
                         else if (navaid_name.includes('ILS/CAT I')) {
-                            o_navaid.navaid_type = FIX_TYPE_ILS_CAT_1;
+                            o_navaid.navaid_type = NAVAID_TYPE_ILS_CAT_1;
                         }
                         else if (navaid_name.includes('ILS/LLZ')) {
-                            o_navaid.navaid_type = FIX_TYPE_ILS_CAT_1;
+                            o_navaid.navaid_type = NAVAID_TYPE_ILS_CAT_1;
                         }
                         else if (navaid_name.includes('LDA/FACILITY')) {
-                            o_navaid.navaid_type = FIX_TYPE_ILS_CAT_1;
+                            o_navaid.navaid_type = NAVAID_TYPE_ILS_CAT_1;
                         }
                         else if (freq >= 108 && freq <= 116) {
-                            if (o_navaid.navaid_type == FIX_TYPE_NDB && update == true) {
-                                o_navaid.navaid_type = FIX_TYPE_VORDMENDB;
+                            if (o_navaid.navaid_type == NAVAID_TYPE_NDB && update == true) {
+                                o_navaid.navaid_type = NAVAID_TYPE_VORDMENDB;
                             }
                             else {
-                                o_navaid.navaid_type = FIX_TYPE_VORDME;
+                                o_navaid.navaid_type = NAVAID_TYPE_VORDME;
                             }
                         }
                         else if (freq >= 200 && freq <= 500) {
-                            if (o_navaid.navaid_type == FIX_TYPE_VORDME && update == true) {
-                                o_navaid.navaid_type = FIX_TYPE_VORDMENDB;
+                            if (o_navaid.navaid_type == NAVAID_TYPE_VORDME && update == true) {
+                                o_navaid.navaid_type = NAVAID_TYPE_VORDMENDB;
                             }
                             else {
-                                o_navaid.navaid_type = FIX_TYPE_NDB
+                                o_navaid.navaid_type = NAVAID_TYPE_NDB
                             }
                         }
-                        if (o_navaid.navaid_type == FIX_TYPE_VORDME || o_navaid.navaid_type == FIX_TYPE_VORDMENDB || o_navaid.navaid_type == FIX_TYPE_NDB) {
+                        if (o_navaid.navaid_type == NAVAID_TYPE_VORDME || o_navaid.navaid_type == NAVAID_TYPE_VORDMENDB || o_navaid.navaid_type == NAVAID_TYPE_NDB) {
                             o_navaid.show(true,false);
                             o_navaid.showLabel(true,false);
-                            o_navaid.setScreenPosition();
-                            mainContainer.addChild(o_navaid);
+                            // o_navaid.setScreenPosition();
+                            // mainContainer.addChild(o_navaid);
                         }
                         else {
                             o_navaid.show(false,false);
@@ -232,37 +235,37 @@ function loadNavaids() {
                             // navaids[f].visible = false;
                         }
                         if (navaid_name.includes('ILS/CAT III')) {
-                            navaids[f].type = FIX_TYPE_ILS_CAT_3;
+                            navaids[f].type = NAVAID_TYPE_ILS_CAT_3;
                         }
                         else if (navaid_name.includes('ILS/CAT II')) {
-                            navaids[f].type = FIX_TYPE_ILS_CAT_2;
+                            navaids[f].type = NAVAID_TYPE_ILS_CAT_2;
                         }
                         else if (navaid_name.includes('ILS/CAT I')) {
-                            navaids[f].type = FIX_TYPE_ILS_CAT_1;
+                            navaids[f].type = NAVAID_TYPE_ILS_CAT_1;
                         }
                         else if (navaid_name.includes('ILS/LLZ')) {
-                            navaids[f].type = FIX_TYPE_ILS_CAT_1;
+                            navaids[f].type = NAVAID_TYPE_ILS_CAT_1;
                         }
                         else if (navaid_name.includes('LDA/FACILITY')) {
-                            navaids[f].type = FIX_TYPE_ILS_CAT_1;
+                            navaids[f].type = NAVAID_TYPE_ILS_CAT_1;
                         }
                         else if (freq >= 108 && freq <= 116) {
-                            if (navaids[f].type == FIX_TYPE_NDB && update == true) {
-                                navaids[f].type = FIX_TYPE_VORDMENDB;
+                            if (navaids[f].type == NAVAID_TYPE_NDB && update == true) {
+                                navaids[f].type = NAVAID_TYPE_VORDMENDB;
                             }
                             else {
-                                navaids[f].type = FIX_TYPE_VORDME;
+                                navaids[f].type = NAVAID_TYPE_VORDME;
                             }
                         }
                         else if (freq >= 200 && freq <= 500) {
-                            if (navaids[f].type == FIX_TYPE_VORDME && update == true) {
-                                navaids[f].type = FIX_TYPE_VORDMENDB;
+                            if (navaids[f].type == NAVAID_TYPE_VORDME && update == true) {
+                                navaids[f].type = NAVAID_TYPE_VORDMENDB;
                             }
                             else {
-                                navaids[f].type = FIX_TYPE_NDB
+                                navaids[f].type = NAVAID_TYPE_NDB
                             }
                         }
-                        if (navaids[f].type == FIX_TYPE_VORDME || navaids[f].type == FIX_TYPE_VORDMENDB || navaids[f].type == FIX_TYPE_NDB) {
+                        if (navaids[f].type == NAVAID_TYPE_VORDME || navaids[f].type == NAVAID_TYPE_VORDMENDB || navaids[f].type == NAVAID_TYPE_NDB) {
                             navaids[f].show(true,false);
                             navaids[f].showLabel(true,false);
                         }
@@ -298,11 +301,16 @@ function loadWaypoints() {
             for (var i = 0; i < lines.length; i++) {
                 words = lines[i].split(',');
                 if (words[3] != undefined) { //&& words[3].includes(icao_prenavaid))
-                    latitude = parseFloat(words[1]);
-                    longitude = parseFloat(words[2]);
+                    var waypoint_name = words[0].toUpperCase();
+                    var latitude = parseFloat(words[1]);
+                    var longitude = parseFloat(words[2]);
                     if (latitude >= MIN_LATITUDE && latitude <= MAX_LATITUDE && longitude >= MIN_LONGITUDE && longitude <= MAX_LONGITUDE) {
                         // Waypoint is between scenery coordinates
-                        o_wp = addWaypoint(words[0], '', latitude, longitude);
+                        o_wp = findWaypoint(waypoint_name, latitude, longitude);
+                        if (o_wp == undefined) {
+                            o_wp = addWaypoint(waypoint_name, '', latitude, longitude);
+                        }
+                        o_wp.isWaypoint = true;
                         mainContainer.addChild(o_wp);
                     }
                 }
@@ -359,6 +367,8 @@ function loadAirport( icao ) {
                     var heading = parseInt(words[2]);
                     var strip_length =  parseInt(words[3]);
                     var strip_width = parseInt(words[4]);
+                    var latitude = parseFloat(words[8]);
+                    var longitude = parseFloat(words[9]);
                     runways[r] = new Runway();
                     runways[r].icao  = icao;
                     runways[r].name = name;
@@ -366,8 +376,8 @@ function loadAirport( icao ) {
                     runways[r].heading = heading;
                     runways[r].strip_length = strip_length;
                     runways[r].strip_width = strip_width;
-                    runways[r].latitude = parseFloat(words[8]);
-                    runways[r].longitude = parseFloat(words[9]);
+                    runways[r].latitude = latitude;
+                    runways[r].longitude = longitude;
                     runways[r].gLabel1.text = runways[r].label1;
                     runways[r].gLabel2.text = runways[r].label2 + '\n' + runways[r].heading + '\n' + runways[r].strip_length;
 
@@ -406,16 +416,23 @@ function loadAirport( icao ) {
                     runways[r].setScreenPosition();
 
                     // Create FIX for runways
+                    var o_wp = findWaypoint(name, latitude, longitude );
+                    if (o_wp == undefined) {
+                        o_wp = addWaypoint(name, '', latitude, longitude);
+                    }
+                    o_wp.isRunway = true;
+                    /*
                     var f = fixes.length;
                     fixes[f] = new Fix();
                     fixes[f].name = words[1];
                     fixes[f].label = words[1];
                     fixes[f].latitude = parseFloat(words[8]);
                     fixes[f].longitude = parseFloat(words[9]);
-                    fixes[f].type = FIX_TYPE_RWY;
+                    fixes[f].type = NAVAID_TYPE_RWY;
                     // fixes[f].gLabel.text = fixes[f].label;
                     // fixes[f].setScreenPosition();
-                    // mainContainer.addChild(fixes[f].gDraw);
+                    mainContainer.addChild(fixes[f].gDraw);
+                    */
                 }
             }
             resolve(true);
@@ -435,6 +452,7 @@ function loadProcedures(icao) {
             var mode = '';
             var route = -1;
             var mapFixPos = -1;
+            var fixCounter = -1;
             for (var i = 0; i < lines.length; i++) {
                 words = lines[i].split(',');
 
@@ -507,12 +525,52 @@ function loadProcedures(icao) {
                     // Fix
                     var fix_type = words[0];
                     var fix_label = words[1];
+                    latitude = parseFloat(words[2]);
+                    longitude = parseFloat(words[3]);
                     var found = false;
-                    for (f = 0; f < fixes.length; f++) {
-                        if (fixes[f].label == fix_label) {
+                    var o_fix = findWaypoint(fix_label, latitude, longitude);
+                    if (o_fix != undefined) {
+                        if (o_fix.isFix) {
+                            // Fix already present
                             found = true;
-                            break;
                         }
+                        else {
+                            // Flag it also as a fix
+                            o_fix.isFix = true;
+                        }
+                    }
+                    else {
+                        o_fix = addWaypoint(fix_label, '', latitude, longitude);
+                        o_fix.isFix = true;
+                    }
+                    if (words.length > 10) {
+                        o_fix.altitude = parseFloat(words[11])
+                    }
+                    if (fix_type == 'IF' || fix_type == 'TF') {
+                        o_fix.isRouteFix = true;
+                    }
+                    if (mode == 'FINAL' && ++fixCounter == mapFixPos) {
+                        routes[route].mapFix = fix_label;
+                        mapFixPos = -1;
+                        fixCounter = -1;
+                    }
+                    /*
+                    if (mode == 'SID' || mode == 'STAR' || mode == 'APPTR' || mode == 'FINAL') {
+                        // TODO - addFix is needed???
+                        // routes[route].addFix(f);
+                        if (mode == 'FINAL' && routes[route].tracks.length == mapFixPos) {
+                            // Set fix as MAP
+                            routes[route].mapFix = fix_label;
+                            mapFixPos = -1;
+                        }
+                    }
+                    */
+                    /*
+                    for (f = 0; f < fixes.length; f++) {
+                         if (fixes[f].label == fix_label) {
+                             found = true;
+                             break;
+                         }
                     }
                     if (!found) {
                         var f = fixes.length;
@@ -521,7 +579,7 @@ function loadProcedures(icao) {
                         fixes[f].label = fix_label;
                         fixes[f].latitude = parseFloat(words[2]);
                         fixes[f].longitude = parseFloat(words[3]);
-                        fixes[f].type = FIX_TYPE_ROUTE_FIX;
+                        fixes[f].type = NAVAID_TYPE_ROUTE_FIX;
                         fixes[f].gLabel.text = fixes[f].label;
                         if (words.length > 10) {
                             fixes[f].altitude = parseFloat(words[11])
@@ -552,7 +610,7 @@ function loadProcedures(icao) {
                             mapFixPos = -1;
                         }
                     }
-
+                    */
                 }
 
                 if (words[0] == 'SID') {
@@ -611,6 +669,7 @@ function loadProcedures(icao) {
                     routes[route].finalFix = words[2];
                     routes[route].mapFix = '';
                     mapFixPos = words[4];
+                    fixCounter = 0;
                 }
                 else {
                     // Add Leg to Route
@@ -826,12 +885,19 @@ function loadATS() {
                         var steps = o_route.getLegs();
                         for (var s=0; s<steps.length; s++) {
                             o_step = steps[s];
+                            var o_fix = findWaypoint(o_step.identifier, o_step.latitude, o_step.longitude);
+                            if (o_fix == undefined) {
+                                o_fix = addWaypoint(o_step.identifier, '', o_step.latitude, o_step.longitude);
+                            }
+                            o_fix.isAts = true;
+                            /*
                             var o_fix = findFixByLabel(o_step.identifier);
                             if (o_fix == undefined || (Math.abs(o_fix.latitude - o_step.latitude) > 0.05)) {
                                 o_fix = addFix(o_step.identifier, '', o_step.latitude, o_step.longitude);
                                 // o_wp = addWaypoint(o_step.identifier, '', o_step.latitude, o_step.longitude);
                                 mainContainer.addChild(o_fix);
                             }
+                            */
                         }
                     }
                     o_route = undefined;

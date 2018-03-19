@@ -16,7 +16,7 @@ function Waypoint() {
     this.visibleTemp = false;
     this.labelVisibleTemp = false;
 
-    // The same coordinate point could be more than one type of fix
+    // Flags: The same coordinate point could be more than one type of fix
     this.isNavaid = false;      // A radio-navigation aid (vor/dme/ndb/ils)
     this.isFix = false;         // A star/sid/final fix point
     this.isWaypoint = false;    // A published generic waypoint
@@ -26,6 +26,10 @@ function Waypoint() {
     // Navaid specific
     this.freq = '';             // Navaid frequency
     this.navaid_type = '';      // Navaid specific type - see consts NAVAID_TYPE..
+
+    // Fix specific
+    this.altitude = -1;
+    this.isRouteFix = false;
 
     // Graphic objects
     this.gLabel = new createjs.Text("", "normal 10px Courier", FIX_TEXT_COLOR);
