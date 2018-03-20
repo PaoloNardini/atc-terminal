@@ -10,6 +10,7 @@ function Waypoint() {
     this.label = '';
     this.latitude = 0;
     this.longitude = 0;
+    this.useCounter = 0;
     this.fix = -1;
     this.visible = false;
     this.labelVisible = false;
@@ -232,7 +233,6 @@ function showWaypoints(type, onoff, isTemporary) {
     for (w=0; w < waypoints.length; w++) {
         o_wp = waypoints[w];
         if (type == 'WP' && o_wp.isWaypoint) {
-            // if (x++ > 225) break;
             if (onoff != o_wp.isWaypointVisible) {
                 if (!o_wp.isFixVisible && !o_wp.isNavaidVisible && !o_wp.isRunwayVisible && !o_wp.isAtsVisible) {
                     o_wp.show(onoff, isTemporary);
@@ -249,11 +249,14 @@ function showWaypoints(type, onoff, isTemporary) {
             }
         }
         if (type == 'NAV' && o_wp.isNavaid) {
-            if (onoff != o_wp.isNavaidVisible) {
-                if (!o_wp.isWaypointVisible && !o_wp.isFixVisible && !o_wp.isRunwayVisible && !o_wp.isAtsVisible) {
-                    o_wp.show(onoff, isTemporary);
+            // Show only major navaids types
+            if (o_wp.navaid_type == NAVAID_TYPE_VORDME || o_wp.navaid_type == NAVAID_TYPE_VORDME || o_wp.navaid_type == NAVAID_TYPE_VOR || o_wp.navaid_type == NAVAID_TYPE_NDB || o_wp.navaid_type == NAVAID_TYPE_VORDMENDB) {
+                if (onoff != o_wp.isNavaidVisible) {
+                    if (!o_wp.isWaypointVisible && !o_wp.isFixVisible && !o_wp.isRunwayVisible && !o_wp.isAtsVisible) {
+                        o_wp.show(onoff, isTemporary);
+                    }
+                    o_wp.isNavaidVisible = onoff;
                 }
-                o_wp.isNavaidVisible = onoff;
             }
         }
         if (type == 'RWY' && o_wp.isRunway) {

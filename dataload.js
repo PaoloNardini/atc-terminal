@@ -154,18 +154,19 @@ function loadNavaids() {
                         // Navaid is between scenery coordinates
                         var found = false;
                         var update = false;
-                        var freq;
                         var navaid_label = words[0].toUpperCase();
                         var navaid_name = words[1].toUpperCase();
+                        var freq = parseFloat(words[2]);
                         var o_navaid = findWaypoint(navaid_label, latitude, longitude);
                         if (o_navaid == undefined) {
                             o_navaid = addWaypoint(navaid_label, navaid_label, latitude, longitude);
-                            o_navaid.freq = parseFloat(words[2]);
+                            o_navaid.freq = freq;
                         }
                         else if (o_navaid.isNavaid) {
                             update = true;
                         }
                         o_navaid.isNavaid = true;
+                        o_navaid.useCounter++;
                         if (navaid_name.includes('ILS/CAT III')) {
                             o_navaid.navaid_type = NAVAID_TYPE_ILS_CAT_3;
                         }
@@ -197,6 +198,7 @@ function loadNavaids() {
                                 o_navaid.navaid_type = NAVAID_TYPE_NDB
                             }
                         }
+                        /*
                         if (o_navaid.navaid_type == NAVAID_TYPE_VORDME || o_navaid.navaid_type == NAVAID_TYPE_VORDMENDB || o_navaid.navaid_type == NAVAID_TYPE_NDB) {
                             o_navaid.show(true,false);
                             o_navaid.showLabel(true,false);
@@ -207,6 +209,7 @@ function loadNavaids() {
                             o_navaid.show(false,false);
                             o_navaid.showLabel(false,false);
                         }
+                        */
                         
                         /*
                         for (f = 0; f < navaids.length; f++) {
@@ -311,6 +314,7 @@ function loadWaypoints() {
                             o_wp = addWaypoint(waypoint_name, '', latitude, longitude);
                         }
                         o_wp.isWaypoint = false;
+                        o_wp.useCounter++;
                         // mainContainer.addChild(o_wp);
                     }
                 }
@@ -421,6 +425,7 @@ function loadAirport( icao ) {
                         o_wp = addWaypoint(name, '', latitude, longitude);
                     }
                     o_wp.isRunway = true;
+                    o_wp.useCounter++;
                     /*
                     var f = fixes.length;
                     fixes[f] = new Fix();
@@ -532,7 +537,11 @@ function loadProcedures(icao) {
                     latitude = parseFloat(words[2]);
                     longitude = parseFloat(words[3]);
                     if (mode == 'SID' || mode == 'STAR' || mode == 'APPTR' || mode == 'FINAL') {
-                        if (latitude != 0 && longitude != 0) {
+                        if ((fix_type == 'IF' ||
+                            fix_type == 'TF' ||
+                            fix_type == 'CF' ||
+                            fix_type == 'DF'
+                        ) && latitude != 0 && longitude != 0) {
                             var found = false;
                             var o_fix = findWaypoint(fix_label, latitude, longitude);
                             if (o_fix != undefined) {
@@ -560,6 +569,7 @@ function loadProcedures(icao) {
                                 o_fix.altitude = parseFloat(words[11])
                             }
                             o_fix.isRouteFix = true;
+                            o_fix.useCounter++;
                             if (fix_type == 'IF') { // || fix_type == 'TF')
                                 o_fix.isFix = true;
                                 o_fix.isWaypoint = false;
@@ -907,6 +917,7 @@ function loadATS() {
                                 o_fix = addWaypoint(o_step.identifier, '', o_step.latitude, o_step.longitude);
                             }
                             o_fix.isAts = true;
+                            o_fix.useCounter++;
                             /*
                             var o_fix = findFixByLabel(o_step.identifier);
                             if (o_fix == undefined || (Math.abs(o_fix.latitude - o_step.latitude) > 0.05)) {

@@ -19,6 +19,9 @@ function randomize() {
             mainContainer.addChild(runways[r]);
         }
 
+        // by default show Navaids + Fixes
+        showNav(true);
+        showFix(true);
 
         if (TEST_MODE == 1) {
             testPlanes();
