@@ -95,7 +95,7 @@
     var plane;
     var planes = [];
     // var strips = [];
-    var navaids = [];
+    // var navaids = [];
     // var waypoints = [];
     // var fixes = [];
     var routes = [];
@@ -635,6 +635,7 @@
         return -1;
     }
 
+    /*
     function findFixID(value) {
         var c;
         value = value.toUpperCase();
@@ -646,7 +647,9 @@
         }
         return -1;
     }
+    */
 
+    /*
     function findFixByLabel(label) {
         var c;
         for (f=0; f < fixes.length; f++) {
@@ -656,9 +659,11 @@
         }
         return undefined;
     }
+    */
 
-    function findFixById(identifier) {
-        return findWaypoint(identifier);
+
+    // function findFixById(identifier) {
+    //        return findWaypoint(identifier);
         /*
         var o_wp = findWaypoint(identifier);
         if (o_wp == undefined) {
@@ -674,8 +679,9 @@
         }
         return o_wp;
         */
-    }
+    // }
 
+    /*
     function findNavaid(identifier, latitude, longitude) {
         for (n=0; n < navaids.length; n++) {
             if (identifier.toUpperCase() == navaids[n].label) {
@@ -691,6 +697,7 @@
         }
         return undefined;
     }
+    */
 
 
     function findAirport(icao) {
@@ -762,22 +769,18 @@
                         break;
                     case 'FIX':
                         showFix(isOn);
-                            /*
                         if (isOn != isConsoleSwitchOn('FIX-LBL')) {
                             consoleSwitchClicked('FIX-LBL');
                         }
-                        */
                         break;
                     case 'FIX-LBL':
                         showFixLabels(isOn);
                         break;
                     case 'WPT':
                         showWps(isOn);
-                            /*
                         if (isOn != isConsoleSwitchOn('WPT-LBL')) {
                             consoleSwitchClicked('WPT-LBL');
                         }
-                        */
                         break;
                     case 'WPT-LBL':
                         showWpsLabels(isOn);
@@ -942,14 +945,12 @@
         */
     }
     function showRunways(onoff) {
-        showWaypoints('RWY', onoff, false);
-        /*
         for (var n=0; n < runways.length; n++) {
             runways[n].showRunway(onoff);
         }
-        */
     }
     function showRunwaysLabels(onoff) {
+        showWaypoints('RWY', onoff, false);
         showWaypointsLabels('RWY', onoff, false);
         /*
         for (var n=0; n < runways.length; n++) {
@@ -962,6 +963,7 @@
             runways[n].showCenterline(onoff);
         }
     }
+    /*
     function showLabels(onoff) {
         for (var n=0; n < navaids.length; n++) {
             navaids[n].showLabel(onoff);
@@ -973,6 +975,7 @@
             waypoints[n].showLabel(onoff);
         }
     }
+    */
     function showGrid(onoff) {
         for (var n=0; n < grid.length; n++) {
             grid[n].show(onoff);

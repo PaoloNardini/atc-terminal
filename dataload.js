@@ -382,8 +382,8 @@ function loadAirport( icao ) {
                     runways[r].strip_width = strip_width;
                     runways[r].latitude = latitude;
                     runways[r].longitude = longitude;
-                    runways[r].gLabel1.text = runways[r].label1;
-                    runways[r].gLabel2.text = runways[r].label2 + '\n' + runways[r].heading + '\n' + runways[r].strip_length;
+                    // runways[r].gLabel1.text = runways[r].label1;
+                    // runways[r].gLabel2.text = runways[r].label2 + '\n' + runways[r].heading + '\n' + runways[r].strip_length;
 
                     // Check for reciprocal runway to merge data
                     var opposite_heading = Math.inverseBearing(heading);

@@ -632,13 +632,13 @@ Plane.prototype.goToWaypoint = function(o_wp) {
     }
 }
 
-Plane.prototype.goToNavaid = function(o_navaid) {
-    if (o_navaid instanceof Navaid) {
+Plane.prototype.goToNavaid = function(o_wp) {
+    if (o_wp.isNavaid) {
         // console.log('gotonavaid(1) - ' + this.latitude + ' - ' +  this.longitude);
         var origin = new LatLon(this.latitude, this.longitude);
-        var dest = new LatLon(o_navaid.latitude, o_navaid.longitude);
+        var dest = new LatLon(o_wp.latitude, o_wp.longitude);
         this.setHeading(origin.finalBearingTo(dest));
-        var estimate = this.estimateToCoords(o_navaid.latitude, o_navaid.longitude);
+        var estimate = this.estimateToCoords(o_wp.latitude, o_wp.longitude);
         // console.log('gotonavaid(2) - ' + this.latitude + ' - ' +  this.longitude);
         return estimate;
     }
@@ -674,7 +674,7 @@ Plane.prototype.interceptRadial = function(identifier, radial, inbound) {
 
     if (this.intercepting == false) {
         // Identify Fix
-        this.navaid2intercept = findFixById(identifier);
+        this.navaid2intercept = findWaypoint(identifier);
         if (this.navaid2intercept == undefined) {
             return true;
         }
@@ -893,7 +893,7 @@ Plane.prototype.holdingPattern = function(identifier, inbound_radial, leg_distan
 
     if (this.holding == false) {
         this.holding = true;
-        this.holding_o_fix  = findFixById(identifier);
+        this.holding_o_fix  = findWaypoint(identifier);
         if (this.holding_o_fix == undefined) {
             this.holding = false;
             return false;
@@ -1241,16 +1241,8 @@ Plane.prototype.advance2NextStep = function() {
                 latitude = step.latitude;
                 longitude = step.longitude;
                 this.intercepting = false;  // Clear any previous radial interception
-                o_navaid = findNavaid(wp_id, latitude, longitude);
-                if (o_navaid instanceof Navaid) {
-                    estimate = this.goToNavaid(o_navaid);
-                }
-                else {
-                    o_wp = findWaypoint(wp_id, latitude, longitude);
-                    if (o_wp instanceof Waypoint) {
-                        estimate = this.goToWaypoint(o_wp);
-                    }
-                }
+                o_wp = findWaypoint(wp_id, latitude, longitude);
+                estimate = this.goToWaypoint(o_wp);
                 // this.checkFixAltitudeConstraint(step.altitude_constraint, step.altitude_1, step.altitude_2, estimate);
                 this.checkAltitudeConstraint();
                 break;
@@ -1308,11 +1300,10 @@ Plane.prototype.advance2NextStep = function() {
                 break;
             case 'CD':
                 // Coarse Direction
-                navaid_id = step.navaid_id;
-                o_navaid = findNavaid(navaid_id);
-                if (o_navaid != undefined) {
+                o_wp = findWaypoint(step.navaid_id);
+                if (o_wp != undefined) {
                     this.intercepting = false;  // Clear any previous radial interception
-                    var fix_coords = Math.coordsFromCoarseDistance(o_navaid.latitude, o_navaid.longitude, step.heading, step.track_distance);
+                    var fix_coords = Math.coordsFromCoarseDistance(o_wp.latitude, o_wp.longitude, step.heading, step.track_distance);
                     this.steps[this.current_step].latitude = fix_coords.lat;
                     this.steps[this.current_step].longitude = fix_coords.lon;
                     estimate = this.goToCoords(fix_coords.lat, fix_coords.lon);
@@ -1374,13 +1365,12 @@ Plane.prototype.advance2NextStep = function() {
                 break;
             case 'FD':
                 // Follow a radial
-                navaid_id = step.identifier;
-                o_navaid = findFixById(navaid_id);
-                if (o_navaid != undefined) {
-                    this.steps[this.current_step].latitude = o_navaid.latitude;
-                    this.steps[this.current_step].longitude = o_navaid.longitude;
+                o_wp = findWaypoint(step.identifier);
+                if (o_wp != undefined) {
+                    this.steps[this.current_step].latitude = o_wp.latitude;
+                    this.steps[this.current_step].longitude = o_wp.longitude;
                     this.intercepting = false;  // Clear any previous radial interception
-                    this.interceptRadial(navaid_id, step.track_bearing, step.inbound);
+                    this.interceptRadial(step.identifier, step.track_bearing, step.inbound);
                 }
                 else {
                     this.setHeading(step.heading, 0);
@@ -1559,15 +1549,13 @@ Plane.prototype.showRoute = function() {
             var o_step = this.steps[w];
             if (o_step.identifier != undefined) {
                 // Display step fix with label
-                var o_fix = findFixById(o_step.identifier);
+                var o_fix = findWaypoint(o_step.identifier);
                 if (o_fix != undefined) {
                     if (!o_fix.visible) {
                         // Show fix with label as temporary
                         o_fix.show(true, true);
                     }
-                    if (!o_fix.labelVisible) {
-                        o_fix.showLabel(true, true);
-                    }
+                    o_fix.showLabel(true, true);
                 }
             }
             if (o_step.latitude != 0 && o_step.longitude !=0) {
@@ -1602,7 +1590,7 @@ Plane.prototype.hideRoute = function() {
         var o_step = this.steps[w];
         if (o_step.identifier != undefined) {
             // Hide fix with temporary visibility selected
-            var o_fix = findFixById(o_step.identifier);
+            var o_fix = findWaypoint(o_step.identifier);
             if (o_fix != undefined) {
                 // Hide fix only if visibility is temporary
                 o_fix.show(false, true);
@@ -1658,18 +1646,14 @@ Plane.prototype.checkAltitudeConstraint = function() {
         }
         */
 
-        var o_fix = findFixById(o_step.identifier);
-        if (o_fix instanceof Navaid) {
+        var o_fix = findWaypoint(o_step.identifier);
+        if (o_fix != undefined) {
             estimate = this.estimateToCoords(o_fix.latitude, o_fix.longitude);
-        }
-        else if (o_fix instanceof Waypoint) {
-            estimate = this.estimateToCoords(o_fix.latitude, o_fix.longitude);
-        }
-        else if (o_fix instanceof Runway) {
-            estimate = this.estimateToCoords(o_fix.latitude, o_fix.longitude);
-            // Set target altitude to zero
-            o_step.altitude_constraint = 1;
-            o_step.altitude_1 = 0;
+            if (o_fix.isRunway) {
+                // Set target altitude to zero
+                o_step.altitude_constraint = 1;
+                o_step.altitude_1 = 0;
+            }
         }
         if (estimate != -1 && o_step.altitude_constraint != 0) {
             if (s == this.current_step && o_step.change_flight_phase == PHASE_FINAL && this.phase != PHASE_FINAL && this.phase != PHASE_MISSED_APPROACH) {

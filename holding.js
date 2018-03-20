@@ -30,7 +30,7 @@ Holding.prototype.setY = function ( y ) {
 
 Holding.prototype.setPattern = function(identifier, inbound_radial, leg_distance, turn_direction ) {
 
-    this.o_fix  = findFixById(identifier);
+    this.o_fix  = findWaypoint(identifier);
     if (this.o_fix == undefined) {
         return false;
     }

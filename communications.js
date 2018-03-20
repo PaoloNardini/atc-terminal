@@ -343,8 +343,8 @@ function parseCommand(command) {
                     words.shift();
                 }
                 fix = words[0].toUpperCase();
-                o_navaid = findNavaid(fix);
-                if (o_navaid instanceof Navaid) {
+                o_wp = findWaypoint(fix);
+                if (o_wp.isNavaid) {
                     words.shift();
                     msg += ' ' + fix;
                     speak += ' ' + fix;
@@ -352,9 +352,9 @@ function parseCommand(command) {
                     var o_step = undefined;
                     o_step = new Step();
                     o_step.type = 'FD';
-                    o_step.identifier = o_navaid.label;
-                    o_step.latitude = o_navaid.latitude;
-                    o_step.longitude = o_navaid.longitude;
+                    o_step.identifier = o_wp.label;
+                    o_step.latitude = o_wp.latitude;
+                    o_step.longitude = o_wp.longitude;
                     o_step.track_bearing = radial;
                     o_step.inbound = inbound;
                     o_route.addLeg(o_step);
@@ -404,7 +404,7 @@ function parseCommand(command) {
                 // Holding pattern
                 words.shift();
                 fix = words[0].toUpperCase();
-                o_fix = findFixById(fix);
+                o_fix = findWaypoint(fix);
                 if (o_fix != undefined) {
                     words.shift();
                     var radial = parseInt(words[0]);
@@ -581,76 +581,62 @@ console.log('MAP step = ' + s );
                         director.planeTakeoff(planes[planeID]);
                         break;
                     }
-                    o_navaid = findNavaid(fix);
-                    if (o_navaid instanceof Navaid) {
+                    o_wp = findWaypoint(fix);
+                    if (o_wp != undefined && !o_wp.isRunway) {
                         words.shift();
                         msg += fix + ' ';
                         speak += 'DT ' + fix;
                         o_step = new Step();
                         o_step.type = 'TF';
-                        o_step.identifier = o_navaid.label;
-                        o_step.latitude = o_navaid.latitude;
-                        o_step.longitude = o_navaid.longitude;
+                        o_step.identifier = o_wp.name;
+                        o_step.latitude = o_wp.latitude;
+                        o_step.longitude = o_wp.longitude;
                         o_route.addLeg(o_step);
                     }
                     else {
-                        o_wp = findWaypoint(fix);
-                        if (o_wp instanceof Waypoint) {
+                        var icao = '';
+                        if (planes[planeID].departure) {
+                            var icao = planes[planeID].airp_dep;
+                            o_runway = findRunway(icao, fix);
+                        }
+                        else if (planes[planeID].arrival) {
+                            var icao = planes[planeID].airp_dest;
+                            o_runway = findRunway(icao, fix);
+                        }
+                        if (o_runway instanceof Runway) {
+                            o_airport = findAirport(icao);
                             words.shift();
                             msg += fix + ' ';
                             speak += 'DT ' + fix;
-                            o_step = new Step();
-                            o_step.type = 'TF';
-                            o_step.identifier = o_wp.name;
-                            o_step.latitude = o_wp.latitude;
-                            o_step.longitude = o_wp.longitude;
-                            o_route.addLeg(o_step);
+                            // Find final procedure for landing
+                            o_final_route = director.assignFinalRoute(o_airport, o_runway);
+                            if (o_final_route instanceof Route) {
+                                /*
+                                if (o_final_route.getLegsNumber() > 1) {
+                                    o_step = o_final_route.getLeg(1);
+                                    // Add intercept of final radial
+                                    var fd_step = new Step();
+                                    fd_step.type = 'FD';
+                                    fd_step.identifier = o_step.identifier;
+                                    // fd_step.latitude = o_step.latitude;
+                                    // fd_step.longitude = o_step.longitude;
+                                    fd_step.track_bearing = Math.inverseBearing(o_step.heading);
+                                    fd_step.inbound = inbound;
+                                    o_route.addLeg(fd_step);
+                                }
+                                */
+                                // Add final legs to route
+                                for (var fl=0; fl < o_final_route.getLegsNumber(); fl++) {
+                                    o_step = o_final_route.getLeg(fl);
+                                    o_route.addLeg(o_step);
+                                }
+                                o_route.mapFix = o_final_route.mapFix;
+                                o_route.runway = o_final_route.runway;
+                            }
                         }
                         else {
-                            var icao = '';
-                            if (planes[planeID].departure) {
-                                var icao = planes[planeID].airp_dep;
-                                o_runway = findRunway(icao, fix);
-                            }
-                            else if (planes[planeID].arrival) {
-                                var icao = planes[planeID].airp_dest;
-                                o_runway = findRunway(icao, fix);
-                            }
-                            if (o_runway instanceof Runway) {
-                                o_airport = findAirport(icao);
-                                words.shift();
-                                msg += fix + ' ';
-                                speak += 'DT ' + fix;
-                                // Find final procedure for landing
-                                o_final_route = director.assignFinalRoute(o_airport, o_runway);
-                                if (o_final_route instanceof Route) {
-                                    /*
-                                    if (o_final_route.getLegsNumber() > 1) {
-                                        o_step = o_final_route.getLeg(1);
-                                        // Add intercept of final radial
-                                        var fd_step = new Step();
-                                        fd_step.type = 'FD';
-                                        fd_step.identifier = o_step.identifier;
-                                        // fd_step.latitude = o_step.latitude;
-                                        // fd_step.longitude = o_step.longitude;
-                                        fd_step.track_bearing = Math.inverseBearing(o_step.heading);
-                                        fd_step.inbound = inbound;
-                                        o_route.addLeg(fd_step);
-                                    }
-                                    */
-                                    // Add final legs to route
-                                    for (var fl=0; fl < o_final_route.getLegsNumber(); fl++) {
-                                        o_step = o_final_route.getLeg(fl);
-                                        o_route.addLeg(o_step);
-                                    }
-                                    o_route.mapFix = o_final_route.mapFix;
-                                    o_route.runway = o_final_route.runway;
-                                }
-                            }
-                            else {
-                                // Break at first non-fix word
-                                break;
-                            }
+                            // Break at first non-fix word
+                            break;
                         }
                     }
                 }

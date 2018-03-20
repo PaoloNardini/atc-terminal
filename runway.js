@@ -44,6 +44,7 @@ function Runway() {
     this.cRunway = new createjs.Container();
     this.cCenterline = new createjs.Container();
 
+    /*
     this.gLabel1 = new createjs.Text("", "normal 10px Courier", RWY_TEXT_COLOR);
     this.gLabel1.x = 6;
     this.gLabel1.y = -5;
@@ -53,12 +54,14 @@ function Runway() {
     this.gLabel2.x = 6;
     this.gLabel2.y = -5;
     this.gLabel2.lineHeight = 9;
+    */
 
     this.gRwy = new createjs.Shape();
     this.gRwy.name = this.id;
     this.gRwy.graphics.setStrokeStyle(1).beginStroke(FIX_BODY_COLOR).moveTo(0,0).lineTo(1,1).endStroke();
 
-    this.cRunway.addChild(this.gLabel1, this.gLabel2, this.gRwy);
+    // this.cRunway.addChild(this.gLabel1, this.gLabel2, this.gRwy);
+    this.cRunway.addChild(this.gRwy);
 
     // this.gDraw.addChild(this.gRwy, this.gLabel1, this.gLabel2);
     // this.addChild(this.gRwy, this.gLabel1, this.gLabel2);
@@ -106,12 +109,14 @@ Runway.prototype.setScreenPosition = function() {
     // this.gRwy.graphics.clear();
     // this.gRwy.graphics.setStrokeStyle(3).beginStroke(RWY_BODY_COLOR).moveTo(0,0).lineTo(threshold2.x - threshold1.x,threshold2.y - threshold1.y).endStroke();
 
+    /*
     this.gLabel1.x = -10;
     this.gLabel1.y = -10;
 
     this.gLabel2.x = -10;
     this.gLabel2.y = -10;
     this.gLabel2.text = this.label2; // + '\n' + this.heading + '\n' + this.length; // + '('+ length_miles+')';
+    */
 
     var centerline =  Math.coordsFromCoarseDistance(this.latitude, this.longitude, Math.inverseBearing(this.heading), RWY_CENTERLINE_LENGTH);
     centerlineXY = Math.coordsToScreen( centerline.lat, centerline.lon);
@@ -171,10 +176,12 @@ Runway.prototype.showRunway = function(visible) {
     this.cRunway.visible = visible;
 }
 
+/*
 Runway.prototype.showLabels = function(visible) {
     this.gLabel1.visible = visible;
     this.gLabel2.visible = visible;
 }
+*/
 
 Runway.prototype.showCenterline = function(visible) {
     this.centerline_visible = visible;

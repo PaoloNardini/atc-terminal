@@ -22,7 +22,11 @@ function randomize() {
         // by default show Navaids + Fixes
         updateWaypoints();
         showNav(true);
+        showNavLabels(true);
         showFix(true);
+        showFixLabels(true);
+        showRunways(true);
+        showRunwaysLabels(true);
 
         if (TEST_MODE == 1) {
             testPlanes();

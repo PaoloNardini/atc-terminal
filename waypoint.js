@@ -53,6 +53,13 @@ createjs.promote(Waypoint, "Container");
 
 Waypoint.prototype.getDisplayData = function( scale ) {
 
+    scale = scale + 0.4 / 1.2;
+    // scale = scale + 0.4;
+    this.gBox.scaleX = scale; //  / 1.5;
+    this.gBox.scaleY = scale; // / 1.5;
+    this.gLabel.scaleX = scale;
+    this.gLabel.scaleY = scale;
+
     this.gBox.graphics.clear();
     if (this.isNavaid) {
         if (this.navaid_type == NAVAID_TYPE_NDB) {
@@ -75,15 +82,18 @@ Waypoint.prototype.getDisplayData = function( scale ) {
         this.gBox.graphics.setStrokeStyle(1).beginStroke(FIX_BODY_COLOR).moveTo(-c,c).lineTo(0,-c).lineTo(c,c).lineTo(-c,c).endStroke();
     }
     else {
-        this.gBox.graphics.setStrokeStyle(1).beginStroke(FIX_BODY_COLOR).moveTo(-4,4).lineTo(0,-4).lineTo(4,4).lineTo(-4,4).endStroke();
+        this.gBox.graphics.setStrokeStyle(1).beginStroke(FIX_BODY_COLOR).moveTo(-3,3).lineTo(0,-3).lineTo(3,3).lineTo(-3,3).endStroke();
+        this.gLabel.scaleX = scale * 0.8;
+        this.gLabel.scaleY = scale * 0.8;
     }
-
-    // scale = scale + 0.4;
-    scale = scale + 0.4 / 1.2;
-    this.gLabel.scaleX = scale;
-    this.gLabel.scaleY = scale;
-    this.gBox.scaleX = scale; //  / 1.5;
-    this.gBox.scaleY = scale; // / 1.5;
+    if (this.labelVisibleTemp) {
+        this.gLabel.color = "rgba(255,255,0,1)";
+        this.gLabel.scaleX = scale * 1.5;
+        this.gLabel.scaleY = scale * 1.5;
+    }
+    else {
+        this.gLabel.color = FIX_TEXT_COLOR;
+    }
     this.setScreenPosition(scale);
 }
 
@@ -105,6 +115,7 @@ Waypoint.prototype.setFix = function (f) {
 
 Waypoint.prototype.setScreenPosition = function(scale) {
     var coords = Math.coordsToScreen( this.latitude, this.longitude);
+    /*
     if (this.isWaypoint) {
         this.gLabel.x = (Math.random() * -30) * scale;
         this.gLabel.y = (10 + Math.random() * 10) * scale;
@@ -113,6 +124,7 @@ Waypoint.prototype.setScreenPosition = function(scale) {
         this.gLabel.x = (Math.random() * 10) * scale;
         this.gLabel.y = (-10 + Math.random() * -10) * scale;
     }
+    */
     /*
     if (this.type == 'FIX') {
         this.gLabel.x = 10 * scale;
@@ -174,6 +186,9 @@ Waypoint.prototype.showLabel = function(visible, isTemporary) {
         // Show fix label
         if (this.labelVisible && !this.labelVisibleTemp) {
             // Fix label is always visible
+            this.labelVisibleTemp = isTemporary;
+            this.getDisplayData(currentScale)
+            this.labelVisibleTemp = false;
             return;
         }
         if (!this.labelVisible) {
@@ -191,6 +206,7 @@ Waypoint.prototype.showLabel = function(visible, isTemporary) {
         }
 
     }
+    this.getDisplayData(currentScale)
 }
 
 /**** GLOBAL WAYPOINT FUNCTIONS ****/
