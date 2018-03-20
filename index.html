@@ -94,10 +94,6 @@
     var mainStage,arrStage, depStage, consoleStage;
     var plane;
     var planes = [];
-    // var strips = [];
-    // var navaids = [];
-    // var waypoints = [];
-    // var fixes = [];
     var routes = [];
     var ats_routes = [];
     var ats_videotracks = [];
@@ -117,9 +113,6 @@
     var mouseY = 0;
 
     var currentScale = 1;
-
-    // var arrStrips = 0;
-    // var depStrips = 0;
 
     var selectedPlane = -1;
 
@@ -605,14 +598,6 @@
 
     }
 
-    /*
-    function updateNavaids() {
-        for (n=0; n < navaids.length; n++) {
-            navaids[n].setScale(currentScale);
-        }
-    }
-    */
-
     function updateRoutes() {
         for (r=0; r < ats_routes.length; r++) {
             ats_routes[r].setScale(currentScale);
@@ -634,71 +619,6 @@
         }
         return -1;
     }
-
-    /*
-    function findFixID(value) {
-        var c;
-        value = value.toUpperCase();
-        for (f=0; f < fixes.length; f++) {
-            c = fixes[f].label;
-            if (c == value) {
-                return f;
-            }
-        }
-        return -1;
-    }
-    */
-
-    /*
-    function findFixByLabel(label) {
-        var c;
-        for (f=0; f < fixes.length; f++) {
-            if (fixes[f].label == label) {
-                return fixes[f];
-            }
-        }
-        return undefined;
-    }
-    */
-
-
-    // function findFixById(identifier) {
-    //        return findWaypoint(identifier);
-        /*
-        var o_wp = findWaypoint(identifier);
-        if (o_wp == undefined) {
-            var o_navaid = findNavaid(identifier);
-            if (o_navaid == undefined) {
-                var o_runway = findRunway('',identifier);
-                if (o_runway == undefined) {
-                    return undefined;
-                }
-                return o_runway;
-            }
-            return o_navaid;
-        }
-        return o_wp;
-        */
-    // }
-
-    /*
-    function findNavaid(identifier, latitude, longitude) {
-        for (n=0; n < navaids.length; n++) {
-            if (identifier.toUpperCase() == navaids[n].label) {
-                if (latitude != undefined && longitude != undefined) {
-                    if (latitude == navaids[n].latitude && longitude == navaids[n].longitude) {
-                        return navaids[n];
-                    }
-                }
-                else {
-                    return navaids[n];
-                }
-            }
-        }
-        return undefined;
-    }
-    */
-
 
     function findAirport(icao) {
         for (var a=0; a<airports.length; a++) {
@@ -843,65 +763,21 @@
 
     function showNav(onoff) {
         showWaypoints('NAV', onoff, false);
-        /*
-        for (var n=0; n < navaids.length; n++) {
-            navaids[n].show(onoff);
-        }
-        */
     }
     function showNavLabels(onoff) {
         showWaypointsLabels('NAV', onoff, false);
-        /*
-        for (var n = 0; n < navaids.length; n++) {
-            navaids[n].showLabel(onoff, false);
-        }
-        */
     }
     function showFix(onoff) {
         showWaypoints('FIX', onoff, false);
-        /*
-        for (var n=0; n < fixes.length; n++) {
-            fixes[n].show(onoff);
-        }
-        for (n=0; n < waypoints.length; n++) {
-            if (waypoints[n].type == 'FIX') {
-                waypoints[n].show(onoff);
-            }
-        }
-        */
     }
     function showFixLabels(onoff) {
         showWaypointsLabels('FIX', onoff, false);
-        /*
-        for (var n=0; n < fixes.length; n++) {
-            fixes[n].showLabel(onoff, false);
-        }
-        for (n=0; n < waypoints.length; n++) {
-            if (waypoints[n].type == 'FIX') {
-                waypoints[n].showLabel(onoff, false);
-            }
-        }
-        */
     }
     function showWps(onoff) {
         showWaypoints('WP', onoff, false);
-        /*
-        for (var n=0; n < waypoints.length; n++) {
-            if (waypoints[n].type == 'WP') {
-                waypoints[n].show(onoff);
-            }
-        }
-        */
     }
     function showWpsLabels(onoff) {
         showWaypointsLabels('WP', onoff, false);
-        /*
-        for (n=0; n < waypoints.length; n++) {
-            if (waypoints[n].type == 'WP') {
-                waypoints[n].showLabel(onoff, false);
-            }
-        }
-        */
     }
     function showAts(onoff) {
         if (onoff) {
@@ -937,12 +813,6 @@
     }
     function showAtsLabels(onoff) {
         showWaypointsLabels('ATS', onoff, false);
-        /*
-        for (var a=0; a<ats_routes.length; a++) {
-            var o_route = ats_routes[a];
-            o_route.showLabels(onoff);
-        }
-        */
     }
     function showRunways(onoff) {
         for (var n=0; n < runways.length; n++) {
@@ -952,30 +822,12 @@
     function showRunwaysLabels(onoff) {
         showWaypoints('RWY', onoff, false);
         showWaypointsLabels('RWY', onoff, false);
-        /*
-        for (var n=0; n < runways.length; n++) {
-            runways[n].showLabels(onoff);
-        }
-        */
     }
     function showCenterlines(onoff) {
         for (var n=0; n < runways.length; n++) {
             runways[n].showCenterline(onoff);
         }
     }
-    /*
-    function showLabels(onoff) {
-        for (var n=0; n < navaids.length; n++) {
-            navaids[n].showLabel(onoff);
-        }
-        for (var n=0; n < fixes.length; n++) {
-            fixes[n].showLabel(onoff);
-        }
-        for (n=0; n < waypoints.length; n++) {
-            waypoints[n].showLabel(onoff);
-        }
-    }
-    */
     function showGrid(onoff) {
         for (var n=0; n < grid.length; n++) {
             grid[n].show(onoff);

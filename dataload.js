@@ -198,96 +198,9 @@ function loadNavaids() {
                                 o_navaid.navaid_type = NAVAID_TYPE_NDB
                             }
                         }
-                        /*
-                        if (o_navaid.navaid_type == NAVAID_TYPE_VORDME || o_navaid.navaid_type == NAVAID_TYPE_VORDMENDB || o_navaid.navaid_type == NAVAID_TYPE_NDB) {
-                            o_navaid.show(true,false);
-                            o_navaid.showLabel(true,false);
-                            // o_navaid.setScreenPosition();
-                            // mainContainer.addChild(o_navaid);
-                        }
-                        else {
-                            o_navaid.show(false,false);
-                            o_navaid.showLabel(false,false);
-                        }
-                        */
-                        
-                        /*
-                        for (f = 0; f < navaids.length; f++) {
-                            if (navaids[f].label == navaid_label) {
-                                if (navaids[f].latitude == latitude && navaids[f].longitude == longitude) {
-                                    found = true;
-                                    break;
-                                }
-                                else if (Math.abs(navaids[f].latitude - latitude) < 0.1  && Math.abs(navaids[f].longitude - longitude) < 0.1) {
-                                    found = true;
-                                    update = true;
-                                    break;
-                                }
-                            }
-                        }
-                        freq = parseFloat(words[2]);
-                        if (!found) {
-                            var f = navaids.length;
-                            navaids[f] = new Navaid();
-                            navaids[f].name = navaid_name;
-                            navaids[f].label = navaid_label;
-                            navaids[f].latitude = latitude;
-                            navaids[f].longitude = longitude;
-                            navaids[f].freq = parseFloat(words[2]);
-                            navaids[f].gLabel.text = navaids[f].label;
-                            // navaids[f].visible = false;
-                        }
-                        if (navaid_name.includes('ILS/CAT III')) {
-                            navaids[f].type = NAVAID_TYPE_ILS_CAT_3;
-                        }
-                        else if (navaid_name.includes('ILS/CAT II')) {
-                            navaids[f].type = NAVAID_TYPE_ILS_CAT_2;
-                        }
-                        else if (navaid_name.includes('ILS/CAT I')) {
-                            navaids[f].type = NAVAID_TYPE_ILS_CAT_1;
-                        }
-                        else if (navaid_name.includes('ILS/LLZ')) {
-                            navaids[f].type = NAVAID_TYPE_ILS_CAT_1;
-                        }
-                        else if (navaid_name.includes('LDA/FACILITY')) {
-                            navaids[f].type = NAVAID_TYPE_ILS_CAT_1;
-                        }
-                        else if (freq >= 108 && freq <= 116) {
-                            if (navaids[f].type == NAVAID_TYPE_NDB && update == true) {
-                                navaids[f].type = NAVAID_TYPE_VORDMENDB;
-                            }
-                            else {
-                                navaids[f].type = NAVAID_TYPE_VORDME;
-                            }
-                        }
-                        else if (freq >= 200 && freq <= 500) {
-                            if (navaids[f].type == NAVAID_TYPE_VORDME && update == true) {
-                                navaids[f].type = NAVAID_TYPE_VORDMENDB;
-                            }
-                            else {
-                                navaids[f].type = NAVAID_TYPE_NDB
-                            }
-                        }
-                        if (navaids[f].type == NAVAID_TYPE_VORDME || navaids[f].type == NAVAID_TYPE_VORDMENDB || navaids[f].type == NAVAID_TYPE_NDB) {
-                            navaids[f].show(true,false);
-                            navaids[f].showLabel(true,false);
-                        }
-                        else {
-                            navaids[f].show(false,false);
-                            navaids[f].showLabel(false,false);
-                        }
-                    */
                     }
                 }
             }
-            /*
-            for (f = 0; f < navaids.length; f++) {
-                if (navaids[f].visible == true) {
-                    navaids[f].setScreenPosition();
-                    mainContainer.addChild(navaids[f]);
-                }
-            }
-            */
             resolve(true);
         });
     });
@@ -315,7 +228,6 @@ function loadWaypoints() {
                         }
                         o_wp.isWaypoint = false;
                         o_wp.useCounter++;
-                        // mainContainer.addChild(o_wp);
                     }
                 }
             }
@@ -364,7 +276,6 @@ function loadAirport( icao ) {
                     }
                 }
                 if (mode == 'A' && words[0] == 'R') {
-
                     // Add runway to airport
                     var r = runways.length;
                     var name = words[1];
@@ -426,18 +337,6 @@ function loadAirport( icao ) {
                     }
                     o_wp.isRunway = true;
                     o_wp.useCounter++;
-                    /*
-                    var f = fixes.length;
-                    fixes[f] = new Fix();
-                    fixes[f].name = words[1];
-                    fixes[f].label = words[1];
-                    fixes[f].latitude = parseFloat(words[8]);
-                    fixes[f].longitude = parseFloat(words[9]);
-                    fixes[f].type = NAVAID_TYPE_RWY;
-                    // fixes[f].gLabel.text = fixes[f].label;
-                    // fixes[f].setScreenPosition();
-                    mainContainer.addChild(fixes[f].gDraw);
-                    */
                 }
             }
             resolve(true);
@@ -552,18 +451,11 @@ function loadProcedures(icao) {
                                 else {
                                     // Flag it also as a fix
                                     o_fix.isWaypoint = true;
-                                    /*
-                                     o_fix.isFix = true;
-                                     if (o_fix.isWaypoint) {
-                                     o_fix.isWaypoint = false;
-                                     }
-                                     */
                                 }
                             }
                             else {
                                 o_fix = addWaypoint(fix_label, '', latitude, longitude);
                                 o_fix.isWaypoint = true;
-                                // o_fix.isFix = true;
                             }
                             if (words.length > 10) {
                                 o_fix.altitude = parseFloat(words[11])
@@ -581,63 +473,6 @@ function loadProcedures(icao) {
                             }
                         }
                     }
-                    /*
-                    if (mode == 'SID' || mode == 'STAR' || mode == 'APPTR' || mode == 'FINAL') {
-                        // TODO - addFix is needed???
-                        // routes[route].addFix(f);
-                        if (mode == 'FINAL' && routes[route].tracks.length == mapFixPos) {
-                            // Set fix as MAP
-                            routes[route].mapFix = fix_label;
-                            mapFixPos = -1;
-                        }
-                    }
-                    */
-                    /*
-                    for (f = 0; f < fixes.length; f++) {
-                         if (fixes[f].label == fix_label) {
-                             found = true;
-                             break;
-                         }
-                    }
-                    if (!found) {
-                        var f = fixes.length;
-                        fixes[f] = new Fix();
-                        fixes[f].name = fix_label;
-                        fixes[f].label = fix_label;
-                        fixes[f].latitude = parseFloat(words[2]);
-                        fixes[f].longitude = parseFloat(words[3]);
-                        fixes[f].type = NAVAID_TYPE_ROUTE_FIX;
-                        fixes[f].gLabel.text = fixes[f].label;
-                        if (words.length > 10) {
-                            fixes[f].altitude = parseFloat(words[11])
-                        }
-                        if (fix_type == 'IF' || fix_type == 'TF') {
-                            var c;
-                            if ((c = waypointsById[fix_label]) != undefined) {
-                                // TODO
-                                if (waypoints[c] != undefined && waypoints[c].type != undefined) {
-                                    // Delete waypoint with the same name of the fix
-                                    waypoints.splice(c, 1);
-                                }
-                                waypointsById[fix_label] = undefined;
-                            }
-                            // var o_wp = findWaypoint(fix_label);
-                            // if (o_wp != undefined) {
-                            // Show fix
-                            fixes[f].show(true, false);
-                            fixes[f].setScreenPosition();
-                            mainContainer.addChild(fixes[f]);
-                        }
-                    }
-                    if (mode == 'SID' || mode == 'STAR' || mode == 'APPTR' || mode == 'FINAL') {
-                        routes[route].addFix(f);
-                        if (mode == 'FINAL' && routes[route].tracks.length == mapFixPos) {
-                            // Set fix as MAP
-                            routes[route].mapFix = fixes[f].label;
-                            mapFixPos = -1;
-                        }
-                    }
-                    */
                 }
 
                 if (words[0] == 'SID') {
@@ -918,14 +753,6 @@ function loadATS() {
                             }
                             o_fix.isAts = true;
                             o_fix.useCounter++;
-                            /*
-                            var o_fix = findFixByLabel(o_step.identifier);
-                            if (o_fix == undefined || (Math.abs(o_fix.latitude - o_step.latitude) > 0.05)) {
-                                o_fix = addFix(o_step.identifier, '', o_step.latitude, o_step.longitude);
-                                // o_wp = addWaypoint(o_step.identifier, '', o_step.latitude, o_step.longitude);
-                                mainContainer.addChild(o_fix);
-                            }
-                            */
                         }
                     }
                     o_route = undefined;

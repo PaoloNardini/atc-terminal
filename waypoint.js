@@ -115,26 +115,6 @@ Waypoint.prototype.setFix = function (f) {
 
 Waypoint.prototype.setScreenPosition = function(scale) {
     var coords = Math.coordsToScreen( this.latitude, this.longitude);
-    /*
-    if (this.isWaypoint) {
-        this.gLabel.x = (Math.random() * -30) * scale;
-        this.gLabel.y = (10 + Math.random() * 10) * scale;
-    }
-    else {
-        this.gLabel.x = (Math.random() * 10) * scale;
-        this.gLabel.y = (-10 + Math.random() * -10) * scale;
-    }
-    */
-    /*
-    if (this.type == 'FIX') {
-        this.gLabel.x = 10 * scale;
-        this.gLabel.y = -10 * scale;
-    }
-    else {
-        this.gLabel.x = -30 * scale;
-        this.gLabel.y = 10 * scale;
-    }
-    */
     this.setY(coords.y);
     this.setX(coords.x);
 }
@@ -142,15 +122,6 @@ Waypoint.prototype.setScreenPosition = function(scale) {
 Waypoint.prototype.setLabel = function(label) {
     this.label = label;
     this.type = 'WP';
-    /*
-    for(var c=0; c<label.length; c++) {
-        if (parseInt(label.substr(c,1)) > 0) {
-            this.type = 'WP';
-            return;
-        }
-    }
-    this.type = 'WP';
-    */
 }
 
 Waypoint.prototype.show = function(visible, isTemporary) {
@@ -219,14 +190,6 @@ function addWaypoint(name, label, latitude, longitude) {
     o_wp.latitude = latitude;
     o_wp.longitude = longitude;
     o_wp.setScreenPosition(1);
-    /*
-    if (o_wp.type == 'FIX') {
-        o_wp.show(true, false);
-    }
-    else {
-        o_wp.show(false);
-    }
-    */
     var c = waypoints.length;
     waypoints[c] = o_wp;
     waypointsById[name] = c;
@@ -252,20 +215,6 @@ function findWaypoint(identifier, latitude, longitude) {
             return waypoints[c];
         }
     }
-    /*
-    for (w=0; w < waypoints.length; w++) {
-        if (identifier.toUpperCase() == waypoints[w].label) {
-            if (latitude != undefined && longitude != undefined) {
-                if (latitude == waypoints[w].latitude && longitude == waypoints[w].longitude) {
-                    return waypoints[w];
-                }
-            }
-            else {
-                return waypoints[w];
-            }
-        }
-    }
-    */
     return undefined;
 }
 
@@ -317,13 +266,6 @@ function showWaypoints(type, onoff, isTemporary) {
                 o_wp.isAtsVisible = onoff;
             }
         }
-
-        /*
-
-         if ((type == 'WP' && waypoints[w].isWaypoint) ||( type == 'FIX' && waypoints[w].isFix) || (type == 'NAV' && waypoints[w].isNavaid) || (type == 'RWY' && waypoints[w].isRunway) || (type == 'ATS' && waypoints[w].isATs)) {
-         waypoints[w].show(onoff, isTemporary);
-         }
-         */
     }
 }
 

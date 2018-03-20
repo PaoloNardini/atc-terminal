@@ -875,6 +875,7 @@ console.log('(2) intercept angle = ' + intercept_angle);
     }
 
     // TEST
+    /*
     var v = this.videotracks.length;
     this.videotracks[v] = new VideoTrack();
     this.videotracks[v].from_latitude = this.navaid2intercept.latitude;
@@ -883,7 +884,7 @@ console.log('(2) intercept angle = ' + intercept_angle);
     this.videotracks[v].to_longitude = this.interceptPoint.lon;
     this.videotracks[v].setScreenPosition();
     mainContainer.addChild(this.videotracks[v].gDraw);
-
+    */
     this.goToCoords(this.interceptPoint.lat, this.interceptPoint.lon);
     return false;
 }
@@ -969,61 +970,6 @@ Plane.prototype.changeFreq = function(frequency) {
     // this.updateStripMode();
 }
 
-/*
-Plane.prototype.clearTracks = function() {
-    this.tracks = [];
-    this.fix_next = -1;
-    this.fix_step = -1;
-}
-
-Plane.prototype.newTrack = function(fix) {
-    // TODO check for fix type = 10 -> runway
-    this.clearTracks();
-    var wp = new Track();
-    wp.fix = fix;
-    this.tracks[0] = wp;
-    this.fix_next = fix;
-    this.fix_step = 0;
-    this.refreshRoute();
-    this.goTo(fix);
-}
-
-
-Plane.prototype.addTrack = function(fix) {
-    // TODO check for fix type = 10 -> runway
-    if (fix != undefined) {
-        var wp = new Track();
-        wp.fix = fix;
-        this.tracks[this.tracks.length] = wp;
-        this.refreshRoute();
-    }
-}
-*/
-
-Plane.prototype.refreshRoute = function() {
-    /*
-    this.route = [];
-    for (var w=0; w<this.tracks.length; w++) {
-        this.route[w] = fixes[this.tracks[w]].label;
-    }
-    */
-}
-
-/* OLD - Check distance of plane from a fix */
-/*
-Plane.prototype.checkFixDistance = function(fix) {
-    var newCoords = new LatLon(this.latitude, this.longitude);
-    var nextFixCoords = new LatLon(fixes[this.fix_next].latitude, fixes[this.fix_next].longitude);
-    return Math.metersToMiles(newCoords.distanceTo(nextFixCoords));
-}
-*/
-
-/* OLD - Check if plane is near a fix (less than 1 mile) */
-/*
-Plane.prototype.checkNearFix = function(fix) {
-    return (this.checkFixDistance(fix) < 1);
-}
-*/
 
 // Check distance to a coordinate point
 Plane.prototype.checkNearCoords = function(latitude, longitude) {
@@ -1283,18 +1229,6 @@ Plane.prototype.advance2NextStep = function() {
                 else {
                     // TODO
                 }
-                /*
-                o_navaid = findNavaid(wp_id, latitude, longitude);
-                if (o_navaid instanceof Navaid) {
-                    estimate = this.goToNavaid(o_navaid);
-                }
-                else {
-                    o_wp = findWaypoint(wp_id, latitude, longitude);
-                    if (o_wp instanceof Waypoint) {
-                        estimate = this.goToWaypoint(o_wp);
-                    }
-                }
-                */
                 // this.checkFixAltitudeConstraint(step.altitude_constraint, step.altitude_1, step.altitude_2, estimate);
                 this.checkAltitudeConstraint();
                 break;
@@ -1484,7 +1418,6 @@ Plane.prototype.addLeg = function(o_step) {
     if (o_step != undefined) {
         var new_step = o_step.clone();
         this.steps[this.steps.length] = new_step;
-        // this.refreshRoute();
     }
 }
 

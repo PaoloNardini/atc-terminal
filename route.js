@@ -14,21 +14,6 @@ function Route() {
     this.mapFix = '';   // Missed Approach Fix
     this.runway = '';   // runway dep/arr indicator
 
-    // Graphic objects
-    /*
-    this.gLabel = new createjs.Text("", "normal 13px Courier", ROUTE_TEXT_COLOR);
-    this.gLabel.x = 3;
-    this.gLabel.y = 0;
-    this.gLabel.lineHeight = 14
-
-    this.gBox = new createjs.Shape();
-    var w = 50;
-    var h = 14;
-    this.gBox.graphics.setStrokeStyle(1).beginStroke(ROUTE_BOX_COLOR).beginFill(ROUTE_BOX_COLOR).moveTo(0,0).lineTo(0,h).lineTo(w,h).lineTo(w,0).lineTo(0,0).endStroke();
-
-    this.addChild(this.gBox, this.gLabel);
-    */
-
     // Route data
     this.legs = [];
     this.tracks = [];
@@ -137,80 +122,18 @@ Route.prototype.getLeg = function(num) {
     }
 }
 
-// TODO - Used?
-/*
-Route.prototype.addFix = function(fix) {
-    var w = new Track();
-    w.setFix(fix);
-    this.tracks[this.tracks.length] = w;
-}
-*/
 
-// TODO - Used?
 /*
-Route.prototype.addFixTrack = function(fix_from, fix_to) {
-    if (fix_from != this.tracks[this.tracks.length-1].fix) {
-        var w_from = new Track();
-        w_from.setfix(fix_from);
-        this.tracks[this.tracks.length] = w_from;
-    }
-    var w_to = new Track();
-    w_to.setFix(fix_to);
-    this.tracks[this.tracks.length] = w_to;
-}
-*/
-
 Route.prototype.addFreeTrack = function(heading, distance) {
-
 }
+*/
 
 Route.prototype.addLeg = function(o_step) {
     var s = this.legs.length;
     this.legs[s] = o_step;
 }
 
-// TODO - Used?
 /*
-Route.prototype.newTrack = function(fix) {
-    this.tracks = [];
-    this.tracks[0] = fix;
-    this.refreshRoute();
-    this.goTo(fix);
-}
-*/
-
-// TODO - Used?
-/*
-Route.prototype.addTrack = function(fix) {
-    this.tracks[this.tracks.length] = fix;
-    this.refreshRoute();
-}
-*/
-
-// TODO - Used?
-/*
-Route.prototype.refreshRoute = function() {
-    this.route = [];
-    for (var w=0; w<this.tracks.length; w++) {
-        this.route[w] = fixes[this.tracks[w]].label;
-    }
-}
-*/
-
-// TODO - Used?
-/*
-Route.prototype.checkFixDistance = function(fix) {
-    var newCoords = new LatLon(this.latitude, this.longitude);
-    var nextFixCoords = new LatLon(fixes[this.fix_next].latitude, fixes[this.fix_next].longitude);
-    return Math.metersToMiles(newCoords.distanceTo(nextFixCoords));
-}
-
-// Check if plane is near a fix (less than 1 mile)
-Route.prototype.checkNearFix = function(fix) {
-    return (this.checkFixDistance(fix) < 1);
-}
-*/
-
 Route.prototype.showRoute = function() {
 
 }
@@ -218,7 +141,7 @@ Route.prototype.showRoute = function() {
 Route.prototype.hideRoute = function() {
 
 }
-
+*/
 
 function RouteLabel() {
 

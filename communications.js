@@ -611,20 +611,6 @@ console.log('MAP step = ' + s );
                             // Find final procedure for landing
                             o_final_route = director.assignFinalRoute(o_airport, o_runway);
                             if (o_final_route instanceof Route) {
-                                /*
-                                if (o_final_route.getLegsNumber() > 1) {
-                                    o_step = o_final_route.getLeg(1);
-                                    // Add intercept of final radial
-                                    var fd_step = new Step();
-                                    fd_step.type = 'FD';
-                                    fd_step.identifier = o_step.identifier;
-                                    // fd_step.latitude = o_step.latitude;
-                                    // fd_step.longitude = o_step.longitude;
-                                    fd_step.track_bearing = Math.inverseBearing(o_step.heading);
-                                    fd_step.inbound = inbound;
-                                    o_route.addLeg(fd_step);
-                                }
-                                */
                                 // Add final legs to route
                                 for (var fl=0; fl < o_final_route.getLegsNumber(); fl++) {
                                     o_step = o_final_route.getLeg(fl);
