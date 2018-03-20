@@ -20,6 +20,7 @@ function randomize() {
         }
 
         // by default show Navaids + Fixes
+        updateWaypoints();
         showNav(true);
         showFix(true);
 

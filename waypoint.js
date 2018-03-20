@@ -52,6 +52,32 @@ createjs.extend(Waypoint, createjs.Container);
 createjs.promote(Waypoint, "Container");
 
 Waypoint.prototype.getDisplayData = function( scale ) {
+
+    this.gBox.graphics.clear();
+    if (this.isNavaid) {
+        if (this.navaid_type == NAVAID_TYPE_NDB) {
+            this.gBox.graphics.setStrokeStyle(1).beginStroke(FIX_BODY_COLOR).drawCircle(0, 0, 6).endStroke();
+        }
+        else if (this.navaid_type  == NAVAID_TYPE_VORDMENDB) {
+            this.gBox.graphics.setStrokeStyle(1).beginStroke(FIX_BODY_COLOR).drawCircle(0, 0, 7).beginFill(FIX_BODY_COLOR).moveTo(-4, 4).lineTo(0, -4).lineTo(4, 4).lineTo(-4, 4).endStroke();
+        }
+        else {
+            this.gBox.graphics.setStrokeStyle(1).beginStroke(FIX_BODY_COLOR).beginFill(FIX_BODY_COLOR).moveTo(-2, 2).lineTo(0, -2).lineTo(2, 2).lineTo(-2, 2).endStroke();
+        }
+    }
+    else if (this.isAts) {
+        this.gBox.graphics.setStrokeStyle(1).beginStroke(FIX_BODY_COLOR).beginFill(FIX_BODY_COLOR).moveTo(-4,4).lineTo(0,-4).lineTo(4,4).lineTo(-4,4).endStroke();
+    }
+    else if (this.isFix) {
+        var c = this.useCounter;
+        if (c<4) c = 4;
+        if (c>4) c = 5;
+        this.gBox.graphics.setStrokeStyle(1).beginStroke(FIX_BODY_COLOR).moveTo(-c,c).lineTo(0,-c).lineTo(c,c).lineTo(-c,c).endStroke();
+    }
+    else {
+        this.gBox.graphics.setStrokeStyle(1).beginStroke(FIX_BODY_COLOR).moveTo(-4,4).lineTo(0,-4).lineTo(4,4).lineTo(-4,4).endStroke();
+    }
+
     // scale = scale + 0.4;
     scale = scale + 0.4 / 1.2;
     this.gLabel.scaleX = scale;
