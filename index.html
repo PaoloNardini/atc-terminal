@@ -780,7 +780,7 @@
                         */
                         break;
                     case 'WPT-LBL':
-                        showWaypointsLabels(isOn);
+                        showWpsLabels(isOn);
                         break;
                     case 'RWY':
                         showRunways(isOn);
@@ -847,9 +847,12 @@
         */
     }
     function showNavLabels(onoff) {
+        showWaypointsLabels('NAV', onoff, false);
+        /*
         for (var n = 0; n < navaids.length; n++) {
             navaids[n].showLabel(onoff, false);
         }
+        */
     }
     function showFix(onoff) {
         showWaypoints('FIX', onoff, false);
@@ -865,6 +868,8 @@
         */
     }
     function showFixLabels(onoff) {
+        showWaypointsLabels('FIX', onoff, false);
+        /*
         for (var n=0; n < fixes.length; n++) {
             fixes[n].showLabel(onoff, false);
         }
@@ -873,6 +878,7 @@
                 waypoints[n].showLabel(onoff, false);
             }
         }
+        */
     }
     function showWps(onoff) {
         showWaypoints('WP', onoff, false);
@@ -884,12 +890,15 @@
         }
         */
     }
-    function showWaypointsLabels(onoff) {
+    function showWpsLabels(onoff) {
+        showWaypointsLabels('WP', onoff, false);
+        /*
         for (n=0; n < waypoints.length; n++) {
             if (waypoints[n].type == 'WP') {
                 waypoints[n].showLabel(onoff, false);
             }
         }
+        */
     }
     function showAts(onoff) {
         if (onoff) {
@@ -924,10 +933,13 @@
         }
     }
     function showAtsLabels(onoff) {
+        showWaypointsLabels('ATS', onoff, false);
+        /*
         for (var a=0; a<ats_routes.length; a++) {
             var o_route = ats_routes[a];
             o_route.showLabels(onoff);
         }
+        */
     }
     function showRunways(onoff) {
         showWaypoints('RWY', onoff, false);
@@ -938,9 +950,12 @@
         */
     }
     function showRunwaysLabels(onoff) {
+        showWaypointsLabels('RWY', onoff, false);
+        /*
         for (var n=0; n < runways.length; n++) {
             runways[n].showLabels(onoff);
         }
+        */
     }
     function showCenterlines(onoff) {
         for (var n=0; n < runways.length; n++) {

@@ -256,7 +256,7 @@ function findWaypoint(identifier, latitude, longitude) {
 function showWaypoints(type, onoff, isTemporary) {
     var o_wp;
     var x = 0;
-    for (w=0; w < waypoints.length; w++) {
+    for (w = 0; w < waypoints.length; w++) {
         o_wp = waypoints[w];
         if (type == 'WP' && o_wp.isWaypoint) {
             if (onoff != o_wp.isWaypointVisible) {
@@ -304,9 +304,31 @@ function showWaypoints(type, onoff, isTemporary) {
 
         /*
 
-        if ((type == 'WP' && waypoints[w].isWaypoint) ||( type == 'FIX' && waypoints[w].isFix) || (type == 'NAV' && waypoints[w].isNavaid) || (type == 'RWY' && waypoints[w].isRunway) || (type == 'ATS' && waypoints[w].isATs)) {
-            waypoints[w].show(onoff, isTemporary);
+         if ((type == 'WP' && waypoints[w].isWaypoint) ||( type == 'FIX' && waypoints[w].isFix) || (type == 'NAV' && waypoints[w].isNavaid) || (type == 'RWY' && waypoints[w].isRunway) || (type == 'ATS' && waypoints[w].isATs)) {
+         waypoints[w].show(onoff, isTemporary);
+         }
+         */
+    }
+}
+
+function showWaypointsLabels(type, onoff, isTemporary) {
+    var o_wp;
+    for (w = 0; w < waypoints.length; w++) {
+        o_wp = waypoints[w];
+        if (type == 'WP' && o_wp.isWaypoint) {
+            o_wp.showLabel(onoff, isTemporary);
         }
-        */
+        if (type == 'FIX' && o_wp.isFix) {
+            o_wp.showLabel(onoff, isTemporary);
+        }
+        if (type == 'NAV' && o_wp.isNavaid) {
+            o_wp.showLabel(onoff, isTemporary);
+        }
+        if (type == 'RWY' && o_wp.isRunway) {
+            o_wp.showLabel(onoff, isTemporary);
+        }
+        if (type == 'ATS' && o_wp.isAts) {
+            o_wp.showLabel(onoff, isTemporary);
+        }
     }
 }
