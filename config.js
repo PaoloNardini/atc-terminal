@@ -169,6 +169,8 @@ const MSG_BAR_COLOR_2 = 'rgba(128,255,128,0.5)';
 const MSG_BAR_COLOR_3 = 'rgba(128,128,255,0.5)';
 const MSG_BAR_COLOR_4 = 'rgba(80,255,255,0.5)';
 
+const MSG_BAR_DELAY = 15;       // Auto hide of message after xx seconds
+
 const CLOCK_BAR_COLOR = 'rgba(255,255,255,0.8)';
 const CLOCK_COLOR = 'rgba(50,50,50,1)';
 

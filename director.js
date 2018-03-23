@@ -256,7 +256,7 @@ Director.prototype.handleSlots = function() {
             msg = o_plane.callsign + ' ready for takeoff';
             msgbar.showMessage(msg, MSG_FROM_TWR);
         }
-        if (o_plane.hasStatus(STATUS_ARRIVAL) && o_plane.hasStatus(STATUS_RADIO_CONTACT_ATC) && o_plane.slot != undefined) {
+        if (o_plane.hasStatus(STATUS_ARRIVAL) && o_plane.hasStatus(STATUS_RADIO_CONTACT_ATC) && !o_plane.hasStatus(STATUS_RELEASE_WARNING) && o_plane.slot != undefined) {
             if (o_plane.slot.hasPassed(180)) {
                 msg = o_plane.callsign + ' inbound, ready for release';
                 msgbar.showMessage(msg, MSG_FROM_ATC);
