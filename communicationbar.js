@@ -5,6 +5,9 @@ function CommunicationBar() {
     this.lines = [];
     this.width = 100;
 
+    // TODO
+    // this.gMsgBox = new createjs.Container();
+
     // Graphic objects
     this.gMsg = new createjs.Text("", "normal 15px Courier", MSG_COLOR);
     this.gMsg.x = 5;
@@ -14,6 +17,7 @@ function CommunicationBar() {
 
     this.gBox = new createjs.Shape();
     this.gBox.graphics.setStrokeStyle(1).beginStroke(MSG_BAR_COLOR).beginFill(MSG_BAR_COLOR).dr(0,0,50,20);
+
     this.addChild(this.gBox, this.gMsg);
 
     this.x = 80;
@@ -75,4 +79,16 @@ CommunicationBar.prototype.showMessage = function ( msg, type ) {
     },10000)
 }
 
+// TODO
+CommunicationBar.prototype.pushMessage = function ( msg, color ) {
+
+    var gMsg = new createjs.Text("", "normal 15px Courier", MSG_COLOR);
+    gMsg.x = 5;
+    gMsg.y = 0;
+    gMsg.lineHeight = 14;
+    gMsg.text = msg;
+
+    this.gMsgBox.addChild(msg);
+
+}
 
