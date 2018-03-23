@@ -2019,6 +2019,9 @@ Plane.prototype.updateStrip = function() {
         if (runway == undefined && this.o_route && this.o_route.runway != '') {
             runway = this.o_route.runway;
         }
+        if (runway == undefined) {
+            runway = '';
+        }
         this.o_strip.updateStrip(this.stripPosition, route_description, this.speed, this.fl, this.fl_cleared, this.airp_dep, this.airp_dest, runway, this.squack, this.squack_assigned, this.status, this.slot);
     }
 }

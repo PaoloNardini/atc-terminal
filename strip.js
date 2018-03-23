@@ -81,7 +81,7 @@ function Strip() {
     this.gStripLine1 = new createjs.Shape();
     this.gStripLine1.graphics.beginStroke(STRIP_TEXT_COLOR).moveTo(60, 0).lineTo(60,STRIP_HEIGHT-10).endStroke();
     this.gStripLine2 = new createjs.Shape();
-    this.gStripLine2.graphics.beginStroke(STRIP_TEXT_COLOR).moveTo(150, 0).lineTo(150,STRIP_HEIGHT-35).endStroke();
+    this.gStripLine2.graphics.beginStroke(STRIP_TEXT_COLOR).moveTo(155, 0).lineTo(155,STRIP_HEIGHT-35).endStroke();
     this.gStripLine3 = new createjs.Shape();
     this.gStripLine3.graphics.beginStroke(STRIP_TEXT_COLOR).moveTo(350, 0).lineTo(350,STRIP_HEIGHT-10).endStroke();
 
@@ -103,7 +103,7 @@ function Strip() {
     this.gStripLabel4.lineHeight = 14;
 
     this.gStripLabel5 = new createjs.Text(this.airp_dep + ' - ' + this.airp_dest + '\n\n' + this.route, "normal 12px Courier", STRIP_TEXT_COLOR);
-    this.gStripLabel5.x = 160;
+    this.gStripLabel5.x = 165;
     this.gStripLabel5.y = 5;
     this.gStripLabel5.lineHeight = 14;
 
