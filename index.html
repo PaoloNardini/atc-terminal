@@ -132,9 +132,9 @@
     var start_seconds = 0; // new Date().getSeconds(); // MUST START AT ZERO TO AVOID TIME PROBLEMS
     // start_minutes = 59;
     // start_seconds = 00;
-    var hours = start_hours;
-    var minutes = start_minutes;
-    var seconds = start_seconds;
+    var clock_hours = start_hours;
+    var clock_minutes = start_minutes;
+    var clock_seconds = start_seconds;
     var clockStart = new Date().getTime();
     var clockCurrent = clockStart;
     var clockLast = clockStart;
@@ -330,7 +330,7 @@
         }
 
         resizePanels();
-        createGrid();
+        // createGrid();
 
         // createjs.Sound.alternateExtensions = ["mp3"];
         // Load test sounds
@@ -407,7 +407,7 @@
         line2.on('mousedown', function(evt) {
             console.log('mousedown arrivals');
             mouseX = evt.stageX;
-            mouseY = evt.stageY;
+            mouseY = evt.stageY - 30;
             var s = checkStripHit(mouseX, mouseY, arrStripsContainer);
             if (s != -1) {
                 selectedPlane = s;
@@ -426,7 +426,7 @@
         line3.on('mousedown', function(evt) {
             console.log('mousedown departures');
             mouseX = evt.stageX;
-            mouseY = evt.stageY;
+            mouseY = evt.stageY - 30;
             var s = checkStripHit(mouseX, mouseY, depStripsContainer);
             if (s != -1) {
                 selectedPlane = s;
@@ -866,10 +866,10 @@
         }
         elapsed = (clockCurrent - clockStart) / 1000;
         if (elapsed >= 1 ) {
-            seconds = (start_seconds + Math.floor(elapsed)) % 60;
-            minutes = (start_minutes + Math.floor(elapsed / 60)) % 60;
-            hours = (start_hours + Math.floor(elapsed / 3600)) % 24;
-            clockbar.updateTime(hours, minutes, seconds);
+            clock_seconds = (start_seconds + Math.floor(elapsed)) % 60;
+            clock_minutes = (start_minutes + Math.floor(elapsed / 60)) % 60;
+            clock_hours = (start_hours + Math.floor(elapsed / 3600)) % 24;
+            clockbar.updateTime(clock_hours, clock_minutes, clock_seconds);
         }
         clockLast = clockCurrent;
     }

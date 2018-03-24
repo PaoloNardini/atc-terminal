@@ -63,10 +63,10 @@ Recognized commands:
 - < plane > C < rwy > -> Clear to the final approach to runway
 - < plane > CH TWR -> Change radio frequency to TWR (for landing when estabilished on the runway final path)
 - < plane > CH ATC -> Change radio frequency to ATC (for departures when outside control zone)
-- < plane > HOLD  <fix > < radial > -> Hold over a fix, radial indicates coarse of inbound leg of the holding pattern
-- < plane > RAD  <radial > TO/FROM < fix > -> Intercept and follow the radial to / from the indicated fix
+- < plane > HOLD  < fix > < radial > -> Hold over a fix, radial indicates coarse of inbound leg of the holding pattern
+- < plane > RAD  < radial > TO/FROM < fix > -> Intercept and follow the radial to / from the indicated fix
 - < plane > GA -> Go Around, abort landing and follow the missed approach standard procedure
-- < plane > SQ  <trasponder > -> Squack the trasponder code, i.e. insert the given 4 digits code in the plane transponder (not used if AUTOSQUACK = 1)
+- < plane > SQ  < trasponder > -> Squack the trasponder code, i.e. insert the given 4 digits code in the plane transponder (not used if AUTOSQUACK = 1)
 - < plane > ID -> Squack Ident, i.e. identify the plane on the radar screen by its callsing instead of trasponder code (not used if AUTOIDENT = 1)
 
 Note: You can't interact and send instructions with a plane until you have accepted the release (REL command) from the tower or other ATC.
@@ -98,7 +98,6 @@ You can move the screen by dragging it with the mouse, and zooming in/out with m
 By clicking a plane strip or the plane itself on the screen the planned route will be showed.
 
 # Current limitations and known bugs
-- The top message bar is almost unuseful at the moment and need great improvement
 - All planes are B737-800 (same performances)
 - No airlines prefix are used, all planes have numeric callsign
 - Departure planes hold on the last fix of their SID route if have no further instructions, even if released to ATC (with CH ATC command)
@@ -106,7 +105,7 @@ By clicking a plane strip or the plane itself on the screen the planned route wi
 
 
 # Planned features
-_(not_ ordered by importance or implementation time)
+_(not ordered by importance or implementation time)
 - Parameters configuration panel
 - Runway status configuration panel with wind indication
 - Departures clearence must include final ATS route to intercept and follow
@@ -115,6 +114,7 @@ _(not_ ordered by importance or implementation time)
 - Audio playback of pilots voices
 - Airlines prefix to planes callsign
 - Different plane models with different performances
+- Planes collision alert
 - ... more
 
 

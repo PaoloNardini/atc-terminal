@@ -2,6 +2,15 @@
 function Director() {
     this.planes_arrival = 0;
     this.planes_departure = 0;
+    this.lastActionTime = 0;
+}
+
+Director.prototype.updateTimeFromLastAction = function() {
+    this.lastActionTime = new Date().getTime();
+}
+
+Director.prototype.getTimeFromLastAction = function() {
+    return ((new Date().getTime()) - this.lastActionTime) / 1000;
 }
 
 Director.prototype.scheduleDepartures = function() {
@@ -9,15 +18,17 @@ Director.prototype.scheduleDepartures = function() {
     if (!sceneryLoaded || this.planes_departure >= MAX_DEPARTURES ) {
         return;
     }
-
     // For each airport ... check for runways active for takeoff
-    for (var a=0; a < airports.length; a++) {
-        for(var r = 0; r < runways.length; r++) {
+    for (var a = 0; a < airports.length; a++) {
+        for (var r = 0; r < runways.length; r++) {
             if (runways[r].icao == airports[a].icao) {
                 if (runways[r].active && runways[r].takeoff) {
                     // Runway enabled for takeoffs
                     if (runways[r].last_takeoff_time == 0 || (new Date().getTime() / 1000 - runways[r].last_takeoff_time) > TAKEOFF_INTERVAL) {
-                        this.schedulePlaneTakeoff(airports[a], runways[r]);
+                        if (this.getTimeFromLastAction() > DIRECTOR_INTERVAL) {
+                            this.updateTimeFromLastAction();
+                            this.schedulePlaneTakeoff(airports[a], runways[r]);
+                        }
                     }
                 }
             }
@@ -42,19 +53,21 @@ Director.prototype.scheduleArrivals = function() {
     }
 
     // For each airport ... check for runways active for landing
-    for (var a=0; a < airports.length; a++) {
-        for(var r = 0; r < runways.length; r++) {
+    for (var a = 0; a < airports.length; a++) {
+        for (var r = 0; r < runways.length; r++) {
             if (runways[r].icao == airports[a].icao) {
                 if (runways[r].active && runways[r].landing) {
                     // Runway enabled for landing
                     if (runways[r].last_arrival_time == 0 || (new Date().getTime() / 1000 - runways[r].last_arrival_time) > ARRIVAL_INTERVAL) {
-                        this.schedulePlaneArrival(airports[a], runways[r]);
+                        if (this.getTimeFromLastAction() > DIRECTOR_INTERVAL) {
+                            this.updateTimeFromLastAction();
+                            this.schedulePlaneArrival(airports[a], runways[r]);
+                        }
                     }
                 }
             }
         }
     }
-
 }
 
 Director.prototype.schedulePlaneTakeoff = function(o_airport, o_runway) {
@@ -274,7 +287,7 @@ Director.prototype.planeRelease = function(planeID) {
         if (AUTO_IDENT) {
             o_plane.addStatus(STATUS_IDENT);
         }
-        o_plane.slot.setTimer(0,0,30);
+        o_plane.slot.setTimer(0,0,180);
         return;
     }
     if (o_plane.hasStatus(STATUS_RADIO_CONTACT_ATC) && o_plane.hasStatus(STATUS_RELEASE_WARNING)) {
@@ -293,9 +306,4 @@ Director.prototype.planeDestroy = function(o_plane) {
     var o_strip = o_plane.getStrip();
     stripRemove(o_plane.stripType, o_plane.stripPosition);
     o_strip.destroy();
-    /*
-    if (o_plane.arrival) {
-        planeDestroy(o_plane);
-    }
-    */
 }

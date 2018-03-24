@@ -59,8 +59,8 @@ function loadScenery( name ) {
                     loadAirport(icao[0]).then(function () {
                         if (airports.length > 0) {
                             if (LATITUDE_CENTER == 0 && LONGITUDE_CENTER == 0) {
-                                LATITUDE_CENTER = airports[0].latitude;
-                                LONGITUDE_CENTER = airports[0].longitude;
+                                LATITUDE_CENTER = Math.floor(airports[0].latitude * 10) / 10;
+                                LONGITUDE_CENTER = Math.floor(airports[0].longitude * 10) / 10;
                                 MIN_LATITUDE = LATITUDE_CENTER - 2;
                                 MAX_LATITUDE = LATITUDE_CENTER + 2;
                                 MIN_LONGITUDE = LONGITUDE_CENTER - 2;
@@ -90,8 +90,8 @@ function loadScenery( name ) {
                             if (a < icao.length) {
                                 loadAirport(icao[a]).then(function () {
                                     if (LATITUDE_CENTER == 0 && LONGITUDE_CENTER == 0) {
-                                        LATITUDE_CENTER = airports[0].latitude;
-                                        LONGITUDE_CENTER = airports[0].longitude;
+                                        LATITUDE_CENTER = Math.floor(airports[0].latitude * 10) / 10;
+                                        LONGITUDE_CENTER = Math.floor(airports[0].longitude * 10) / 10;
                                         MIN_LATITUDE = LATITUDE_CENTER - 5;
                                         MAX_LATITUDE = LATITUDE_CENTER + 5;
                                         MIN_LONGITUDE = LONGITUDE_CENTER - 5;
@@ -533,7 +533,7 @@ function loadProcedures(icao) {
                     mapFixPos = words[4];
                     fixCounter = 0;
                 }
-                else {
+                else if (words.length > 1 && words[0] != '\r') {
                     // Add Leg to Route
                     var step = new Step();
                     step.type = words[0];
@@ -562,7 +562,7 @@ function loadProcedures(icao) {
                             step.navaid_id = words[5];
                             step.track_bearing = words[6];
                             step.track_distance = words[7];
-                            step.heading = words[8];
+                            step.heading = parseInt(words[8]);
                             step.distance = words[9];
                             step.altitude_constraint = words[10];
                             step.altitude_1 = parseInt(words[11]);
@@ -578,7 +578,7 @@ function loadProcedures(icao) {
                             // VA - Heading to an Altitude
                             // VA,0,308.0,2,600,0,0,0,0,0,0
                             step.turn_direction = words[1];
-                            step.heading = words[2];
+                            step.heading = parseInt(words[2]);
                             step.altitude_constraint = words[3];
                             step.altitude_1 = parseInt(words[4]);
                             step.altitude_2 = parseInt(words[5]);
@@ -593,7 +593,7 @@ function loadProcedures(icao) {
                             step.navaid_id = words[5];
                             step.track_bearing = words[6];
                             step.track_distance = words[7];
-                            step.heading = words[8];
+                            step.heading = parseInt(words[8]);
                             step.distance = words[9];
                             step.speed_constraint = words[10];
                             step.speed_1 = words[11];
@@ -621,7 +621,7 @@ function loadProcedures(icao) {
                             // CD, ,0,0,0,OST,0,0.0,161.0,2.0,2,620,0,0,0,0,0,0
                             // CD, ,0,0,0,OST,0,0.0,68.0,5.0,2,1000,0,0,0,0,0,0
                             step.navaid_id = words[5];
-                            step.heading = words[8];
+                            step.heading = parseInt(words[8]);
                             step.track_distance = words[9];
                             step.altitude_constraint = words[10];
                             step.altitude_1 = parseInt(words[11]);
@@ -630,7 +630,7 @@ function loadProcedures(icao) {
                         case 'CI':
                             // CI - Coarse to Intercept
                             // CI,2, ,0.0,300.0,0,0,0,1,220,0,0,0
-                            step.heading = words[4];
+                            step.heading = parseInt(words[4]);
                             step.speed_constraint = words[13];
                             step.speed_1 = words[14];
                             step.speed_2 = words[15];
@@ -644,7 +644,7 @@ function loadProcedures(icao) {
                             step.navaid_id = words[5];
                             step.track_bearing = words[6];
                             step.track_distance = words[7];
-                            step.heading = words[8];
+                            step.heading = parseInt(words[8]);
                             step.altitude_constraint = words[10];
                             step.altitude_1 = parseInt(words[11]);
                             step.altitude_2 = parseInt(words[12]);
@@ -656,7 +656,7 @@ function loadProcedures(icao) {
                         case 'FA':
                             // FA - Fix to an Altitude
                             // FA,RW16L,41.845969,12.261494,0,CMP,0.0,0.0,161.0,2,450,0,0,0,0,0,0
-                            step.heading = words[8];
+                            step.heading = parseInt(words[8]);
                             step.altitude_constraint = words[9];
                             step.altitude_1 = parseInt(words[10]);
                             step.altitude_2 = parseInt(words[11]);
@@ -688,16 +688,18 @@ function loadProcedures(icao) {
                             // VI - Heading to an Intercept
                             // VI,2, ,0.0,238.0,0,0,0,1,200,0,0,0
                             step.turn_direction = words[1];
-                            step.heading = words[4];
+                            step.heading = parseInt(words[4]);
                             step.altitude_constraint = words[8];
                             step.altitude_1 = parseInt(words[9]);
                             step.altitude_2 = parseInt(words[10]);
                             break;
+                        case 'VM':
+                            // V / VM - Heading to a Manual Termination
+                            step.heading = parseInt(words[4]);
+                            break;
                         case 'RF':
                             // RF - Constant Radius Arc
                         case 'V':
-                        case 'VM':
-                            // V / VM - Heading to a Manual Termination
                         case 'FM':
                             // FM - Fix to a Manual Termination
                             console.log('Leg type ' + step.type + ' unsupported');

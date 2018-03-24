@@ -56,4 +56,33 @@ Grid.prototype.show = function(visible) {
     this.gDraw.visible = visible;
 }
 
+/** GLOBAL FUNCTIONS **/
 
+function createGrid() {
+    var ngrid = 0;
+    var step = 0.5;
+    for(lat=LATITUDE_CENTER-5; lat<LATITUDE_CENTER+5; lat+=step) {
+        for(lon=LONGITUDE_CENTER-5; lon<LONGITUDE_CENTER+5; lon+=step) {
+            lat = Math.floor(lat * 10)/10;
+            lon = Math.floor(lon * 10)/10;
+            grid[ngrid] = new Grid();
+            grid[ngrid].p1_latitude = lat;
+            grid[ngrid].p1_longitude = lon;
+            grid[ngrid].p2_latitude = lat+step;
+            grid[ngrid].p2_longitude = lon;
+            grid[ngrid].setScreenPosition();
+            mainContainer.addChild(grid[ngrid].gDraw);
+            ngrid++;
+
+            grid[ngrid] = new Grid();
+            grid[ngrid].p1_latitude = lat;
+            grid[ngrid].p1_longitude = lon;
+            grid[ngrid].p2_latitude = lat;
+            grid[ngrid].p2_longitude = lon+step;
+            grid[ngrid].setScreenPosition();
+            mainContainer.addChild(grid[ngrid].gDraw);
+            ngrid++;
+
+        }
+    }
+}

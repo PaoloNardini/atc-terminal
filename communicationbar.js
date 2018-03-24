@@ -1,29 +1,9 @@
 function CommunicationBar() {
     this.Container_constructor();
-
     this.lines = [];
     this.width = 400;
-
-    // TODO
-    // this.gMsgBox = new createjs.Container();
-
-    // Graphic objects
-    /*
-    this.gMsg = new createjs.Text("", "normal 15px Courier", MSG_COLOR);
-    this.gMsg.x = 5;
-    this.gMsg.y = 0;
-    this.gMsg.lineHeight = 14;
-    // this.gMsg.setBounds(0,0,100,40);
-
-    this.gBox = new createjs.Shape();
-    this.gBox.graphics.setStrokeStyle(1).beginStroke(MSG_BAR_COLOR).beginFill(MSG_BAR_COLOR).dr(0,0,50,20);
-    */
-    // this.gMsgBox.addChild()
-    // this.addChild(this.gBox, this.gMsg);
-
     this.x = 0;
     this.y = 5;
-
 }
 createjs.extend(CommunicationBar, createjs.Container);
 createjs.promote(CommunicationBar, "Container");
@@ -41,15 +21,9 @@ CommunicationBar.prototype.setWidth = function ( w ) {
     for (var line=0; line < this.lines.length; line++) {
         this.lines[line].setWidth(w);
     }
-
-    /*
-    this.gBox.graphics.clear();
-    this.gBox.graphics.setStrokeStyle(1).beginStroke(MSG_BAR_COLOR).beginFill(MSG_BAR_COLOR).dr(0,0,w,18);
-    */
 }
 
 CommunicationBar.prototype.showMessage = function ( msg, type ) {
-    // this.lines[this.lines.length] = msg;
     var color;
     switch (type) {
         case MSG_TO_PLANE:
@@ -76,21 +50,7 @@ CommunicationBar.prototype.showMessage = function ( msg, type ) {
             color = MSG_BAR_COLOR;
             break;
     }
-    /*
-    this.gBox.graphics.clear();
-    this.gBox.graphics.setStrokeStyle(1).beginStroke(color).beginFill(color).dr(0,0,this.width,30);
-    this.gMsg.text = msg;
-    */
-
     this.pushMessage(msg, color);
-
-    /*
-    var that = this;
-    setTimeout(function() {
-        that.gBox.graphics.clear();
-        that.gMsg.text = '';
-    },10000)
-    */
 }
 
 
@@ -128,7 +88,6 @@ function Message(msg, width, color) {
     this.color = color;
 
     this.gBox = new createjs.Shape();
-    // this.gBox.graphics.clear();
     this.gBox.graphics.setStrokeStyle(1).beginStroke(color).beginFill(color).dr(0,0,width,18);
     this.gBox.x = 0;
     this.gBox.y = 5;

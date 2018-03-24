@@ -65,7 +65,7 @@ Waypoint.prototype.getDisplayData = function( scale ) {
         if (this.navaid_type == NAVAID_TYPE_NDB) {
             this.gBox.graphics.setStrokeStyle(1).beginStroke(FIX_BODY_COLOR).drawCircle(0, 0, 6).endStroke();
         }
-        else if (this.navaid_type  == NAVAID_TYPE_VORDMENDB) {
+        else if (this.navaid_type  == NAVAID_TYPE_VORDMENDB || this.navaid_type  == NAVAID_TYPE_VORDME) {
             this.gBox.graphics.setStrokeStyle(1).beginStroke(FIX_BODY_COLOR).drawCircle(0, 0, 7).beginFill(FIX_BODY_COLOR).moveTo(-4, 4).lineTo(0, -4).lineTo(4, 4).lineTo(-4, 4).endStroke();
         }
         else {

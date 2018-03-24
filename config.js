@@ -8,8 +8,9 @@ var AUTO_SQUACK = 1;
 var AUTO_IDENT = 1;
 var MAX_ARRIVALS = 7;
 var MAX_DEPARTURES = 7;
-var TAKEOFF_INTERVAL = 120;      // Min Interval between two take-offs from the same runway
-var ARRIVAL_INTERVAL = 180;      // Min Interval between two arrivals
+var TAKEOFF_INTERVAL = 120;      // Min Interval in seconds between two take-offs from the same runway
+var ARRIVAL_INTERVAL = 180;      // Min Interval in secondsa between two arrivals
+var DIRECTOR_INTERVAL = 10;      // Min interval in secs between director actions
 
 const MAXPLANES = 2;
 const MAX_STRIPS = 15;

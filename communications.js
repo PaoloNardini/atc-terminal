@@ -402,13 +402,21 @@ function parseCommand(command) {
             }
             if (words.length > 0 && words[0].toUpperCase() == 'HOLD') {
                 // Holding pattern
+                msg += ' hold ';
+                speak += ' HOLD ';
                 words.shift();
                 fix = words[0].toUpperCase();
                 o_fix = findWaypoint(fix);
                 if (o_fix != undefined) {
+                    msg += o_fix.label + ' ';
+                    speak += o_fix.label + ' ';
                     words.shift();
-                    var radial = parseInt(words[0]);
-                    words.shift();
+                    if (words.length > 0) {
+                        var radial = parseInt(words[0]);
+                        msg += 'radial ' + radial + ' ';
+                        speak += 'RADIAL ' + radial + ' ';
+                        words.shift();
+                    }
                 }
                 var o_route = new Route();
                 var o_step = undefined;
@@ -548,8 +556,15 @@ console.log('MAP step = ' + s );
                     speak += 'FL ' + flight_level + ' ';
                 }
                 else if (planes[planeID].fl < newLevel) {
-                    msg += 'climb to FL ' + flight_level + ' ';
-                    speak += 'FL ' + flight_level + ' ';
+                    if (planes[planeID].hasStatus(STATUS_CLEARED_TAKEOFF)) {
+                        msg += 'initial climb to FL ' + flight_level + ' ';
+                        speak += ' INITIAL FL ' + flight_level + ' ';
+
+                    }
+                    else {
+                        msg += 'climb to FL ' + flight_level + ' ';
+                        speak += 'FL ' + flight_level + ' ';
+                    }
                 }
                 else {
                     msg += 'maintain FL ' + flight_level + ' ';

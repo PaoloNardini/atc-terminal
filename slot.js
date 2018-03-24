@@ -2,7 +2,6 @@
  * Slot
  * handle timers
  */
-
 function Slot() {
     this.hours = 0;
     this.minutes = 0;
@@ -17,15 +16,15 @@ Slot.prototype.setSlotTime = function (h,m,s) {
 
 Slot.prototype.setTimer = function (h,m,s) {
     var t = s + (m * 60) + (h * 3600);
-    this.seconds = (seconds + t) % 60;
-    this.minutes = Math.floor((minutes + (t / 60))) % 60;
-    this.hours = Math.floor((hours + (t / 3600))) % 24;
+    this.seconds = (clock_seconds + t) % 60;
+    this.minutes = Math.floor((clock_minutes + (t / 60))) % 60;
+    this.hours = Math.floor((clock_hours + (t / 3600))) % 24;
 }
 
 Slot.prototype.hasPassed = function(shift) {
-    var h = hours;
-    var m = minutes;
-    var s = seconds;
+    var h = clock_hours;
+    var m = clock_minutes;
+    var s = clock_seconds;
     if (shift != undefined) {
         var t = s + (m * 60) + (h * 3600);
         t = t + shift;

@@ -12,12 +12,11 @@ function checkStripHit(mouseX, mouseY, container) {
         if (planes[p].stripPosition >=0 && ((id == 'arrStripsContainer' && planes[p].arrival == true) || (id == 'depStripsContainer' && planes[p].departure == true))) {
             var o_strip = planes[p].getStrip();
             var rectangle = o_strip.getBounds();
-
-            var x = container.scaleX * (o_strip.x - container.regX);
-            var y = container.scaleY * (o_strip.y - container.regY);
+            var x = o_strip.x - container.regX;
+            var y = o_strip.y - container.regY;
             var x1 = x + rectangle.width;
             var y1 = y + rectangle.height;
-            // console.log('checkStripHit ' + planes[p].callsign + ' x=' + x + ' y=' + y + ' x1=' + x1 + ' y1=' + y1 + ' mouse=' + mouseX + ' - ' + mouseY);
+// console.log('checkStripHit ' + planes[p].callsign + ' x=' + x + ' y=' + y + ' x1=' + x1 + ' y1=' + y1 + ' mouse=' + mouseX + ' - ' + mouseY);
             if (mouseX >= x && mouseX <= x1 && mouseY >= y && mouseY <= y1) {
                 console.log('Hit strip ' + planes[p].callsign);
                 // o_strip.setMode(STRIP_SELECTED);
@@ -134,15 +133,22 @@ Strip.prototype.setAircraftType = function(aircraft) {
     this.gStripLabel2.text = aircraft;
 }
 
-Strip.prototype.updateStrip = function(position, route_description, speed, altitude, cleared_altitude, airport_departure, airport_destination, runway_assigned, squack, squack_assigned, notes, slot) {
+Strip.prototype.updateStrip = function(position, route_description, speed, altitude, cleared_altitude, initial_altitude, final_altitude, airport_departure, airport_destination, runway_assigned, squack, squack_assigned, notes, slot) {
 
     this.gStripLabel3.text = 'G' + Math.floor(speed);
 
-    var fl = 'FL ' + Math.floor(altitude / 100);
+    var fl = ''; // 'FL ' + Math.floor(altitude / 100);
 
     if (cleared_altitude != undefined && Math.floor(cleared_altitude / 100) != Math.floor(altitude / 100)) {
         fl = fl + ' > ' + Math.floor(cleared_altitude / 100);
     }
+    else {
+        fl = 'FL ' + Math.floor(altitude / 100);
+    }
+    if (final_altitude != undefined && final_altitude > 0 && Math.floor(final_altitude / 100) != Math.floor(altitude / 100)) {
+        fl = fl + '/' + Math.floor(final_altitude / 100);
+    }
+
     if (route_description.length > 36) {
         route_description = route_description.substr(0,18) + '...' + route_description.substr(-18);
     }

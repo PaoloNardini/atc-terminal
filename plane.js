@@ -63,6 +63,7 @@ function Plane() {
     this.heading_target = this.heading;
     this.fl = Math.random() * 35000;
     this.fl_final = Math.floor((20000 + (Math.random() * 17000))/1000)*1000;
+    this.fl_initial = this.fl_final;
     this.fl_cleared = this.fl_final;
     this.climb = 0;
     this.turn = 0;
@@ -203,6 +204,9 @@ Plane.prototype.setLevelCleared = function(fl_cleared) {
     if (fl_cleared > 45000) {
         var stop = 1;
     }
+    if (this.hasStatus(STATUS_CLEARED_TAKEOFF)) {
+        this.fl_initial = fl_cleared;
+    }
     this.fl_cleared = fl_cleared;
 console.log(this.callsign + ' setLevelCleared = ' + this.fl_cleared);
 }
@@ -277,7 +281,8 @@ Plane.prototype.addStatus = function(status) {
             break;
         case STATUS_TAKEOFF:
             this.climb = 0;
-            this.setLevelCleared(this.fl_final);
+            this.setLevelCleared(this.fl_initial);
+            // this.setLevelCleared(this.fl_final);
             this.current_step = -1;
             if (speedX2 == 1) {
                 this.lastcompute = (new Date().getTime() - 5000) / 500;
@@ -1025,6 +1030,12 @@ Plane.prototype.followRoute = function() {
                     this.advance2NextStep();
                 }
                 break;
+            case 'VM':
+                // Vector to a manual termination
+                if (this.heading == o_step.heading) {
+                    // Wait for a manual clearence
+                }
+                break;
             case 'FD':
                 // Follow a radial
                 if (this.intercepting) {
@@ -1297,6 +1308,18 @@ Plane.prototype.advance2NextStep = function() {
                     this.advance2NextStep();
                 }
                 break;
+            case 'VM':
+                // Vector to a manual termination
+                if (step.heading != undefined) {
+                    this.intercepting = false;  // Clear any previous radial interception
+                   this.setHeading(step.heading, 0);
+                    this.checkAltitudeConstraint();
+                    // TODO - Set a timer to call for further instructions
+                }
+                else {
+                    console.log('Step VM without heading');
+                }
+                break;
             case 'FD':
                 // Follow a radial
                 o_wp = findWaypoint(step.identifier);
@@ -1548,8 +1571,15 @@ Plane.prototype.getRouteDescription = function() {
         // descr += cs + ':';
         for (var s = cs; s < this.steps.length; s++) {
             var o_step = this.steps[s];
-            if (o_step.identifier != undefined) {
+            if (o_step.identifier != undefined && o_step.identifier != '') {
                 descr += o_step.identifier + '>';
+            }
+            else if (o_step.type == 'VA' || o_step.type == 'VM') {
+                descr += o_step.heading + '>';
+
+            }
+            else if (o_step.type != '') {
+                descr += o_step.type + '>';
             }
         }
     }
@@ -2022,7 +2052,7 @@ Plane.prototype.updateStrip = function() {
         if (runway == undefined) {
             runway = '';
         }
-        this.o_strip.updateStrip(this.stripPosition, route_description, this.speed, this.fl, this.fl_cleared, this.airp_dep, this.airp_dest, runway, this.squack, this.squack_assigned, this.status, this.slot);
+        this.o_strip.updateStrip(this.stripPosition, route_description, this.speed, this.fl, this.fl_cleared, this.fl_initial, this.fl_final, this.airp_dep, this.airp_dest, runway, this.squack, this.squack_assigned, this.status, this.slot);
     }
 }
 

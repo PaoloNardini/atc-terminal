@@ -19,6 +19,7 @@ function randomize() {
             mainContainer.addChild(runways[r]);
         }
 
+        createGrid();
         // by default show Navaids + Fixes
         updateWaypoints();
         showNav(true);
@@ -256,32 +257,6 @@ function randomizeRunways() {
     }
 }
 
-function createGrid() {
-    var ngrid = 0;
-    var step = 0.5;
-    for(lat=LATITUDE_CENTER-5; lat<LATITUDE_CENTER+5; lat+=step) {
-        for(lon=LONGITUDE_CENTER-5; lon<LONGITUDE_CENTER+5; lon+=step) {
-            grid[ngrid] = new Grid();
-            grid[ngrid].p1_latitude = lat;
-            grid[ngrid].p1_longitude = lon;
-            grid[ngrid].p2_latitude = lat +step;
-            grid[ngrid].p2_longitude = lon;
-            grid[ngrid].setScreenPosition();
-            mainContainer.addChild(grid[ngrid].gDraw);
-            ngrid++;
-
-            grid[ngrid] = new Grid();
-            grid[ngrid].p1_latitude = lat;
-            grid[ngrid].p1_longitude = lon;
-            grid[ngrid].p2_latitude = lat;
-            grid[ngrid].p2_longitude = lon+step;
-            grid[ngrid].setScreenPosition();
-            mainContainer.addChild(grid[ngrid].gDraw);
-            ngrid++;
-
-        }
-    }
-}
 
 function test() {
 
