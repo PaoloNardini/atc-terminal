@@ -291,12 +291,14 @@ Director.prototype.planeRelease = function(planeID) {
         return;
     }
     if (o_plane.hasStatus(STATUS_RADIO_CONTACT_ATC) && o_plane.hasStatus(STATUS_RELEASE_WARNING)) {
-        o_plane.setAtcPhase(PLANE_ATC_ACTIVE);
-        o_plane.removeStatus(STATUS_RELEASE_WARNING);
-        o_plane.addStatus(STATUS_RADIO_CONTACT_YOU);
-        if (AUTO_IDENT) {
-            o_plane.addStatus(STATUS_IDENT);
-        }
+        setTimeout( function () {
+            o_plane.setAtcPhase(PLANE_ATC_ACTIVE);
+            o_plane.removeStatus(STATUS_RELEASE_WARNING);
+            o_plane.addStatus(STATUS_RADIO_CONTACT_YOU);
+            if (AUTO_IDENT) {
+                o_plane.addStatus(STATUS_IDENT);
+            }
+        }, 10000 + (Math.random() * 20000));
     }
 
 }

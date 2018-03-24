@@ -887,6 +887,16 @@
         return hh + ':' + mm;
     }
 
+    function getGreeting() {
+        if (clock_hours < 12) {
+            return "good morning";
+        }
+        if (clock_hours < 20) {
+            return "good afternoon";
+        }
+        return "good evening";
+    }
+
     function getJsonFromUrl() {
         var query = location.search.substr(1);
         var result = {};

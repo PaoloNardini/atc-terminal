@@ -135,6 +135,45 @@ Plane.prototype.getSpeed = function() {
  * Set speed automatically based on flight status and route
  */
 Plane.prototype.setAutoSpeed = function() {
+    if (this.hasStatus(STATUS_WAIT_TAKEOFF) || this.hasStatus(STATUS_WAIT_CLEARENCE) || this.hasStatus(STATUS_HOLDING_POINT)) {
+        this.speed = 0;
+        this.speed_target = 0;
+    }
+    if (this.hasStatus(STATUS_TAKEOFF)) {
+        this.speed = 5;
+        this.speed_target = 160;
+    }
+    if (this.hasStatus(STATUS_CLIMB_INITIAL)) {
+        this.speed_target = 250;
+    }
+    if (this.hasStatus(STATUS_CRUISE)) {
+        this.speed_target = 405;
+    }
+    if (this.hasStatus(STATUS_DESCENDING)) {
+        if (this.holding == false && this.speed > 360) {
+            this.speed_target = 360;
+        }
+    }
+    if (this.hasStatus(STATUS_APPROACH)) {
+        this.speed_target = 250;
+    }
+    if (this.hasStatus(STATUS_FINAL_APPROACH)) {
+        this.speed_target = 200;
+    }
+    if (this.hasStatus(STATUS_FINAL)) {
+        this.speed_target = 140;
+    }
+    if (this.hasStatus(STATUS_MISSED_APPROACH)) {
+        this.speed_target = 250;
+    }
+    if (this.hasStatus(STATUS_TAXI)) {
+        this.speed_target = 100;
+    }
+    if (this.hasStatus(STATUS_LANDED)) {
+        this.speed_target = 0;
+    }
+
+    /*
     switch (this.phase) {
         case PHASE_WAIT_TAKEOFF:
             this.speed = 0;
@@ -177,11 +216,105 @@ Plane.prototype.setAutoSpeed = function() {
             this.speed_target = 0;
             return;
     }
-console.log('phase = ' + this.phase + ' speed = ' + this.speed_target);
+    */
+console.log('AutoSpeed = ' + this.speed_target);
     this.checkSpeedConstraint();
     this.checkAltitudeConstraint();
 }
 
+
+Plane.prototype.setAutoRatio = function() {
+
+    if (this.hasStatus(STATUS_WAIT_TAKEOFF) || this.hasStatus(STATUS_WAIT_CLEARENCE) || this.hasStatus(STATUS_HOLDING_POINT)) {
+        this.fl = 0;
+        this.setLevelCleared(0);
+        this.speed = 0;
+        this.departure = true;
+        this.arrival = false;
+        this.transit = false;
+    }
+    if (this.hasStatus(STATUS_CLIMB_INITIAL)) {
+        this.climb = 2500;
+    }
+    if (this.hasStatus(STATUS_CRUISE) && this.hasStatus(STATUS_CLIMBING)) {
+        this.climb = 2000;
+    }
+    if (this.hasStatus(STATUS_CRUISE) && this.hasStatus(STATUS_DESCENDING)) {
+        this.climb = -4500;
+    }
+    if (this.hasStatus(STATUS_FINAL_APPROACH)) {
+        this.climb = -750;
+    }
+    if (this.hasStatus(STATUS_FINAL)) {
+        this.climb = -500;
+    }
+    if (this.hasStatus(STATUS_MISSED_APPROACH)) {
+        if (this.fl > this.fl_cleared) {
+            this.climb = -750;
+        }
+        else if (this.fl < this.fl_cleared) {
+            this.climb = 750;
+        }
+        else {
+            this.climb = 0;
+        }
+    }
+    if (this.hasStatus(STATUS_LANDED) || this.hasStatus(STATUS_TAXI)) {
+        this.climb = 0;
+    }
+
+    /*
+
+
+        switch (phase) {
+        case PHASE_WAIT_TAKEOFF:
+            this.fl = 0;
+            this.setLevelCleared(0);
+            this.speed = 0;
+            this.departure = true;
+            this.arrival = false;
+            this.transit = false;
+            break;
+        case PHASE_CLIMB_INITIAL:
+            this.climb = 2500;
+            break;
+        case PHASE_CLIMB_CRUISE:
+            this.climb = 2000;
+            break;
+        case PHASE_DESCENT_CRUISE:
+            this.climb = -4500;
+            break;
+        case PHASE_APPROACH:
+            this.climb = -1000;
+            break;
+        case PHASE_FINAL_APPROACH:
+            this.climb = -750;
+            break;
+        case PHASE_FINAL:
+            this.climb = -500;
+            break;
+        case PHASE_MISSED_APPROACH:
+            if (this.fl > this.fl_cleared) {
+                this.climb = -750;
+            }
+            else if (this.fl < this.fl_cleared)
+            {
+                this.climb = 750;
+            }
+            else  {
+                this.climb = 0;
+            }
+            break;
+        case PHASE_LANDED:
+            this.climb = 0;
+            break;
+        case PHASE_TAXI:
+            this.climb = 0;
+            break;
+    }
+    this.setAutoSpeed();
+     */
+}
 
 Plane.prototype.setHeading = function(heading, turn_direction) {
 // console.log('setHeading = ' + heading);
@@ -215,7 +348,7 @@ Plane.prototype.setLevel = function(level) {
     this.setLevelCleared(level);
     if (this.fl > this.fl_cleared) {
         // Descend
-        if (this.phase == PHASE_CRUISE || this.phase == PHASE_DESCENT_CRUISE || this.phase == '') {
+        if (this.hasStatus(STATUS_CRUISE)) {
             // Distance from destination?
             if (this.airp_dest != '') {
                 var o_airport = findAirport(this.airp_dest);
@@ -225,9 +358,10 @@ Plane.prototype.setLevel = function(level) {
                     var distance = Math.metersToMiles(coords.distanceTo(dest_coords));
                     console.log('Distance to destination' + this.airp_dest + ' : ' + distance + ' miles');
                     if (distance < 75) {
-                        this.setFlightPhase(PHASE_DESCENT_CRUISE);
+                        // this.setFlightPhase(PHASE_DESCENT_CRUISE);
                         this.addStatus(STATUS_DESCENDING);
                         this.checkAltitudeConstraint();
+                        this.setAutoSpeed();
                     }
                     else {
                         this.climb = PLANE_DESCENT_RATIO;
@@ -241,7 +375,7 @@ Plane.prototype.setLevel = function(level) {
             this.climb = PLANE_DESCENT_RATIO;
         }
     }
-    if (this.phase == PHASE_CRUISE || this.phase == '') {
+    if (this.hasStatus(STATUS_CRUISE)) {
         if (this.climb >= 0 && this.fl > this.fl_cleared) {
             this.climb = PLANE_DESCENT_RATIO;
         }
@@ -295,11 +429,15 @@ Plane.prototype.addStatus = function(status) {
                 that.removeStatus(STATUS_RADIO_CONTACT_TWR);
                 that.addStatus(STATUS_RADIO_CONTACT_YOU);
                 that.setAtcPhase(PLANE_ATC_ACTIVE);
-            }, 5000 + (Math.random() * 5000));
+            }, 20000 + (Math.random() * 20000));
             break;
         case STATUS_RADIO_CONTACT_YOU:
             this.removeStatus(STATUS_RADIO_CONTACT_ATC);
             this.removeStatus(STATUS_RADIO_CONTACT_TWR);
+            var greeting = getGreeting();
+            msg = this.callsign + ' with you, ' + greeting;
+            speak = this.callsign + ' WITH YOU, ' + greeting;
+            msgbar.showMessage(msg, MSG_FROM_PLANE);
             break;
         case STATUS_RADIO_CONTACT_ATC:
             this.removeStatus(STATUS_RADIO_CONTACT_YOU);
@@ -337,6 +475,9 @@ Plane.prototype.addStatus = function(status) {
             this.removeStatus(STATUS_FINAL_APPROACH);
             break;
     }
+    this.updateStripMode();
+    this.setAutoRatio();
+    this.setAutoSpeed();
 }
 
 Plane.prototype.removeStatus = function(status) {
@@ -2075,6 +2216,43 @@ Plane.prototype.setAtcPhase = function(phase) {
 
 Plane.prototype.updateStripMode = function() {
     var o_strip = this.getStrip();
+    if (this.hasStatus(STATUS_DEPARTURE)) {
+        if (this.hasStatus(STATUS_WAIT_TAKEOFF)) {
+            o_strip.setMode(STRIP_OUT);
+            return;
+        }
+        if (this.hasStatus(STATUS_CLEARENCE_REQUESTED)) {
+            o_strip.setMode(STRIP_WARNING);
+            return;
+        }
+        if (this.hasStatus(STATUS_HOLDING_POINT)) {
+            o_strip.setMode(STRIP_RELEASE);
+            return;
+        }
+        if (this.hasStatus(STATUS_RADIO_CONTACT_YOU)) {
+            o_strip.setMode(STRIP_ACTIVE);
+            return;
+        }
+        if (this.hasStatus(STATUS_RADIO_CONTACT_ATC)) {
+            o_strip.setMode(STRIP_OUT);
+        }
+    }
+    if (this.hasStatus(STATUS_ARRIVAL)) {
+
+        if (this.hasStatus(STATUS_RADIO_CONTACT_ATC)) {
+            o_strip.setMode(STRIP_WARNING);
+            return;
+        }
+        if (this.hasStatus(STATUS_RADIO_CONTACT_TWR)) {
+            o_strip.setMode(STRIP_OUT);
+            return;
+        }
+        if (this.hasStatus(STATUS_RADIO_CONTACT_YOU)) {
+            o_strip.setMode(STRIP_ACTIVE);
+            return;
+        }
+    }
+    /*
     switch (this.atc_phase) {
         case PLANE_ATC_OUT:
             o_strip.setMode(STRIP_OUT);
@@ -2091,6 +2269,7 @@ Plane.prototype.updateStripMode = function() {
             o_strip.setMode(STRIP_ACTIVE);
             break;
     }
+    */
 }
 
 

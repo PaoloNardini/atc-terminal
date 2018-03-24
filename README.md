@@ -24,7 +24,7 @@ The software is written in plain Javascript and use the following libraries:
 
 The project is now in a pre-beta phase with about 60% of planned functionalities already implemented.
 
-The current RNAV database is derived from a real plane database and is updated at Dec 2017.
+The current RNAV database is based on real planes database and is updated at Dec 2017.
 
 A demo web site will be available soon.
 
@@ -44,13 +44,13 @@ The first release includes only the following TMA scenarios:
 - index.html?airport=LFPO,LFPG,LFPB       (Paris TMA, Charles De Gaulle / Orly / Le Bourget)
 
 If no airports are specified, the default scenery based on ROME/ITALY TMA will be loaded. The scenery file includes also a more realistic configuration of runways status (to be implemented in a configuration panel).
-By loading other airports, the runways status (open/close, used for takeoff / landing /both) will be selected randomly.
+By loading other airports, the runways status (open/close, used for takeoff / landing / both) will be selected randomly.
 
 The config.js file contains all the customizable parameters, you can experiment with.
 
 # Current features
 
-Recognized commands:
+Recognized commands (enter in the upper-right box labelled "enter radio message"):
 
 - < plane > REL -> Accept plane release from TWR or ATC
 - < plane > F < flight level > -> climb or descent to the indicated flight level (in feet/1000). Example F 120 = 12,000 feet
@@ -70,7 +70,8 @@ Recognized commands:
 - < plane > ID -> Squack Ident, i.e. identify the plane on the radar screen by its callsing instead of trasponder code (not used if AUTOIDENT = 1)
 
 Note: You can't interact and send instructions with a plane until you have accepted the release (REL command) from the tower or other ATC.
-
+(To speed-up planes classign typing, you can use TAB key to auto-complete callsign after the first digits)
+  
 Departures planes, follows a random selected SID route (standard instrument departure).
 
 Arrivals planes, follows a random selected STAR route (standard approach route).
@@ -115,6 +116,7 @@ _(not ordered by importance or implementation time)
 - Airlines prefix to planes callsign
 - Different plane models with different performances
 - Planes collision alert
+- Score board based on your performance as ATC operator
 - ... more
 
 
