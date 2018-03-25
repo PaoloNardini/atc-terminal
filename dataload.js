@@ -84,44 +84,46 @@ function loadScenery( name ) {
                 loadNavaids().then(function () {
                     loadWaypoints().then(function () {
                         loadATS().then(function () {
-                            // Load a maximum of 3 airports
-                            // CASCADE PROMISES: UGLY BUT WORKS!!
-                            var a = 0;
-                            if (a < icao.length) {
-                                loadAirport(icao[a]).then(function () {
-                                    if (LATITUDE_CENTER == 0 && LONGITUDE_CENTER == 0) {
-                                        LATITUDE_CENTER = Math.floor(airports[0].latitude * 10) / 10;
-                                        LONGITUDE_CENTER = Math.floor(airports[0].longitude * 10) / 10;
-                                        MIN_LATITUDE = LATITUDE_CENTER - 5;
-                                        MAX_LATITUDE = LATITUDE_CENTER + 5;
-                                        MIN_LONGITUDE = LONGITUDE_CENTER - 5;
-                                        MAX_LONGITUDE = LONGITUDE_CENTER + 5;
-                                    }
-                                    loadProcedures(icao[a]).then(function () {
-                                        a++;
-                                        if (a < icao.length) {
-                                            loadAirport(icao[a]).then(function () {
-                                                loadProcedures(icao[a]).then(function () {
-                                                    a++;
-                                                    if (a < icao.length) {
-                                                        loadAirport(icao[a]).then(function () {
-                                                            loadProcedures(icao[a]).then(function () {
-                                                                resolve(true);
+                            loadAirlines().then(function () {
+                                // Load a maximum of 3 airports
+                                // CASCADE PROMISES: UGLY BUT WORKS!!
+                                var a = 0;
+                                if (a < icao.length) {
+                                    loadAirport(icao[a]).then(function () {
+                                        if (LATITUDE_CENTER == 0 && LONGITUDE_CENTER == 0) {
+                                            LATITUDE_CENTER = Math.floor(airports[0].latitude * 10) / 10;
+                                            LONGITUDE_CENTER = Math.floor(airports[0].longitude * 10) / 10;
+                                            MIN_LATITUDE = LATITUDE_CENTER - 5;
+                                            MAX_LATITUDE = LATITUDE_CENTER + 5;
+                                            MIN_LONGITUDE = LONGITUDE_CENTER - 5;
+                                            MAX_LONGITUDE = LONGITUDE_CENTER + 5;
+                                        }
+                                        loadProcedures(icao[a]).then(function () {
+                                            a++;
+                                            if (a < icao.length) {
+                                                loadAirport(icao[a]).then(function () {
+                                                    loadProcedures(icao[a]).then(function () {
+                                                        a++;
+                                                        if (a < icao.length) {
+                                                            loadAirport(icao[a]).then(function () {
+                                                                loadProcedures(icao[a]).then(function () {
+                                                                    resolve(true);
+                                                                });
                                                             });
-                                                        });
-                                                    }
-                                                    else {
-                                                        resolve(true);
-                                                    }
+                                                        }
+                                                        else {
+                                                            resolve(true);
+                                                        }
+                                                    });
                                                 });
-                                            });
-                                        }
-                                        else {
-                                            resolve(true);
-                                        }
+                                            }
+                                            else {
+                                                resolve(true);
+                                            }
+                                        });
                                     });
-                                });
-                            }
+                                }
+                            });
                         });
                     });
                 });
@@ -789,4 +791,32 @@ function loadATS() {
         });
     });
     return promiseAts;
+}
+
+function loadAirlines() {
+    console.log('=== LOAD AIRLINES ===');
+    var promiseAirlines =  new Promise(function (resolve, reject) {
+        $.get("data/airlines.txt", function (data) {
+            var lines = data.split('\n');
+            var words;
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].replace(/"/g,'');
+                words = line.split(',');
+                if (words.length >= 8 && words[3] != '' && words[7] == 'Y') {
+                    // Only active and IATA airlines
+                    var a = airlines.length;
+                    var o_airline = new Airline();
+                    o_airline.name = words[1];
+                    o_airline.alias = words[2] == '\N' ? '' : words[2];
+                    o_airline.iata = words[3];
+                    o_airline.icao = words[4];
+                    o_airline.callsign = words[5];
+                    o_airline.country = words[6];
+                    airlines[a] = o_airline;
+                }
+            }
+            resolve(true);
+        });
+    });
+    return promiseAirlines;
 }

@@ -37,6 +37,7 @@ function Plane() {
     }
 
     // Flight info
+    this.airline = undefined;
     this.callsign = '' + Math.floor((Math.random() * 9999));
     this.aircraft = 'B738';
     this.vfr = false;
