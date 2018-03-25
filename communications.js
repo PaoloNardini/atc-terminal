@@ -451,7 +451,7 @@ function parseCommand(command) {
             if (words.length > 0 && words[0].toUpperCase() == 'GA') {
                 // Go Around
                 words.shift();
-                if ((planes[p].phase == PHASE_FINAL || planes[p].hasStatus(STATUS_FINAL)) && !planes[p].hasStatus(STATUS_LANDED)) {
+                if (planes[p].hasStatus(STATUS_FINAL) && !planes[p].hasStatus(STATUS_LANDED)) {
                     // Advance step to missing approach step (the next one after runway)
                     msg += 'GO AROUND ';
                     speak += 'GA ';
@@ -460,7 +460,7 @@ function parseCommand(command) {
                         if (o_step.identifier != '' && o_step.identifier == planes[p].o_route.mapFix) {
                             planes[p].current_step = s-1;
 console.log('MAP step = ' + s );
-                            planes[p].setFlightPhase(PHASE_MISSED_APPROACH);
+                            // planes[p].setFlightPhase(PHASE_MISSED_APPROACH);
                             planes[p].addStatus(STATUS_MISSED_APPROACH);
                             planes[p].advance2NextStep();
                             break;
@@ -498,7 +498,7 @@ console.log('MAP step = ' + s );
                 msg += 'set heading ' + newHeading + ' ';
                 delay_min = 2000;
                 delay_max = 5000;
-                if (planes[planeID].phase == PHASE_MISSED_APPROACH) {
+                if (planes[planeID].hasStatus(STATUS_MISSED_APPROACH)) {
                     delay_min = 1000;
                     delay_max = 3000;
                 }
@@ -517,7 +517,7 @@ console.log('MAP step = ' + s );
                 speak += 'H' + letter + ' ' + newHeading + ' ';
                 delay_min = 2000;
                 delay_max = 5000;
-                if (planes[planeID].phase == PHASE_MISSED_APPROACH) {
+                if (planes[planeID].hasStatus(STATUS_MISSED_APPROACH)) {
                     delay_min = 1000;
                     delay_max = 3000;
                 }
@@ -535,7 +535,7 @@ console.log('MAP step = ' + s );
                 msg += 'set speed to ' + newSpeed + ' knots ';
                 delay_min = 8000;
                 delay_max = 10000;
-                if (planes[planeID].phase == PHASE_MISSED_APPROACH) {
+                if (planes[planeID].hasStatus(STATUS_MISSED_APPROACH)) {
                     delay_min = 4000;
                     delay_max = 5000;
                 }
@@ -571,7 +571,7 @@ console.log('MAP step = ' + s );
                 }
                 delay_min = 1000;
                 delay_max = 5000;
-                if (planes[planeID].phase == PHASE_MISSED_APPROACH) {
+                if (planes[planeID].hasStatus(STATUS_MISSED_APPROACH)) {
                     delay_min = 1000;
                     delay_max = 3000;
                 }
@@ -648,10 +648,11 @@ console.log('MAP step = ' + s );
                     else if (planes[planeID].arrival) {
                         o_route.type = 'STAR';
                     }
-                    if (planes[planeID].phase == PHASE_MISSED_APPROACH) {
+                    if (planes[planeID].hasStatus(STATUS_MISSED_APPROACH)) {
                         // Resume approach
 console.log('Exit GA and resume Approach phase');
-                        planes[planeID].setFlightPhase(PHASE_APPROACH);
+                        // planes[planeID].setFlightPhase(PHASE_APPROACH);
+                        planes[planeID].setStatus(STATUS_APPROACH);
                     }
                     planes[planeID].assignRoute(o_route);
                 }

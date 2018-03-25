@@ -49,7 +49,7 @@ function Step() {
     this.inbound = undefined;   // used in FD steps to intercept radials
     this.leg_distance = undefined;  // used in HM (holding patterns)
 
-    this.change_flight_phase = '';  // Next phase of flight when step is reaceh
+    this.change_flight_status = '';  // Next phase of flight when step is reaceh
 
     // Step position
     this.x = 0;
@@ -111,7 +111,7 @@ Step.prototype.clone = function() {
     n.y = this.y;
     n.zoom_min = this.zoom_min;
     n.zoom_max = this.zoom_max;
-    n.change_flight_phase = this.change_flight_phase;
+    n.change_flight_status = this.change_flight_status;
     n.inbound = this.inbound;
     n.leg_distance = this.leg_distance;
     return n;

@@ -706,7 +706,7 @@ function loadProcedures(icao) {
                             break;
                     }
                     if (mode == 'FINAL') {
-                        step.change_flight_phase = PHASE_FINAL;
+                        step.change_flight_status = STATUS_FINAL;
                     }
                     routes[route].addLeg(step);
                 }

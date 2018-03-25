@@ -408,7 +408,7 @@ Plane.prototype.addStatus = function(status) {
     switch (status) {
         case STATUS_CLEARED_TAKEOFF:
             setTimeout(function () {
-                that.setFlightPhase(PHASE_TAKEOFF);
+                // that.setFlightPhase(PHASE_TAKEOFF);
                 that.removeStatus(STATUS_CLEARED_TAKEOFF);
                 that.addStatus(STATUS_TAKEOFF);
             }, 10000 + (Math.random() * 15000));
@@ -494,7 +494,7 @@ Plane.prototype.hasStatus = function(status) {
     return false;
 }
 
-
+/*
 Plane.prototype.setFlightPhase = function(phase) {
     this.phase = phase;
     // TODO changes....
@@ -508,6 +508,7 @@ Plane.prototype.setFlightPhase = function(phase) {
             this.arrival = false;
             this.transit = false;
             break;
+*/
 /*
         case PHASE_CLEARED_TAKEOFF:
             var that = this;
@@ -530,6 +531,7 @@ Plane.prototype.setFlightPhase = function(phase) {
             this.advance2NextStep();
             break;
 */
+/*
         case PHASE_CLIMB_INITIAL:
             this.climb = 2500;
             break;
@@ -569,6 +571,7 @@ Plane.prototype.setFlightPhase = function(phase) {
     }
     this.setAutoSpeed();
 }
+*/
 
 Plane.prototype.destroy = function() {
     console.log('DESTROY Plane ' + this.callsign);
@@ -648,20 +651,20 @@ Plane.prototype.move = function(newTimer) {
 
     if (this.speed_target > this.speed) {
         // Increase speed
-        if (this.phase == PHASE_TAKEOFF) {
+        if (this.hasStatus(STATUS_TAKEOFF)) {
             this.speed = Math.floor(this.speed + (elapsed * 5));
         }
         else {
             this.speed = Math.floor(this.speed + (elapsed * 1.5));
         }
-        if (this.speed < 140 && this.phase != PHASE_LANDED) {
+        if (this.speed < 140 && !this.hasStatus(STATUS_LANDED)) {
             this.speed = 140;
             this.speed_target = 140;
         }
     }
     if (this.speed_target < this.speed) {
         // Decrease speed
-        if (this.phase == PHASE_LANDED) {
+        if (this.hasStatus(STATUS_LANDED)) {
             //Brakes!!
             this.speed = Math.floor(this.speed - (elapsed * 10));
         }
@@ -679,7 +682,7 @@ Plane.prototype.move = function(newTimer) {
 // console.log(this.callsign + ' new position - ' + this.latitude + ' - ' + this.longitude);
     this.setPosition();
 
-    if (this.phase == PHASE_TAKEOFF) {
+    if (this.hasStatus(STATUS_TAKEOFF)) {
         if (this.climb == 0 && this.speed >= 140) {
             // V1 Rotation and take off
             this.climb = 3500;
@@ -722,29 +725,56 @@ Plane.prototype.move = function(newTimer) {
     this.distance = Math.metersToMiles(newCoords.distanceTo(nextFixCoords));
 
     // CHECK FLIGHT PHASE
+    if (this.hasStatus(STATUS_TAKEOFF)) {
+        if (this.fl > 0) {
+            this.removeStatus(STATUS_GROUND);
+        }
+        if (this.climb > 0 && this.fl > 2000) {
+            // this.setFlightPhase(PHASE_CLIMB_INITIAL);
+            this.removeStatus(STATUS_TAKEOFF);
+            this.addStatus(STATUS_CLIMB_INITIAL);
+        }
+    }
+    else if (this.hasStatus(STATUS_CLIMB_INITIAL)) {
+        if (this.climb > 0 && this.fl > 10000) {
+            // this.setFlightPhase(PHASE_CLIMB_CRUISE);
+            this.removeStatus(STATUS_CLIMB_INITIAL);
+            this.addStatus(STATUS_CLIMBING);
+        }
+    }
+    else if (this.hasStatus(STATUS_CLIMBING) && !this.hasStatus(STATUS_CRUISE)) {
+        if (this.climb > 0 && this.fl > 20000) {
+            // this.setFlightPhase(PHASE_CRUISE);
+            this.removeStatus(STATUS_CLIMB_INITIAL);
+            this.addStatus(STATUS_CRUISE);
+        }
+    }
+
+    /*
     switch (this.phase) {
         case PHASE_TAKEOFF:
             if (this.climb > 0 && this.fl > 2000) {
-                this.setFlightPhase(PHASE_CLIMB_INITIAL);
+                // this.setFlightPhase(PHASE_CLIMB_INITIAL);
                 this.removeStatus(STATUS_TAKEOFF);
                 this.addStatus(STATUS_CLIMB_INITIAL);
             }
             break;
         case PHASE_CLIMB_INITIAL:
             if (this.climb > 0 && this.fl > 10000) {
-                this.setFlightPhase(PHASE_CLIMB_CRUISE);
+                // this.setFlightPhase(PHASE_CLIMB_CRUISE);
                 this.removeStatus(STATUS_CLIMB_INITIAL);
                 this.addStatus(STATUS_CLIMBING);
             }
             break;
         case PHASE_CLIMB_CRUISE:
             if (this.climb > 0 && this.fl > 20000) {
-                this.setFlightPhase(PHASE_CRUISE);
+                // this.setFlightPhase(PHASE_CRUISE);
                 this.removeStatus(STATUS_CLIMB_INITIAL);
                 this.addStatus(STATUS_CRUISE);
             }
             break;
     }
+    */
 
     // Check for any route to follow
     this.followRoute();
@@ -947,7 +977,7 @@ console.log('Plane ' + this.callsign + ' - current radial=' + current_radial + '
     if (this.interceptPoint == undefined) {
         // Calculate a 45° intercept route
         if (this.radialInbound == true) {
-            if (this.phase == PHASE_FINAL) {
+            if (this.hasStatus(STATUS_FINAL)) {
                 // Intercept final path as soon as possible
                 distance_intercept_point = current_distance;
             }
@@ -978,7 +1008,7 @@ console.log('intercept in ' + distance_intercept_point + ' miles (' + (distance_
             var new_distance;
             // move intercept point ahead to smooth interception
             if (this.radialInbound == true) {
-                if (this.phase == PHASE_FINAL) {
+                if (this.hasStatus(STATUS_FINAL)) {
                     new_distance = distance_intercept_point / 2;
                 }
                 else {
@@ -1014,7 +1044,7 @@ console.log('(2) intercept angle = ' + intercept_angle);
             // Move intercept point a bit far
             this.interceptPoint = Math.coordsFromCoarseDistance(this.interceptPoint.lat, this.interceptPoint.lon, this.radial2intercept, distance_intercept_point / 4);
         }
-        else if (this.radialInbound == true && this.phase == PHASE_FINAL) {
+        else if (this.radialInbound == true && this.hasStatus(STATUS_FINAL)) {
             // Move intercept point a bit close
             this.interceptPoint = Math.coordsFromCoarseDistance(this.interceptPoint.lat, this.interceptPoint.lon, inverse_radial, distance_intercept_point / 4);
         }
@@ -1220,12 +1250,12 @@ Plane.prototype.followRoute = function() {
                 }
                 break;
             case 'LAND':
-                if (this.phase != PHASE_MISSED_APPROACH &&  this.phase != PHASE_LANDED) { // && this.fl == this.fl_cleared
+                if (!this.hasStatus(STATUS_MISSED_APPROACH) && !this.hasStatus(STATUS_LANDED)) {
                     if (o_step.latitude != 0 && o_step.longitude != 0) {
                         if (this.checkNearCoords(o_step.latitude, o_step.longitude) < (this.speed / 240)) {
                             // LANDED!
 console.log('LANDED BY RUNWAY');
-                            this.setFlightPhase(PHASE_LANDED);
+                            // this.setFlightPhase(PHASE_LANDED);
                             this.addStatus(STATUS_LANDED);
                             planeDestroy(this);
                             return;
@@ -1234,7 +1264,7 @@ console.log('LANDED BY RUNWAY');
                     else if (this.fl == this.fl_cleared) {
                         // LANDED!
 console.log('LANDED BY ALTITUDE');
-                        this.setFlightPhase(PHASE_LANDED);
+                        // this.setFlightPhase(PHASE_LANDED);
                         this.addStatus(STATUS_LANDED);
                         planeDestroy(this);
                     }
@@ -1284,13 +1314,13 @@ Plane.prototype.advance2NextStep = function() {
     var step;
     if (this.current_step != -1) {
         step = this.steps[this.current_step];
-        if (step.change_flight_phase != '') {
-            if (this.phase == PHASE_MISSED_APPROACH) {
-                // Ignore any phase change 
+        if (step.change_flight_status != '') {
+            if (this.hasStatus(STATUS_MISSED_APPROACH)) {
+                // Ignore any status change
             }
             else {
-                this.setFlightPhase(step.change_flight_phase);
-                // TODO STATUS
+                this.addStatus(step.change_flight_status);
+                // this.setFlightPhase(step.change_flight_phase);
             }
         }
     }
@@ -1312,7 +1342,7 @@ Plane.prototype.advance2NextStep = function() {
         var altitude_constraint = step.altitude_constraint;
         // Execute Next Step
         console.log('Plane ' + this.callsign + ' next step ' + step.type + ' (' + step.identifier + ')');
-        if (this.phase != PHASE_MISSED_APPROACH && step.identifier != '' && step.identifier == this.o_route.mapFix) {
+        if (!this.hasStatus(STATUS_MISSED_APPROACH) && step.identifier != '' && step.identifier == this.o_route.mapFix) {
             // Next step is MAP fix ...
             // Replace with runway threshold
             var o_runway = findRunway(this.airp_dest, this.o_route.runway);
@@ -1351,7 +1381,7 @@ Plane.prototype.advance2NextStep = function() {
                 latitude = step.latitude;
                 longitude = step.longitude;
                 this.intercepting = false;  // Clear any previous radial interception
-                if (this.phase == PHASE_FINAL) {
+                if (this.hasStatus(STATUS_FINAL)) {
                     var o_runway = findRunway(this.airp_dest, this.o_route.runway);
                     if (o_runway != undefined && o_runway.heading == step.heading) {
                         // Intercept final path
@@ -1412,7 +1442,7 @@ Plane.prototype.advance2NextStep = function() {
                 if (step.altitude_constraint != undefined) {
                     // 0= no alt const, 1= at alt1, 2=above alt1, 3= below alt1, 4=between alt1 and 2.
                     var alt = this.fl;
-                    if (this.climb == 0 && this.phase != PHASE_TAKEOFF) {
+                    if (this.climb == 0 && !this.hasStatus(STATUS_TAKEOFF)) {
                         if (step.altitude_constraint == 1 && alt < step.altitude_1) {
                             this.climb = 500;
                         }
@@ -1760,9 +1790,9 @@ Plane.prototype.checkAltitudeConstraint = function() {
             }
         }
         if (estimate != -1 && o_step.altitude_constraint != 0) {
-            if (s == this.current_step && o_step.change_flight_phase == PHASE_FINAL && this.phase != PHASE_FINAL && this.phase != PHASE_MISSED_APPROACH) {
+            if (s == this.current_step && o_step.change_flight_status == STATUS_FINAL && !this.hasStatus(STATUS_FINAL) && !this.hasStatus(STATUS_MISSED_APPROACH)) {
                 // heading to a initial final approach fix
-                this.setFlightPhase(PHASE_APPROACH);
+                // this.setFlightPhase(PHASE_APPROACH);
                 this.addStatus(STATUS_APPROACH);
             }
             this.checkFixAltitudeConstraint(o_step.altitude_constraint, o_step.altitude_1, o_step.altitude_2, estimate);
@@ -1779,7 +1809,7 @@ Plane.prototype.checkFixAltitudeConstraint = function(altitude_constraint, altit
     var alt_cleared = this.fl_cleared;
 console.log(this.callsign + ' checkFixAltitudeConstraint: alt=' + alt + ' alt_cleared=' + alt_cleared + ' constraint=' + altitude_constraint + ' - ' + altitude_1 + ' - estimate = ' + estimate  + ' phase:' + this.phase);
 
-    if (this.phase == PHASE_APPROACH || this.phase == PHASE_FINAL_APPROACH || this.phase == PHASE_FINAL) {
+    if (this.hasStatus(STATUS_APPROACH) || this.hasStatus(STATUS_FINAL_APPROACH) || this.hasStatus(STATUS_FINAL)) {
         // Automatically follow the altitude constraints
         if (altitude_constraint == 1) {
             if ( alt == altitude_1) {
@@ -1976,11 +2006,11 @@ Plane.prototype.getTail = function() {
     if (this.latitude == 0 || this.longitude == 0 || this.speed == 0) {
         return;
     }
-    if (this.phase == PHASE_WAIT_TAKEOFF && this.fl == 0) {
+    if (this.hasStatus(STATUS_WAIT_TAKEOFF) && this.fl == 0) {
         // Don't show data for planes on the ground
         return;
     }
-    if (this.phase == PHASE_LANDED) {
+    if (this.hasStatus(STATUS_LANDED)) {
         // Don't show data for planes on the ground
         return;
     }
@@ -2044,14 +2074,20 @@ Plane.prototype.getConnectorPosition = function() {
 
 Plane.prototype.getDisplayData = function( scale ) {
 
-    if (this.phase == PHASE_WAIT_TAKEOFF && this.fl == 0) {
+    if (this.hasStatus(STATUS_GROUND) && this.fl == 0) {
         // Don't show data for planes on the ground
         return;
     }
-    if (this.phase == PHASE_LANDED && this.speed == 0) {
+    /*
+    if (this.hasStatus(STATUS_WAIT_TAKEOFF) && this.fl == 0) {
         // Don't show data for planes on the ground
         return;
     }
+    if (this.hasStatus(STATUS_LANDED) && this.speed == 0) {
+        // Don't show data for planes on the ground
+        return;
+    }
+    */
 
     scale = scale + 0.4;
     var callsign;
@@ -2218,10 +2254,10 @@ Plane.prototype.updateStripMode = function() {
     var o_strip = this.getStrip();
     if (this.hasStatus(STATUS_DEPARTURE)) {
         if (this.hasStatus(STATUS_WAIT_TAKEOFF)) {
-            o_strip.setMode(STRIP_OUT);
+             o_strip.setMode(STRIP_OUT);
             return;
         }
-        if (this.hasStatus(STATUS_CLEARENCE_REQUESTED)) {
+        if (this.hasStatus(STATUS_CLEARENCE_REQUESTED) || this.hasStatus(STATUS_TAXI)) {
             o_strip.setMode(STRIP_WARNING);
             return;
         }
