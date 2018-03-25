@@ -85,15 +85,15 @@ function Strip() {
     this.gStripLine3.graphics.beginStroke(STRIP_TEXT_COLOR).moveTo(350, 0).lineTo(350,STRIP_HEIGHT-10).endStroke();
 
     this.gStripLabel = new createjs.Text('', "bold 12px Courier", STRIP_TEXT_COLOR);
-    this.gStripLabel.x = 10;
+    this.gStripLabel.x = 5;
     this.gStripLabel.y = 5;
 
     this.gStripLabel2 = new createjs.Text('', "normal 12px Courier", STRIP_TEXT_COLOR);
-    this.gStripLabel2.x = 10;
+    this.gStripLabel2.x = 5;
     this.gStripLabel2.y = 15;
 
     this.gStripLabel3 = new createjs.Text('', "normal 12px Courier", STRIP_TEXT_COLOR);
-    this.gStripLabel3.x = 10;
+    this.gStripLabel3.x = 5;
     this.gStripLabel3.y = 25;
 
     this.gStripLabel4 = new createjs.Text('', "normal 12px Courier", STRIP_TEXT_COLOR)

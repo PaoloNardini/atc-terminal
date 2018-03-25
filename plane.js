@@ -37,8 +37,9 @@ function Plane() {
     }
 
     // Flight info
-    this.airline = undefined;
-    this.callsign = '' + Math.floor((Math.random() * 9999));
+    this.airline = getRandomAirline();
+    this.callsign = '' + ( 99 + Math.floor((Math.random() * 9999)));
+    this.completeCallsign = this.airline.iata + '-' + this.callsign;
     this.aircraft = 'B738';
     this.vfr = false;
     this.airp_dep = '';
@@ -99,7 +100,7 @@ function Plane() {
 
     // Strip object
     this.o_strip = new Strip();
-    this.o_strip.setCallsign(this.callsign);
+    this.o_strip.setCallsign(this.completeCallsign);
     this.o_strip.setAircraftType(this.aircraft);
     this.stripPosition = 0;
     this.updateStripMode();
@@ -245,7 +246,7 @@ Plane.prototype.setLevelCleared = function(fl_cleared) {
         this.fl_initial = fl_cleared;
     }
     this.fl_cleared = fl_cleared;
-console.log(this.callsign + ' setLevelCleared = ' + this.fl_cleared);
+console.log(this.completeCallsign + ' setLevelCleared = ' + this.fl_cleared);
 }
 
 Plane.prototype.setLevel = function(level) {
@@ -337,8 +338,8 @@ Plane.prototype.addStatus = function(status) {
             this.removeStatus(STATUS_RADIO_CONTACT_ATC);
             this.removeStatus(STATUS_RADIO_CONTACT_TWR);
             var greeting = getGreeting();
-            msg = this.callsign + ' with you, ' + greeting;
-            speak = this.callsign + ' WITH YOU, ' + greeting;
+            msg = this.completeCallsign + ' with you, ' + greeting;
+            speak = this.completeCallsign + ' WITH YOU, ' + greeting;
             msgbar.showMessage(msg, MSG_FROM_PLANE);
             break;
         case STATUS_RADIO_CONTACT_ATC:
@@ -397,7 +398,7 @@ Plane.prototype.hasStatus = function(status) {
 }
 
 Plane.prototype.destroy = function() {
-    console.log('DESTROY Plane ' + this.callsign);
+    console.log('DESTROY Plane ' + this.completeCallsign);
     this.removeChild(this.gTail);
     this.removeChild(this.gLabel);
     this.removeChild(this.gLabelConnector);
@@ -502,14 +503,14 @@ Plane.prototype.move = function(newTimer) {
     var latlon = Math.coordsFromCoarseDistance(this.latitude, this.longitude, this.heading, (this.speed / 3600) * elapsed);
     this.latitude = latlon.lat;
     this.longitude = latlon.lon;
-// console.log(this.callsign + ' new position - ' + this.latitude + ' - ' + this.longitude);
+// console.log(this.completeCallsign + ' new position - ' + this.latitude + ' - ' + this.longitude);
     this.setPosition();
 
     if (this.hasStatus(STATUS_TAKEOFF)) {
         if (this.climb == 0 && this.speed >= 140) {
             // V1 Rotation and take off
             this.climb = 3500;
-            console.log('(move 10) Plane ' + this.callsign + ' V1 rotation ... climb at ' + this.climb + ' ft/min');
+            console.log('(move 10) Plane ' + this.completeCallsign + ' V1 rotation ... climb at ' + this.climb + ' ft/min');
         }
     }
 
@@ -517,11 +518,11 @@ Plane.prototype.move = function(newTimer) {
     var ratio = (this.climb * elapsed / 60 );
     if (ratio != 0) {
         if (Math.abs(this.fl - this.fl_cleared) < Math.abs(ratio)) {
-            console.log('Plane ' + this.callsign + ' Level ' + this.fl + ' > ' + this.fl_cleared + ' ratio = ' + ratio);
+            console.log('Plane ' + this.completeCallsign + ' Level ' + this.fl + ' > ' + this.fl_cleared + ' ratio = ' + ratio);
             // Reached assigned altitude
             this.climb = 0;
             this.fl = this.fl_cleared;
-            console.log('(move 11) Plane ' + this.callsign + ' reached assigned altitude ' + this.fl_cleared + ' : new ratio = 0');
+            console.log('(move 11) Plane ' + this.completeCallsign + ' reached assigned altitude ' + this.fl_cleared + ' : new ratio = 0');
         }
         else {
             if (this.fl < this.fl_cleared && ratio <= 0) {
@@ -715,7 +716,7 @@ console.log('RADIAL OUTBOUND OK');
         if (intercept_angle < 0) {
             intercept_angle = 360 + intercept_angle;
         }
-        console.log('Plane ' + this.callsign + ' intercept angle = ' + intercept_angle + ' MODE = ' + this.interceptProcedure);
+        console.log('Plane ' + this.completeCallsign + ' intercept angle = ' + intercept_angle + ' MODE = ' + this.interceptProcedure);
         if (this.interceptProcedure == undefined && Math.abs(new_heading - this.heading) < 45) {
             if (intercept_angle >= 90 && intercept_angle <= 270) {
                 this.interceptProcedure = INTERCEPT_MODE_PROCEDURE;
@@ -727,13 +728,13 @@ console.log('RADIAL OUTBOUND OK');
         if (this.interceptProcedure == INTERCEPT_MODE_PROCEDURE && distance_intercept_point < ((this.speed / 3600) * 10)) {
             // Start outbound leg
             this.interceptProcedure = INTERCEPT_MODE_OUTBOUND_LEG;
-            console.log('Plane ' + this.callsign + ' begin OUTBOUND LEG');
+            console.log('Plane ' + this.completeCallsign + ' begin OUTBOUND LEG');
             return;
         }
         if (this.interceptProcedure == INTERCEPT_MODE_OUTBOUND_LEG) {
             if (distance_intercept_point > ((this.speed / 3600) * 60)) {
                 // Begin procedure turn
-                console.log('Plane ' + this.callsign + ' begin PROCEDURE TURN');
+                console.log('Plane ' + this.completeCallsign + ' begin PROCEDURE TURN');
                 if (intercept_angle > 180) {
                     this.goToCoords(this.interceptPoint.lat, this.interceptPoint.lon, 1);
                 } else {
@@ -760,7 +761,7 @@ console.log('====== outbound - current_radial=' + current_radial + ' radial=' + 
             }
         }
     }
-console.log('Plane ' + this.callsign + ' - current radial=' + current_radial + ' radial=' + this.radial2intercept + ' heading=' + this.heading);
+console.log('Plane ' + this.completeCallsign + ' - current radial=' + current_radial + ' radial=' + this.radial2intercept + ' heading=' + this.heading);
 
     // Check angle distance from radial to intercept
 
@@ -885,7 +886,7 @@ Plane.prototype.holdingPattern = function(identifier, inbound_radial, leg_distan
         else {
             radial_perpendicular = (inbound_radial + 90) % 360;
         }
-console.log(this.callsign + ' HM radial=' + inbound_radial + '  perpend.=' + radial_perpendicular);
+console.log(this.completeCallsign + ' HM radial=' + inbound_radial + '  perpend.=' + radial_perpendicular);
         var hp1 = new LatLon(this.holding_o_fix.latitude, this.holding_o_fix.longitude);
         var hp2 = Math.coordsFromCoarseDistance(hp1.lat, hp1.lon, radial_perpendicular, leg_distance / 2);
         var hp3 = Math.coordsFromCoarseDistance(hp2.lat, hp2.lon, inbound_radial, leg_distance);
@@ -912,7 +913,7 @@ console.log(this.callsign + ' HM radial=' + inbound_radial + '  perpend.=' + rad
 }
 
 Plane.prototype.changeFreq = function(frequency) {
-    console.log(this.callsign + ' - Change frequency with ' + frequency);
+    console.log(this.completeCallsign + ' - Change frequency with ' + frequency);
     if (frequency == 'TWR') {
         if (this.hasStatus(STATUS_APPROACH) || this.hasStatus(STATUS_FINAL_APPROACH) || this.hasStatus(STATUS_FINAL) || this.hasStatus(STATUS_LANDING) || this.hasStatus(STATUS_LANDED)) {
             this.setAtcPhase(PLANE_ATC_OUT);
@@ -967,31 +968,31 @@ Plane.prototype.followRoute = function() {
                 if (o_step.altitude_constraint != undefined) {
                     // 0=no alt const, 1= at alt1, 2=above alt1, 3= below alt1, 4=between alt1 and 2.
                     if (o_step.altitude_constraint == 1 && alt == o_step.altitude_1) {
-                        console.log('Plane ' + this.callsign + ' reached alt ' + alt);
+                        console.log('Plane ' + this.completeCallsign + ' reached alt ' + alt);
                         this.advance2NextStep();
                     }
                     if (o_step.altitude_constraint == 2 && alt >= o_step.altitude_1) {
-                        console.log('Plane ' + this.callsign + ' crossing alt ' + alt + ' climbing');
+                        console.log('Plane ' + this.completeCallsign + ' crossing alt ' + alt + ' climbing');
                         this.advance2NextStep();
                     }
                     if (o_step.altitude_constraint == 3 && alt <= o_step.altitude_1) {
-                        console.log('Plane ' + this.callsign + ' crossing alt ' + alt + ' descending');
+                        console.log('Plane ' + this.completeCallsign + ' crossing alt ' + alt + ' descending');
                         this.advance2NextStep();
                     }
                     if (o_step.altitude_constraint == 4 && (alt >= o_step.altitude_1 && alt <= o_step.altitude_2)) {
-                        console.log('Plane ' + this.callsign + ' crossing ' + alt + ' between ' + o_step.altitude_1 + ' and ' + o_step.altitude_2);
+                        console.log('Plane ' + this.completeCallsign + ' crossing ' + alt + ' between ' + o_step.altitude_1 + ' and ' + o_step.altitude_2);
                         this.advance2NextStep();
                     }
                 }
                 else {
-                    console.log('Plane ' + this.callsign + ' BAD STEP CA');
+                    console.log('Plane ' + this.completeCallsign + ' BAD STEP CA');
                     this.advance2NextStep();
                 }
                 break;
             case 'VI':
                 // Vector to an intercept
                 if (this.heading == o_step.heading) {
-                    console.log('Plane ' + this.callsign + ' set heading ' + this.heading + ' (VI)');
+                    console.log('Plane ' + this.completeCallsign + ' set heading ' + this.heading + ' (VI)');
                     this.advance2NextStep();
                 }
                 break;
@@ -1008,7 +1009,7 @@ Plane.prototype.followRoute = function() {
                         // Inbound radial ...check for fix
                         if (this.checkNearCoords(o_step.latitude, o_step.longitude) < (this.speed / 240)) {
                             // TODO RADIO - CROSSING FIX
-                            console.log('Plane ' + this.callsign + ' < ' + (this.speed / 240) + ' miles from next fix');
+                            console.log('Plane ' + this.completeCallsign + ' < ' + (this.speed / 240) + ' miles from next fix');
                             // console.log(this.latitude + ' - ' + this.longitude);
                             this.intercepting = false;
                             this.hideRoute();   // TEST
@@ -1038,7 +1039,7 @@ Plane.prototype.followRoute = function() {
                     }
                 }
                 if (h != -1) {
-                    console.log(this.callsign + ' - Holding ... next point = ' + h);
+                    console.log(this.completeCallsign + ' - Holding ... next point = ' + h);
                     this.goToCoords(this.holding_points[h].lat, this.holding_points[h].lon, this.holding_turn_direction);
                     this.holding_point_next = h;
                 }
@@ -1071,7 +1072,7 @@ console.log('LANDED BY ALTITUDE');
                         // Check for fix crossing
                         if (o_step.latitude != 0 && o_step.longitude != 0) {
                             if (this.checkNearCoords(o_step.latitude, o_step.longitude) < (this.speed / 240)) {
-                                console.log('Plane ' + this.callsign + ' < ' + (this.speed / 240) + ' miles from next fix');
+                                console.log('Plane ' + this.completeCallsign + ' < ' + (this.speed / 240) + ' miles from next fix');
                                 // console.log(this.latitude + ' - ' + this.longitude);
                                 this.advance2NextStep();
                             }
@@ -1083,7 +1084,7 @@ console.log('LANDED BY ALTITUDE');
                     if (o_step.latitude != 0 && o_step.longitude != 0) {
                         if (this.checkNearCoords(o_step.latitude, o_step.longitude) < (this.speed / 240)) {
                             // TODO RADIO - CROSSING FIX
-                            console.log('Plane ' + this.callsign + ' < ' + (this.speed / 240) + ' miles from next fix');
+                            console.log('Plane ' + this.completeCallsign + ' < ' + (this.speed / 240) + ' miles from next fix');
                             // console.log(this.latitude + ' - ' + this.longitude);
                             this.advance2NextStep();
                             // console.log(this.latitude + ' - ' + this.longitude);
@@ -1132,7 +1133,7 @@ Plane.prototype.advance2NextStep = function() {
         var estimate;
         var altitude_constraint = step.altitude_constraint;
         // Execute Next Step
-        console.log('Plane ' + this.callsign + ' next step ' + step.type + ' (' + step.identifier + ')');
+        console.log('Plane ' + this.completeCallsign + ' next step ' + step.type + ' (' + step.identifier + ')');
         if (!this.hasStatus(STATUS_MISSED_APPROACH) && step.identifier != '' && step.identifier == this.o_route.mapFix) {
             // Next step is MAP fix ...
             // Replace with runway threshold
@@ -1243,7 +1244,7 @@ Plane.prototype.advance2NextStep = function() {
                         if (step.altitude_constraint == 3 && alt > step.altitude_1) {
                             this.climb = -500;
                         }
-                        console.log('Plane.advance2NextStep: ' + this.callsign + ' - new climb = ' + this.climb);
+                        console.log('Plane.advance2NextStep: ' + this.completeCallsign + ' - new climb = ' + this.climb);
                     }
                     if (step.altitude_constraint == 1 && ((alt <= step.altitude_1 && this.climb > 0) || (alt >= step.altitude_1 && this.climb < 0))) {
                         estimate = this.estimateToAltitude(step.altitude_1);
@@ -1312,12 +1313,12 @@ Plane.prototype.advance2NextStep = function() {
             last_step = this.steps[s];
             if (last_step.type == 'FD' && last_step.inbound == false) {
                 // Is following a radial outbound ... continue!
-                console.log('Plane.advance2NextStep: ' + this.callsign + ' - Continue following outbound route');
+                console.log('Plane.advance2NextStep: ' + this.completeCallsign + ' - Continue following outbound route');
             }
             else {
                 // TODO - if phase = DEPARTURE DON'T HOLD
                 if (this.hasStatus(STATUS_ARRIVAL) && last_step.identifier != undefined && last_step.identifier != '') {
-                    console.log('Plane.advance2NextStep: ' + this.callsign + ' - NO FURTHER INSTRUCTIONS - MAINTAIN HOLDING ON ' + last_step.identifier);
+                    console.log('Plane.advance2NextStep: ' + this.completeCallsign + ' - NO FURTHER INSTRUCTIONS - MAINTAIN HOLDING ON ' + last_step.identifier);
                     o_step = new Step();
                     o_step.type = 'HM';
                     o_step.identifier = last_step.identifier;
@@ -1337,7 +1338,7 @@ Plane.prototype.advance2NextStep = function() {
         }
         // TODO RADIO - NEXT FIX?
         // continue present heading
-        console.log('Plane.advance2NextStep: ' + this.callsign + ' - END OF ROUTE');
+        console.log('Plane.advance2NextStep: ' + this.completeCallsign + ' - END OF ROUTE');
     }
 }
 
@@ -1454,7 +1455,7 @@ Plane.prototype.showRoute = function() {
         var vt = 0;
         var valid = false;
         this.videotracks = [];
-        // console.log('show route ' + this.callsign);
+        // console.log('show route ' + this.completeCallsign);
         if (this.current_step <= 0) {
             this.videotracks[v] = new VideoTrack();
             this.videotracks[v].from_latitude = this.latitude;
@@ -1499,7 +1500,7 @@ Plane.prototype.showRoute = function() {
 }
 
 Plane.prototype.hideRoute = function() {
-    // console.log('Hide route ' + this.callsign);
+    // console.log('Hide route ' + this.completeCallsign);
     for (var v = 0; v < this.videotracks.length; v++) {
         mainContainer.removeChild(this.videotracks[v].gDraw);
     }
@@ -1597,7 +1598,7 @@ Plane.prototype.checkFixAltitudeConstraint = function(altitude_constraint, altit
     // int 0=no alt const, 1= at alt1, 2=above alt1, 3= below alt1, 4=between alt1 and 2.
     var alt = this.fl;
     var alt_cleared = this.fl_cleared;
-console.log(this.callsign + ' checkFixAltitudeConstraint: alt=' + alt + ' alt_cleared=' + alt_cleared + ' constraint=' + altitude_constraint + ' - ' + altitude_1 + ' - estimate = ' + estimate);
+console.log(this.completeCallsign + ' checkFixAltitudeConstraint: alt=' + alt + ' alt_cleared=' + alt_cleared + ' constraint=' + altitude_constraint + ' - ' + altitude_1 + ' - estimate = ' + estimate);
 
     if (this.hasStatus(STATUS_APPROACH) || this.hasStatus(STATUS_FINAL_APPROACH) || this.hasStatus(STATUS_FINAL)) {
         // Automatically follow the altitude constraints
@@ -1611,7 +1612,7 @@ console.log(this.callsign + ' checkFixAltitudeConstraint: alt=' + alt + ' alt_cl
                 this.climb = -Math.floor((alt - altitude_1) / estimate);
             }
             this.setLevelCleared(altitude_1);
-            console.log('Plane ' + this.callsign + ' new descent (F1) = ' + this.climb + ' to reach ' + altitude_1);
+            console.log('Plane ' + this.completeCallsign + ' new descent (F1) = ' + this.climb + ' to reach ' + altitude_1);
         }
         if (altitude_constraint == 2) {
             // Above altitude 1
@@ -1624,7 +1625,7 @@ console.log(this.callsign + ' checkFixAltitudeConstraint: alt=' + alt + ' alt_cl
                 this.climb = 0;
             }
             this.setLevelCleared(altitude_1);
-            console.log('Plane ' + this.callsign + ' new descent (F2) = ' + this.climb);
+            console.log('Plane ' + this.completeCallsign + ' new descent (F2) = ' + this.climb);
         }
         if (altitude_constraint == 3) {
             // Below altitude 1
@@ -1635,7 +1636,7 @@ console.log(this.callsign + ' checkFixAltitudeConstraint: alt=' + alt + ' alt_cl
                 // Descending ... adjust descent ratio
                 this.climb = -Math.floor((alt - altitude_1) / estimate);
             }
-            console.log('Plane ' + this.callsign + ' new descent (F3) = ' + this.climb);
+            console.log('Plane ' + this.completeCallsign + ' new descent (F3) = ' + this.climb);
         }
         return;
     }
@@ -1663,24 +1664,24 @@ console.log(this.callsign + ' checkFixAltitudeConstraint: alt=' + alt + ' alt_cl
                 // Adjust descend rate to reach altitude on fix
                 this.climb = Math.floor((alt - alt_cleared) / estimate);
             }
-            console.log('Plane ' + this.callsign + ' new climb(1) = ' + this.climb);
+            console.log('Plane ' + this.completeCallsign + ' new climb(1) = ' + this.climb);
         }
         else if (alt < altitude_1 && this.climb > 0) {
             // Adjust climbing rate to reach altitude on fix
             this.climb = Math.floor((altitude_1 - alt) / estimate);
             // TODO Check max Ratio
-            console.log('Plane ' + this.callsign + ' new climb(3) = ' + this.climb + ' to reach ' + altitude_1);
+            console.log('Plane ' + this.completeCallsign + ' new climb(3) = ' + this.climb + ' to reach ' + altitude_1);
         }
         else if (alt > altitude_1 && (this.climb < 0)) {
             // Adjust descent rate to reach altitude on fix
             this.climb = -Math.floor((alt - altitude_1) / estimate);
             // TODO Check max Ratio
-            console.log('Plane ' + this.callsign + ' new descent(4) = ' + this.climb + ' to reach ' + altitude_1);
+            console.log('Plane ' + this.completeCallsign + ' new descent(4) = ' + this.climb + ' to reach ' + altitude_1);
         }
         else {
             // Request clearence
             // TODO
-            console.log('Plane ' + this.callsign + ' Request climb/descent to fix altitude ' + altitude_1);
+            console.log('Plane ' + this.completeCallsign + ' Request climb/descent to fix altitude ' + altitude_1);
         }
     }
     if (altitude_constraint == 2) {
@@ -1705,26 +1706,26 @@ console.log(this.callsign + ' checkFixAltitudeConstraint: alt=' + alt + ' alt_cl
                 // Adjust descend rate to reach altitude on fix
                 this.climb = Math.floor((alt - altitude_1) / estimate);
             }
-            console.log('Plane ' + this.callsign + ' new climb (2) = ' + this.climb);
+            console.log('Plane ' + this.completeCallsign + ' new climb (2) = ' + this.climb);
         }
         else {
             if (this.o_route.type == 'SID') {
                 // Follow departure route
                 // this.climb = 1500;
                 // this.fl_cleared = altitude_1;
-                console.log('Plane ' + this.callsign + ' continue climbing to ' + altitude_1);
+                console.log('Plane ' + this.completeCallsign + ' continue climbing to ' + altitude_1);
             }
             else if (this.o_route.type == 'STAR') {
                 if ((this.climb < 0) && alt > altitude_1 && alt >= alt_cleared) {
                     // Descending ... adjust descent ratio
                     this.climb = -Math.floor((alt - alt_cleared) / estimate);
-                    console.log('Plane ' + this.callsign + ' new climb ratio (3) = ' + this.climb);
+                    console.log('Plane ' + this.completeCallsign + ' new climb ratio (3) = ' + this.climb);
                 }
             }
             else {
                 // Request clearence
                 // TODO
-                console.log('Plane ' + this.callsign + ' Request climb/descent to fix altitude ' + altitude_1);
+                console.log('Plane ' + this.completeCallsign + ' Request climb/descent to fix altitude ' + altitude_1);
             }
         }
     }
@@ -1750,12 +1751,12 @@ console.log(this.callsign + ' checkFixAltitudeConstraint: alt=' + alt + ' alt_cl
                 // Adjust climb rate to cross fix below altitude
                 this.climb = Math.floor((altitude_1 - alt) / estimate);
             }
-            console.log('Plane ' + this.callsign + ' new ratio = ' + this.climb);
+            console.log('Plane ' + this.completeCallsign + ' new ratio = ' + this.climb);
         }
         else {
             // Request clearence
             // TODO
-            console.log('Plane ' + this.callsign + ' Request climb/descent to fix altitude ' + altitude_1);
+            console.log('Plane ' + this.completeCallsign + ' Request climb/descent to fix altitude ' + altitude_1);
         }
     }
     if (altitude_constraint == 4) {
@@ -1790,7 +1791,7 @@ Plane.prototype.estimateToAltitude = function(altitude) {
  ****************************************/
 Plane.prototype.getTail = function() {
 
-    // console.log(this.callsign + ' heading = ' + this.heading);
+    // console.log(this.completeCallsign + ' heading = ' + this.heading);
     this.gBox.graphics.clear();
     this.gTail.graphics.clear();
     if (this.latitude == 0 || this.longitude == 0 || this.speed == 0) {
@@ -1882,7 +1883,7 @@ Plane.prototype.getDisplayData = function( scale ) {
     scale = scale + 0.4;
     var callsign;
     if (this.hasStatus(STATUS_IDENT)) {
-        callsign = '' + this.callsign;
+        callsign = '' + this.completeCallsign;
     }
     else {
         callsign = '' + this.squack;
@@ -1893,7 +1894,7 @@ Plane.prototype.getDisplayData = function( scale ) {
         speed = '0';
     }
     var heading = '' + Math.floor(this.heading);
-    callsign  = callsign + Array(6 - callsign.length).join(' ');
+    callsign  = callsign + Array(8 - callsign.length).join(' ');
     aircraft  = Array(7 - aircraft.length).join(' ') + aircraft;
     speed  = Array(5 - speed.length).join(' ') + speed;
     heading  = Array(5 - heading.length).join(' ') + heading;

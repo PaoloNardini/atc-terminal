@@ -248,7 +248,7 @@ Director.prototype.assignFinalRoute = function(o_airport, o_runway, proc_name) {
 
 
 Director.prototype.planeTakeoff = function(o_plane) {
-    console.log('Take off plane ' + o_plane.callsign + ' heading ' + o_plane.heading);
+    console.log('Take off plane ' + o_plane.completeCallsign + ' heading ' + o_plane.heading);
     o_plane.removeStatus(STATUS_HOLDING_POINT);
     o_plane.addStatus(STATUS_CLEARED_TAKEOFF);
 }
@@ -260,7 +260,7 @@ Director.prototype.handleSlots = function() {
         if (o_plane.hasStatus(STATUS_WAIT_TAKEOFF) && !o_plane.hasStatus(STATUS_CLEARENCE_REQUESTED) && o_plane.slot != undefined) {
             // Check if slot has passed
             if (o_plane.slot.hasPassed(180)) {
-                msg = o_plane.callsign + ' ready for departure';
+                msg = o_plane.completeCallsign + ' ready for departure';
                 msgbar.showMessage(msg, MSG_FROM_TWR);
                 o_plane.removeStatus(STATUS_WAIT_TAKEOFF);
                 o_plane.addStatus(STATUS_CLEARENCE_REQUESTED);
@@ -271,12 +271,12 @@ Director.prototype.handleSlots = function() {
             o_plane.removeStatus(STATUS_TAXI);
             o_plane.addStatus(STATUS_HOLDING_POINT);
             o_plane.squack = o_plane.squack_assigned;
-            msg = o_plane.callsign + ' ready for takeoff';
+            msg = o_plane.completeCallsign + ' ready for takeoff';
             msgbar.showMessage(msg, MSG_FROM_TWR);
         }
         if (o_plane.hasStatus(STATUS_ARRIVAL) && o_plane.hasStatus(STATUS_RADIO_CONTACT_ATC) && !o_plane.hasStatus(STATUS_RELEASE_WARNING) && o_plane.slot != undefined) {
             if (o_plane.slot.hasPassed(180)) {
-                msg = o_plane.callsign + ' inbound, ready for release';
+                msg = o_plane.completeCallsign + ' inbound, ready for release';
                 msgbar.showMessage(msg, MSG_FROM_ATC);
                 o_plane.addStatus(STATUS_RELEASE_WARNING);
             }

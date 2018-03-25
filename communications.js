@@ -313,8 +313,8 @@ function parseCommand(command) {
         }
         console.log('Plane ' + planeID);
     }
-    msg = planes[planeID].callsign + ' ';
-    speak = planes[planeID].callsign + ' ';
+    msg = planes[planeID].completeCallsign + ' ';
+    speak = planes[planeID].completeCallsign + ' ';
     if (words.length > 0) {
         var loop = 0;
         words.shift();
@@ -591,7 +591,7 @@ console.log('MAP step = ' + s );
                     fix = words[0].toUpperCase();
                     if (fix == 'TO' || fix == 'TAKEOFF') {
                         words.shift();
-                        msg = planes[planeID].callsign + ' cleared to take off ';
+                        msg = planes[planeID].completeCallsign + ' cleared to take off ';
                         director.planeTakeoff(planes[planeID]);
                         break;
                     }
