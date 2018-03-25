@@ -460,7 +460,6 @@ function parseCommand(command) {
                         if (o_step.identifier != '' && o_step.identifier == planes[p].o_route.mapFix) {
                             planes[p].current_step = s-1;
 console.log('MAP step = ' + s );
-                            // planes[p].setFlightPhase(PHASE_MISSED_APPROACH);
                             planes[p].addStatus(STATUS_MISSED_APPROACH);
                             planes[p].advance2NextStep();
                             break;
@@ -651,7 +650,6 @@ console.log('MAP step = ' + s );
                     if (planes[planeID].hasStatus(STATUS_MISSED_APPROACH)) {
                         // Resume approach
 console.log('Exit GA and resume Approach phase');
-                        // planes[planeID].setFlightPhase(PHASE_APPROACH);
                         planes[planeID].setStatus(STATUS_APPROACH);
                     }
                     planes[planeID].assignRoute(o_route);

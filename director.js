@@ -92,7 +92,6 @@ Director.prototype.schedulePlaneTakeoff = function(o_airport, o_runway) {
 
     console.log('runway coordinates:' + o_plane.latitude + ' - ' + o_plane.longitude);
     o_plane.heading = o_runway.heading;
-    // o_plane.setFlightPhase(PHASE_WAIT_TAKEOFF);
     o_plane.addStatus(STATUS_DEPARTURE);
     o_plane.addStatus(STATUS_GROUND);
     o_plane.addStatus(STATUS_WAIT_TAKEOFF);
@@ -134,7 +133,6 @@ Director.prototype.schedulePlaneArrival = function(o_airport, o_runway) {
     var o_plane = new Plane();
     o_plane.airp_dest = o_airport.icao;
 
-    // o_plane.setFlightPhase(PHASE_CRUISE);
     o_plane.addStatus(STATUS_CRUISE);
     o_plane.addStatus(STATUS_ARRIVAL);
 
@@ -252,7 +250,6 @@ Director.prototype.assignFinalRoute = function(o_airport, o_runway, proc_name) {
 Director.prototype.planeTakeoff = function(o_plane) {
     console.log('Take off plane ' + o_plane.callsign + ' heading ' + o_plane.heading);
     o_plane.removeStatus(STATUS_HOLDING_POINT);
-    // o_plane.setFlightPhase(PHASE_CLEARED_TAKEOFF);
     o_plane.addStatus(STATUS_CLEARED_TAKEOFF);
 }
 

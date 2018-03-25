@@ -47,7 +47,6 @@ function Plane() {
     this.arrival = Math.random() > 0.5 ? true : false;
     this.departure = !this.arrival;
     this.transit = false;
-    this.phase = '';
     this.status = '';
     this.atc_phase = PLANE_ATC_OUT;
 
@@ -173,50 +172,6 @@ Plane.prototype.setAutoSpeed = function() {
         this.speed_target = 0;
     }
 
-    /*
-    switch (this.phase) {
-        case PHASE_WAIT_TAKEOFF:
-            this.speed = 0;
-            this.speed_target = 0;
-            break;
-        case PHASE_TAKEOFF:
-            this.speed = 5;
-            this.speed_target = 160;
-            break;
-        case PHASE_CLIMB_INITIAL:
-            this.speed_target = 250;
-            break;
-        case PHASE_CLIMB_CRUISE:
-            this.speed_target = 360;
-            break;
-        case PHASE_CRUISE:
-            this.speed_target = 405;
-            break;
-        case PHASE_DESCENT_CRUISE:
-            if (this.holding == false && this.speed > 360) {
-                this.speed_target = 360;
-            }
-            break;
-        case PHASE_APPROACH:
-            this.speed_target = 250;
-            break;
-        case PHASE_FINAL_APPROACH:
-            this.speed_target = 200;
-            break;
-        case PHASE_FINAL:
-            this.speed_target = 140;
-            break;
-        case PHASE_MISSED_APPROACH:
-            this.speed_target = 250;
-            break;
-        case PHASE_TAXI:
-            this.speed_target = 10;
-            break;
-        case PHASE_LANDED:
-            this.speed_target = 0;
-            return;
-    }
-    */
 console.log('AutoSpeed = ' + this.speed_target);
     this.checkSpeedConstraint();
     this.checkAltitudeConstraint();
@@ -262,58 +217,6 @@ Plane.prototype.setAutoRatio = function() {
     if (this.hasStatus(STATUS_LANDED) || this.hasStatus(STATUS_TAXI)) {
         this.climb = 0;
     }
-
-    /*
-
-
-        switch (phase) {
-        case PHASE_WAIT_TAKEOFF:
-            this.fl = 0;
-            this.setLevelCleared(0);
-            this.speed = 0;
-            this.departure = true;
-            this.arrival = false;
-            this.transit = false;
-            break;
-        case PHASE_CLIMB_INITIAL:
-            this.climb = 2500;
-            break;
-        case PHASE_CLIMB_CRUISE:
-            this.climb = 2000;
-            break;
-        case PHASE_DESCENT_CRUISE:
-            this.climb = -4500;
-            break;
-        case PHASE_APPROACH:
-            this.climb = -1000;
-            break;
-        case PHASE_FINAL_APPROACH:
-            this.climb = -750;
-            break;
-        case PHASE_FINAL:
-            this.climb = -500;
-            break;
-        case PHASE_MISSED_APPROACH:
-            if (this.fl > this.fl_cleared) {
-                this.climb = -750;
-            }
-            else if (this.fl < this.fl_cleared)
-            {
-                this.climb = 750;
-            }
-            else  {
-                this.climb = 0;
-            }
-            break;
-        case PHASE_LANDED:
-            this.climb = 0;
-            break;
-        case PHASE_TAXI:
-            this.climb = 0;
-            break;
-    }
-    this.setAutoSpeed();
-     */
 }
 
 Plane.prototype.setHeading = function(heading, turn_direction) {
@@ -358,7 +261,6 @@ Plane.prototype.setLevel = function(level) {
                     var distance = Math.metersToMiles(coords.distanceTo(dest_coords));
                     console.log('Distance to destination' + this.airp_dest + ' : ' + distance + ' miles');
                     if (distance < 75) {
-                        // this.setFlightPhase(PHASE_DESCENT_CRUISE);
                         this.addStatus(STATUS_DESCENDING);
                         this.checkAltitudeConstraint();
                         this.setAutoSpeed();
@@ -408,7 +310,6 @@ Plane.prototype.addStatus = function(status) {
     switch (status) {
         case STATUS_CLEARED_TAKEOFF:
             setTimeout(function () {
-                // that.setFlightPhase(PHASE_TAKEOFF);
                 that.removeStatus(STATUS_CLEARED_TAKEOFF);
                 that.addStatus(STATUS_TAKEOFF);
             }, 10000 + (Math.random() * 15000));
@@ -493,85 +394,6 @@ Plane.prototype.hasStatus = function(status) {
     }
     return false;
 }
-
-/*
-Plane.prototype.setFlightPhase = function(phase) {
-    this.phase = phase;
-    // TODO changes....
-    console.log('Plane ' + this.callsign + ' new flight phase:  ' + phase);
-    switch (phase) {
-        case PHASE_WAIT_TAKEOFF:
-            this.fl = 0;
-            this.setLevelCleared(0);
-            this.speed = 0;
-            this.departure = true;
-            this.arrival = false;
-            this.transit = false;
-            break;
-*/
-/*
-        case PHASE_CLEARED_TAKEOFF:
-            var that = this;
-            setTimeout(function() {
-                that.setFlightPhase(PHASE_TAKEOFF);
-                that.removeStatus(STATUS_CLEARED_TAKEOFF);
-                that.addStatus(STATUS_TAKEOFF);
-            }, 10000 + (Math.random() * 15000));
-            break;
-        case PHASE_TAKEOFF:
-            this.climb = 0;
-            this.setLevelCleared(this.fl_final);
-            this.current_step = -1;
-            if (speedX2 == 1) {
-                this.lastcompute = (new Date().getTime() - 5000) / 500;
-            }
-            else {
-                this.lastcompute = (new Date().getTime() - 5000) / 1000;
-            }
-            this.advance2NextStep();
-            break;
-*/
-/*
-        case PHASE_CLIMB_INITIAL:
-            this.climb = 2500;
-            break;
-        case PHASE_CLIMB_CRUISE:
-            this.climb = 2000;
-            break;
-        case PHASE_DESCENT_CRUISE:
-            this.climb = -4500;
-            break;
-        case PHASE_APPROACH:
-            this.climb = -1000;
-            break;
-        case PHASE_FINAL_APPROACH:
-            this.climb = -750;
-            break;
-        case PHASE_FINAL:
-            this.climb = -500;
-            break;
-        case PHASE_MISSED_APPROACH:
-            if (this.fl > this.fl_cleared) {
-                this.climb = -750;
-            }
-            else if (this.fl < this.fl_cleared)
-            {
-                this.climb = 750;
-            }
-            else  {
-                this.climb = 0;
-            }
-            break;
-        case PHASE_LANDED:
-            this.climb = 0;
-            break;
-        case PHASE_TAXI:
-            this.climb = 0;
-            break;
-    }
-    this.setAutoSpeed();
-}
-*/
 
 Plane.prototype.destroy = function() {
     console.log('DESTROY Plane ' + this.callsign);
@@ -730,51 +552,22 @@ Plane.prototype.move = function(newTimer) {
             this.removeStatus(STATUS_GROUND);
         }
         if (this.climb > 0 && this.fl > 2000) {
-            // this.setFlightPhase(PHASE_CLIMB_INITIAL);
             this.removeStatus(STATUS_TAKEOFF);
             this.addStatus(STATUS_CLIMB_INITIAL);
         }
     }
     else if (this.hasStatus(STATUS_CLIMB_INITIAL)) {
         if (this.climb > 0 && this.fl > 10000) {
-            // this.setFlightPhase(PHASE_CLIMB_CRUISE);
             this.removeStatus(STATUS_CLIMB_INITIAL);
             this.addStatus(STATUS_CLIMBING);
         }
     }
     else if (this.hasStatus(STATUS_CLIMBING) && !this.hasStatus(STATUS_CRUISE)) {
         if (this.climb > 0 && this.fl > 20000) {
-            // this.setFlightPhase(PHASE_CRUISE);
             this.removeStatus(STATUS_CLIMB_INITIAL);
             this.addStatus(STATUS_CRUISE);
         }
     }
-
-    /*
-    switch (this.phase) {
-        case PHASE_TAKEOFF:
-            if (this.climb > 0 && this.fl > 2000) {
-                // this.setFlightPhase(PHASE_CLIMB_INITIAL);
-                this.removeStatus(STATUS_TAKEOFF);
-                this.addStatus(STATUS_CLIMB_INITIAL);
-            }
-            break;
-        case PHASE_CLIMB_INITIAL:
-            if (this.climb > 0 && this.fl > 10000) {
-                // this.setFlightPhase(PHASE_CLIMB_CRUISE);
-                this.removeStatus(STATUS_CLIMB_INITIAL);
-                this.addStatus(STATUS_CLIMBING);
-            }
-            break;
-        case PHASE_CLIMB_CRUISE:
-            if (this.climb > 0 && this.fl > 20000) {
-                // this.setFlightPhase(PHASE_CRUISE);
-                this.removeStatus(STATUS_CLIMB_INITIAL);
-                this.addStatus(STATUS_CRUISE);
-            }
-            break;
-    }
-    */
 
     // Check for any route to follow
     this.followRoute();
@@ -1255,7 +1048,6 @@ Plane.prototype.followRoute = function() {
                         if (this.checkNearCoords(o_step.latitude, o_step.longitude) < (this.speed / 240)) {
                             // LANDED!
 console.log('LANDED BY RUNWAY');
-                            // this.setFlightPhase(PHASE_LANDED);
                             this.addStatus(STATUS_LANDED);
                             planeDestroy(this);
                             return;
@@ -1264,7 +1056,6 @@ console.log('LANDED BY RUNWAY');
                     else if (this.fl == this.fl_cleared) {
                         // LANDED!
 console.log('LANDED BY ALTITUDE');
-                        // this.setFlightPhase(PHASE_LANDED);
                         this.addStatus(STATUS_LANDED);
                         planeDestroy(this);
                     }
@@ -1320,7 +1111,6 @@ Plane.prototype.advance2NextStep = function() {
             }
             else {
                 this.addStatus(step.change_flight_status);
-                // this.setFlightPhase(step.change_flight_phase);
             }
         }
     }
@@ -1792,7 +1582,6 @@ Plane.prototype.checkAltitudeConstraint = function() {
         if (estimate != -1 && o_step.altitude_constraint != 0) {
             if (s == this.current_step && o_step.change_flight_status == STATUS_FINAL && !this.hasStatus(STATUS_FINAL) && !this.hasStatus(STATUS_MISSED_APPROACH)) {
                 // heading to a initial final approach fix
-                // this.setFlightPhase(PHASE_APPROACH);
                 this.addStatus(STATUS_APPROACH);
             }
             this.checkFixAltitudeConstraint(o_step.altitude_constraint, o_step.altitude_1, o_step.altitude_2, estimate);
@@ -1807,7 +1596,7 @@ Plane.prototype.checkFixAltitudeConstraint = function(altitude_constraint, altit
     // int 0=no alt const, 1= at alt1, 2=above alt1, 3= below alt1, 4=between alt1 and 2.
     var alt = this.fl;
     var alt_cleared = this.fl_cleared;
-console.log(this.callsign + ' checkFixAltitudeConstraint: alt=' + alt + ' alt_cleared=' + alt_cleared + ' constraint=' + altitude_constraint + ' - ' + altitude_1 + ' - estimate = ' + estimate  + ' phase:' + this.phase);
+console.log(this.callsign + ' checkFixAltitudeConstraint: alt=' + alt + ' alt_cleared=' + alt_cleared + ' constraint=' + altitude_constraint + ' - ' + altitude_1 + ' - estimate = ' + estimate);
 
     if (this.hasStatus(STATUS_APPROACH) || this.hasStatus(STATUS_FINAL_APPROACH) || this.hasStatus(STATUS_FINAL)) {
         // Automatically follow the altitude constraints
