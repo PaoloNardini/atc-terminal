@@ -802,14 +802,14 @@ function loadAirlines() {
             for (var i = 0; i < lines.length; i++) {
                 var line = lines[i].replace(/"/g,'');
                 words = line.split(',');
-                if (words.length >= 8 && words[3] != '' && words[7] == 'Y') {
+                if (words.length >= 8 && words[3] != '' && words[4] != '' && words[7] == 'Y') {
                     // Only active and IATA airlines
                     var a = airlines.length;
                     var o_airline = new Airline();
                     o_airline.name = words[1];
-                    o_airline.alias = words[2] == '\N' ? '' : words[2];
+                    o_airline.alias = words[2] == '\\N' ? '' : words[2];
                     o_airline.iata = words[3];
-                    o_airline.icao = words[4];
+                    o_airline.icao = words[4] == '\\N' ? words[3] : words[4];
                     o_airline.callsign = words[5];
                     o_airline.country = words[6];
                     airlines[a] = o_airline;

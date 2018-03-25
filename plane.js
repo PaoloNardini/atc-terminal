@@ -39,7 +39,7 @@ function Plane() {
     // Flight info
     this.airline = getRandomAirline();
     this.callsign = '' + ( 99 + Math.floor((Math.random() * 9999)));
-    this.completeCallsign = this.airline.iata + '-' + this.callsign;
+    this.completeCallsign = this.airline.icao + ' ' + this.callsign;
     this.aircraft = 'B738';
     this.vfr = false;
     this.airp_dep = '';

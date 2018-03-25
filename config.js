@@ -65,7 +65,7 @@ const STATUS_RADIO_CONTACT_ATC = 'ATC-';
 const STATUS_RADIO_CONTACT_YOU = 'YOU-';
 const STATUS_IDENT = 'ID-';
 
-const STRIP_WIDTH = 400;
+const STRIP_WIDTH = 410;
 const STRIP_HEIGHT = 50;
 const STRIP_COLOR = 'rgba(255,255,255,0.8)';
 const STRIP_TEXT_COLOR = 'rgba(0,0,0,1)';

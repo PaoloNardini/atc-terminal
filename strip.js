@@ -78,26 +78,26 @@ function Strip() {
     this.gStripBox.graphics.setStrokeStyle(1).beginStroke(STRIP_COLOR).beginFill(STRIP_COLOR).dr(0,0,STRIP_WIDTH,STRIP_HEIGHT);
 
     this.gStripLine1 = new createjs.Shape();
-    this.gStripLine1.graphics.beginStroke(STRIP_TEXT_COLOR).moveTo(60, 0).lineTo(60,STRIP_HEIGHT-10).endStroke();
+    this.gStripLine1.graphics.beginStroke(STRIP_TEXT_COLOR).moveTo(65, 0).lineTo(65,STRIP_HEIGHT-10).endStroke();
     this.gStripLine2 = new createjs.Shape();
-    this.gStripLine2.graphics.beginStroke(STRIP_TEXT_COLOR).moveTo(155, 0).lineTo(155,STRIP_HEIGHT-35).endStroke();
+    this.gStripLine2.graphics.beginStroke(STRIP_TEXT_COLOR).moveTo(160, 0).lineTo(160,STRIP_HEIGHT-35).endStroke();
     this.gStripLine3 = new createjs.Shape();
-    this.gStripLine3.graphics.beginStroke(STRIP_TEXT_COLOR).moveTo(350, 0).lineTo(350,STRIP_HEIGHT-10).endStroke();
+    this.gStripLine3.graphics.beginStroke(STRIP_TEXT_COLOR).moveTo(355, 0).lineTo(355,STRIP_HEIGHT-10).endStroke();
 
     this.gStripLabel = new createjs.Text('', "bold 12px Courier", STRIP_TEXT_COLOR);
-    this.gStripLabel.x = 5;
-    this.gStripLabel.y = 5;
+    this.gStripLabel.x = 2;
+    this.gStripLabel.y = 4;
 
     this.gStripLabel2 = new createjs.Text('', "normal 12px Courier", STRIP_TEXT_COLOR);
-    this.gStripLabel2.x = 5;
+    this.gStripLabel2.x = 2;
     this.gStripLabel2.y = 15;
 
     this.gStripLabel3 = new createjs.Text('', "normal 12px Courier", STRIP_TEXT_COLOR);
-    this.gStripLabel3.x = 5;
+    this.gStripLabel3.x = 2;
     this.gStripLabel3.y = 25;
 
     this.gStripLabel4 = new createjs.Text('', "normal 12px Courier", STRIP_TEXT_COLOR)
-    this.gStripLabel4.x = 63;
+    this.gStripLabel4.x = 68;
     this.gStripLabel4.y = 5;
     this.gStripLabel4.lineHeight = 14;
 
@@ -107,7 +107,7 @@ function Strip() {
     this.gStripLabel5.lineHeight = 14;
 
     this.gStripLabel6 = new createjs.Text('', "normal 12px Courier", STRIP_TEXT_COLOR);
-    this.gStripLabel6.x = 355;
+    this.gStripLabel6.x = 357;
     this.gStripLabel6.y = 5;
 
     this.addChild(this.gStripBox,this.gStripLine1,this.gStripLine2,this.gStripLine3,this.gStripLabel,this.gStripLabel2,this.gStripLabel3,this.gStripLabel4,this.gStripLabel5,this.gStripLabel6);
@@ -166,10 +166,10 @@ Strip.prototype.updateStrip = function(position, route_description, speed, altit
 
     this.gStripLabel6.text = ' ' + squack;
     if (slot != undefined) {
-        this.gStripLabel6.text += '\n\n' + clockFormat(slot.hours,slot.minutes);
+        this.gStripLabel6.text += '\n\n ' + clockFormat(slot.hours,slot.minutes);
     }
 
-    this.setX(10);
+    this.setX(5);
     this.setY(this.position * (STRIP_HEIGHT + 4));
 }
 

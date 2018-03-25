@@ -69,8 +69,9 @@ Recognized commands (enter in the upper-right box labelled "enter radio message"
 - < plane > SQ  < trasponder > -> Squack the trasponder code, i.e. insert the given 4 digits code in the plane transponder (not used if AUTOSQUACK = 1)
 - < plane > ID -> Squack Ident, i.e. identify the plane on the radar screen by its callsing instead of trasponder code (not used if AUTOIDENT = 1)
 
-Note: You can't interact and send instructions with a plane until you have accepted the release (REL command) from the tower or other ATC.
-(To speed-up planes classign typing, you can use TAB key to auto-complete callsign after the first digits)
+When typing < plane > callsign, enter only the numeric part and omit the airline code. To speed-up planes callsign typing, you can use TAB key to auto-complete the callsign after the first digits.
+
+Note: You can't interact and send instructions with a plane until you have accepted the release (REL command) from the tower or other ATC. Until a plane is released and identified only the transponder code and FL is showed on the radar.  
   
 Departures planes, follows a random selected SID route (standard instrument departure).
 
@@ -96,14 +97,13 @@ The third line of switches includes:
 
 You can move the screen by dragging it with the mouse, and zooming in/out with mouse wheel.
 
-By clicking a plane strip or the plane itself on the screen the planned route will be showed.
+By clicking the mouse on a plane strip, or on the plane itself on the screen, the planned route will be showed until the mouse is released.
 
 # Current limitations and known bugs
 - All planes are B737-800 (same performances)
-- No airlines prefix are used, all planes have numeric callsign
+- Airlines are randomly selected among world real airlines. No country specific airlines are selected at the moment
 - Departure planes hold on the last fix of their SID route if have no further instructions, even if released to ATC (with CH ATC command)
 - Final descend path is very steep and usually the plane level shows zero sligthly before the runway
-
 
 # Planned features
 _(not ordered by importance or implementation time)
