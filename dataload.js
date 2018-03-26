@@ -802,7 +802,7 @@ function loadAirlines() {
             for (var i = 0; i < lines.length; i++) {
                 var line = lines[i].replace(/"/g,'');
                 words = line.split(',');
-                if (words.length >= 8 && words[3] != '' && words[4] != '' && words[7] == 'Y') {
+                if (words.length >= 8 && words[3] != '' && words[4] != '' && words[7].substr(0,1) == 'Y') {
                     // Only active and IATA airlines
                     var a = airlines.length;
                     var o_airline = new Airline();
