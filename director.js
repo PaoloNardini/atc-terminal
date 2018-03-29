@@ -105,9 +105,26 @@ Director.prototype.schedulePlaneTakeoff = function(o_airport, o_runway) {
     o_plane.getTail();
     o_plane.updateStripMode();
 
-    var o_route = this.assignSidRoute(o_plane, o_airport, o_runway);
-    if (o_route != undefined) {
-        o_plane.assignRoute(o_route);
+    // Select a random Sid Route
+    var o_route_sid = this.assignSidRoute(o_airport, o_runway);
+
+    if (o_route_sid != undefined) {
+        // Find a possible 2nd leg departure route
+        var o_route_next = this.assignNextRoute(o_route_sid);
+        o_plane.assignRoute(o_route_sid);
+        if (o_route_next != undefined) {
+            // Add 2nd leg route
+            o_plane.appendSteps(o_route_next.getLegs());
+            o_route_ats = this.assignATSRoute(o_route_next);
+        }
+        else {
+            o_route_ats = this.assignATSRoute(o_route_sid);
+        }
+        if (o_route_ats != undefined) {
+            // Add ATS route
+            o_plane.appendSteps(o_route_ats.getLegs());
+        }
+
         planes[p] = o_plane;
         mainContainer.addChild(planes[p]);
 
@@ -191,7 +208,7 @@ Director.prototype.schedulePlaneArrival = function(o_airport, o_runway) {
     }
 }
 
-Director.prototype.assignSidRoute = function(o_plane, o_airport, o_runway) {
+Director.prototype.assignSidRoute = function(o_airport, o_runway) {
     // Search for a SID route
     var sids = [];
     for (var r=0; r < routes.length; r++) {
@@ -207,6 +224,87 @@ Director.prototype.assignSidRoute = function(o_plane, o_airport, o_runway) {
     var o_route = sids[s];
     return o_route;
 }
+
+
+/**
+ * Search for a 2nd leg route following the given sid route
+ * @param o_route
+ */
+Director.prototype.assignNextRoute = function (o_route) {
+    var name = o_route.name;
+    var o_lastStep = o_route.getLastLeg();
+    var lastFix = o_lastStep.identifier;
+
+    console.log(' nextRoute: ' + name + ' - lastFix = ' + lastFix);
+
+    var candidates = [];
+    var o_tmp_route;
+    for (var r=0; r < routes.length; r++) {
+        o_tmp_route = routes[r];
+        if (o_tmp_route.type == 'SID' && o_tmp_route.name == name && o_tmp_route.getLeg(0).identifier == lastFix) {
+            candidates[candidates.length] = o_tmp_route;
+        }
+    }
+    if (candidates.length == 0) {
+        // No further routes
+        return undefined;
+    }
+    var s = Math.floor(Math.random() * candidates.length);
+    console.log(' Find nextRoute: ' + candidates[s].name + ' - ' + candidates[s].name2);
+    return candidates[s];
+}
+
+/**
+ * Search for a ATS route following the given route
+ * @param o_route
+ */
+Director.prototype.assignATSRoute = function (o_route) {
+    var name = o_route.name;
+    var nLegs = o_route.getLegsNumber();
+    var o_lastStep = o_route.getLeg(nLegs-1);
+    var o_prevLastStep = o_route.getLeg(nLegs-2);
+    var lastFix = o_lastStep.identifier;
+
+    // Compute heading to the last fix
+    var coords1 = new LatLon(o_prevLastStep.latitude, o_prevLastStep.longitude);
+    var coords2 = new LatLon(o_lastStep.latitude, o_lastStep.longitude);
+    var heading = coords1.bearingTo(coords2);
+
+console.log('assignATSRoute: ' + name + ' - lastFix = ' + lastFix + ' heading=' + heading + ' (' + o_prevLastStep.identifier + ' -> ' + o_lastStep.identifier);
+
+    var candidates = [];
+    var o_tmp_route;
+    for (var r=0; r < ats_routes.length; r++) {
+        o_tmp_route = ats_routes[r];
+        if (o_tmp_route.type == 'ATS') {
+            for (leg=0; leg<o_tmp_route.getLegsNumber(); leg++) {
+                var o_step = o_tmp_route.getLeg(leg);
+                if (o_step.identifier == lastFix) {
+                    // Check for compatible heading (+/- 90 deg)
+console.log('check ats route ' + o_tmp_route.name + ' fix ' + o_step.identifier + ' current heading=' + heading + ' ats heading=' + o_step.heading);
+                    var diff = Math.abs(heading - o_step.heading);
+                    if (diff <= 90 || diff >= 270) {
+                        var o_new_ats = new Route();
+                        for (x = leg; x < o_tmp_route.getLegsNumber(); x++) {
+                            o_new_ats.addLeg(o_tmp_route.getLeg(x));
+                        }
+console.log('   ATS ok');
+                        candidates[candidates.length] = o_new_ats;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    if (candidates.length == 0) {
+        // No compatible ATS route
+        return undefined;
+    }
+    var s = Math.floor(Math.random() * candidates.length);
+    console.log('ATS Route(' + s + ') = ' + candidates[s].name + ' - ' + candidates[s].name2);
+    return candidates[s];
+}
+
 
 Director.prototype.assignArrivalRoute = function(o_plane, o_airport, o_runway) {
     // Search for a STAR route

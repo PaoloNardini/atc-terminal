@@ -545,8 +545,10 @@
             masterLastUpdate = masterTimer;
             for (p = 0; p < planes.length; p++) {
                 planes[p].move(masterTimer);
-                planes[p].getTail();
-                planes[p].getDisplayData(currentScale);
+                if (planes[p] != undefined) {   // Handle destroy during move
+                    planes[p].getTail();
+                    planes[p].getDisplayData(currentScale);
+                }
             }
         }
     }

@@ -123,6 +123,10 @@ Route.prototype.getLeg = function(num) {
 }
 
 
+Route.prototype.getLastLeg = function() {
+    return this.legs[this.legs.length-1];
+}
+
 /*
 Route.prototype.addFreeTrack = function(heading, distance) {
 }
