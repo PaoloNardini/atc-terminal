@@ -350,7 +350,7 @@ function loadAirport( icao ) {
 function loadProcedures(icao) {
     console.log('=== LOAD PROCEDURES ' + icao + ' ===');
     var promiseProcedures = new Promise(function (resolve, reject) {
-        $.get("data/1712/proc/" + icao + ".txt", function (data) {
+        $.get("data/1712/PROC/" + icao + ".txt", function (data) {
 
             //split on new lines
             var lines = data.split('\n');
