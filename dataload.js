@@ -138,7 +138,7 @@ function loadScenery( name ) {
 function loadNavaids() {
     console.log('=== LOAD NAVAIDS ===');
     var promiseNavaids =  new Promise(function (resolve, reject) {
-        $.get("data/1712/navaids.txt", function (data) {
+        $.get("data/1712/Navaids.txt", function (data) {
             var found = false;
             var lines = data.split('\n');
             var words;
@@ -212,7 +212,7 @@ function loadNavaids() {
 function loadWaypoints() {
     console.log('=== LOAD WAYPOINTS ===');
     var promiseWaypoints =  new Promise(function (resolve, reject) {
-        $.get("data/1712/waypoints.txt", function (data) {
+        $.get("data/1712/Waypoints.txt", function (data) {
             var lines = data.split('\n');
             var words;
             // var icao_prenavaid = icao.substring(0,2);
@@ -248,7 +248,7 @@ function loadAirport( icao ) {
                 resolve(true);
             }
         }
-        $.get("data/1712/airports.txt", function (data) {
+        $.get("data/1712/Airports.txt", function (data) {
             var found = false;
             var lines = data.split('\n');
             var words;
