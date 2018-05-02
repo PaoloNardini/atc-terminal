@@ -38,7 +38,7 @@ function Plane() {
 
     // Flight info
     this.airline = getRandomAirline();
-    this.callsign = '' + ( 99 + Math.floor((Math.random() * 9999)));
+    this.callsign = '' + ( 99 + Math.floor((Math.random() * 9900)));
     this.completeCallsign = this.airline.icao + ' ' + this.callsign;
     this.aircraft = 'B738';
     this.vfr = false;
@@ -1149,6 +1149,7 @@ Plane.prototype.advance2NextStep = function() {
                 step.track_bearing = this.steps[this.current_step-1].heading;
                 this.steps.splice(this.current_step, 0, step);
                 // this.current_step++;
+                this.removeStatus(STATUS_CRUISE);
                 this.removeStatus(STATUS_APPROACH);
                 this.removeStatus(STATUS_FINAL_APPROACH);
                 this.addStatus(STATUS_FINAL);
@@ -1402,6 +1403,11 @@ Plane.prototype.assignFinalRoute = function(o_final_route) {
 
 Plane.prototype.addLeg = function(o_step) {
     if (o_step != undefined) {
+        if (this.steps.length > 0 && o_step.identifier == this.steps[this.steps.length-1].identifier) {
+            // Omit duplicate steps
+            console.log('Omit duplicate step ' + o_step.identifier );
+            return;
+        }
         var new_step = o_step.clone();
         this.steps[this.steps.length] = new_step;
     }
@@ -1411,9 +1417,12 @@ Plane.prototype.addLeg = function(o_step) {
 Plane.prototype.assignRouteBySteps = function(a_steps) {
     if (a_steps.length > 0) {
         this.steps = [];
+        this.appendSteps(a_steps);
+        /*
         for (s = 0; s < a_steps.length; s++) {
             this.addLeg(a_steps[s]);
         }
+        */
         this.current_step = -1;
         if (this.latitude == 0 && this.longitude == 0 && this.steps.length > 0) {
             // Find first fix leg
@@ -1428,6 +1437,12 @@ Plane.prototype.assignRouteBySteps = function(a_steps) {
         if (this.fl > 0 && this.speed > 0) {
             this.advance2NextStep();
         }
+    }
+}
+
+Plane.prototype.appendSteps = function(a_steps) {
+    for (s = 0; s < a_steps.length; s++) {
+        this.addLeg(a_steps[s]);
     }
 }
 

@@ -26,7 +26,7 @@ The project is now in a pre-beta phase with about 60% of planned functionalities
 
 The current RNAV database is based on real planes database and is updated at Dec 2017.
 
-A demo web site will be available soon.
+A full-featured demo web site is now available at: **http://www.atc-terminal.com**
 
 # Installation
 
