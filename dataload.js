@@ -137,6 +137,7 @@ function loadScenery( name ) {
 
 function loadNavaids() {
     console.log('=== LOAD NAVAIDS ===');
+    msgbar.showMessage('Loading Navaids');
     var promiseNavaids =  new Promise(function (resolve, reject) {
         $.get("data/1712/Navaids.txt", function (data) {
             var found = false;
@@ -211,6 +212,7 @@ function loadNavaids() {
 
 function loadWaypoints() {
     console.log('=== LOAD WAYPOINTS ===');
+    msgbar.showMessage('Loading Waypoints');
     var promiseWaypoints =  new Promise(function (resolve, reject) {
         $.get("data/1712/Waypoints.txt", function (data) {
             var lines = data.split('\n');
@@ -241,6 +243,7 @@ function loadWaypoints() {
 
 function loadAirport( icao ) {
     console.log('=== LOAD AIRPORT ' + icao + ' ===');
+    msgbar.showMessage('Loading Airport ' + icao);
     var promiseAirport = new Promise(function (resolve, reject) {
         for (var a = 0; a < airports.length; a++) {
             if (airports[a].icao == icao) {
@@ -349,6 +352,7 @@ function loadAirport( icao ) {
 
 function loadProcedures(icao) {
     console.log('=== LOAD PROCEDURES ' + icao + ' ===');
+    msgbar.showMessage('Loading Procedures ' + icao);
     var promiseProcedures = new Promise(function (resolve, reject) {
         $.get("data/1712/PROC/" + icao + ".txt", function (data) {
 
@@ -726,6 +730,7 @@ function loadProcedures(icao) {
 
 function loadATS() {
     console.log('=== LOAD ATS ===');
+    msgbar.showMessage('Loading ATS Routes');
     var promiseAts =  new Promise(function (resolve, reject) {
         $.get("data/1712/ATS.txt", function (data) {
             var found = false;
@@ -795,6 +800,7 @@ function loadATS() {
 
 function loadAirlines() {
     console.log('=== LOAD AIRLINES ===');
+    msgbar.showMessage('Loading Airlines');
     var promiseAirlines =  new Promise(function (resolve, reject) {
         $.get("data/airlines.txt", function (data) {
             var lines = data.split('\n');
