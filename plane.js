@@ -942,6 +942,10 @@ Plane.prototype.changeFreq = function(frequency) {
 }
 
 
+Plane.prototype.continueAsInstructed = function () {
+    // Nothing to do
+}
+
 // Check distance to a coordinate point
 Plane.prototype.checkNearCoords = function(latitude, longitude) {
     var planeCoords = new LatLon(this.latitude, this.longitude);
