@@ -384,7 +384,7 @@ function parseCommand(command) {
                         planes[planeID].squack_assigned = squack;
                         if (planes[planeID].arrival) {
                             planes[planeID].squack = planes[planeID].squack_assigned;
-                        }
+                         }
                         msg+= squack;
                         speak += squack;
                     }
@@ -486,6 +486,14 @@ console.log('MAP step = ' + s );
                     msg += 'CHANGE FREQUENCY WITH ATC ';
                     planes[p].changeFreq('ATC');
                 }
+                letter = '';
+            }
+            if (words.length > 0 && words[0].toUpperCase() == 'CAI') {
+                // Continue as instructed
+                words.shift();
+                msg += 'CONTINUE AS INSTRUCTED ';
+                speak += 'CIA ';
+                planes[p].continueAsInstructed();
                 letter = '';
             }
             if (letter == 'H') {

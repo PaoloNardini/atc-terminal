@@ -10,9 +10,8 @@ function randomize() {
         scenery = 'ROME';
     }
     loadScenery(scenery).then(function() {
-        // loadAirports('LIRF'); // Rome Fiumicino
-        // loadAirports('LIRQ'); // Florence Peretola
-        // loadAirports('LIRP'); // Pisa San Giusto
+
+        msgbar.showMessage('Initializing');
 
         // Add runways to main screen
         for(var r=0; r < runways.length; r++) {

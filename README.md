@@ -68,6 +68,7 @@ Recognized commands (enter in the upper-right box labelled "enter radio message"
 - < plane > GA -> Go Around, abort landing and follow the missed approach standard procedure
 - < plane > SQ  < trasponder > -> Squack the trasponder code, i.e. insert the given 4 digits code in the plane transponder (not used if AUTOSQUACK = 1)
 - < plane > ID -> Squack Ident, i.e. identify the plane on the radar screen by its callsing instead of trasponder code (not used if AUTOIDENT = 1)
+- < plane > CAI -> Continue As Instructed , continue your own flight as cleared
 
 When typing < plane > callsign, enter only the numeric part and omit the airline code. To speed-up planes callsign typing, you can use TAB key to auto-complete the callsign after the first digits.
 
