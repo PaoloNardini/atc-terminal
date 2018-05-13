@@ -28,26 +28,32 @@ CommunicationBar.prototype.showMessage = function ( msg, type ) {
     switch (type) {
         case MSG_TO_PLANE:
             color = MSG_BAR_COLOR_1;
+            voice = 5;
             break;
         case MSG_FROM_PLANE:
             color = MSG_BAR_COLOR_2;
+            voice = 1;
             break;
         case MSG_FROM_TWR:
         case MSG_TO_TWR:
             msg = 'TWR: ' + msg;
             color = MSG_BAR_COLOR_3;
+            voice = 4;
             break;
         case MSG_FROM_ATC:
         case MSG_TO_ATC:
             msg = 'ATC: ' + msg;
             color = MSG_BAR_COLOR_4;
+            voice = 3;
             break;
         case MSG_ERROR:
             msg = 'ERROR: ' + msg;
             color = MSG_BAR_COLOR_ERR;
+            voice = -1;
             break;
         default:
             color = MSG_BAR_COLOR;
+            voice = -1;
             break;
     }
     this.pushMessage(msg, color);

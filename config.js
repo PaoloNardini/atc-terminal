@@ -1,6 +1,6 @@
 // const PI = 3.1415926535;
 
-const AUDIO = 0;
+const AUDIO = 1;
 const TEST_MODE = 0;
 var DEPARTURES_ENABLED = 1;
 var ARRIVALS_ENABLED = 1;

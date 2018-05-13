@@ -61,6 +61,7 @@
     <script src="communicationbar.js"></script>
     <script src="clockbar.js"></script>
     <script src="slot.js"></script>
+    <script src="speechsynth.js"></script>
     <style>
         #msg {
             font-size:20px;
@@ -128,6 +129,7 @@
     var director = new Director();
     var msgbar = new CommunicationBar();
     var clockbar = new ClockBar();
+    var speaker = new SpeechSynth();
 
     var sceneryLoaded = false;
     var masterPause = 0;
@@ -158,6 +160,8 @@
         // createjs.Sound.registerSound("assets/InTheBottleBank01.mp3", thunder);
 
         console.log('Init Called');
+
+
 
         mainStage    = new createjs.Stage("mainCanvas");
         arrStage     = new createjs.Stage("arrStripsCanvas");

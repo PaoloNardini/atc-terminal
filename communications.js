@@ -195,88 +195,12 @@ function handleComplete() {
     // todo
 }
 
-
-
-
-function spellNumber(numbers) {
-    var p = new Promise(function(resolve, reject) {
-        var c = 0;
-        var s = numbers.shift();
-        if (parseInt(s) >= 0) {
-            speakNumber(parseInt(s)).then(function () {
-                spellNumber(numbers).then(function() {
-                    if (numbers.length <= 1) {
-                        resolve(true);
-                    }
-                });
-            });
-        }
-        else {
-            resolve(true);
-        }
-    });
-    return p;
-}
-
-function spellIcao(letters) {
-    var p = new Promise(function(resolve, reject) {
-        var c = 0;
-        if (letters.length == 0) {
-            resolve(true);
-            return;
-        }
-        var s = letters.shift();
-        speakLetter(s).then(function () {
-            spellIcao(letters).then(function() {
-                if (letters.length <= 1) {
-                    resolve(true);
-                }
-            });
-        });
-    });
-    return p;
-}
-
-function speakPhrase(words) {
-    var word;
-    if (words.length > 0) {
-        word = words[0];
-console.log('SPEAK ' + word);
-        words.shift();
-        if (parseInt(word) >= 0) {
-            var numbers = word.split('');
-            spellNumber(numbers).then(function() {
-                speakPhrase(words);
-            });
-        }
-        else {
-            switch (word) {
-                case 'FL':
-                case 'HR':
-                case 'HL':
-                case 'DT':
-                    speakInstruction(word).then(function() {
-                        speakPhrase(words);
-                    });
-                    break;
-                default:
-                    var letters = word.split('');
-                    spellIcao(letters).then(function() {
-                        speakPhrase(words);
-                    });
-            }
-        }
-    }
-}
-
-
 function sendMessage(msg, type) {
     // var current = $('#msg').text;
     // console.log(current);
     // $('#msg').text(msg);
     msgbar.showMessage(msg, type);
 }
-
 
 function parseCommand(command) {
     console.log('Parse:' + command);
@@ -666,11 +590,10 @@ console.log('Exit GA and resume Approach phase');
         }
     }
     sendMessage(msg, msgType);
-
     if (AUDIO == 1) {
-        var words = speak.split(' ');
-        speakPhrase(words);
+        speaker.talk(speak, msgType);
+        // var words = speak.split(' ');
+        // speakPhrase(words);
     }
-
     $('#talk').val('');
 }
