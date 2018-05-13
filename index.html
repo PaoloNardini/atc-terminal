@@ -503,14 +503,14 @@
                 // End of Command
                 // var command = e.currentTarget.value;
                 // console.log(command);
-                event.preventDefault();
-                event.stopImmediatePropagation();
+                e.preventDefault();
+                e.stopImmediatePropagation();
                 parseCommand(e.currentTarget.value);
             }
             if (e.keyCode == 9) {
                 // Find plane ID
-                event.preventDefault();
-                event.stopImmediatePropagation();
+                e.preventDefault();
+                e.stopImmediatePropagation();
                 var planeID = findPlaneID(e.currentTarget.value);
                 console.log('found ' + planeID);
                 if (planeID != -1) {

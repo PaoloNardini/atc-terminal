@@ -238,7 +238,7 @@ function parseCommand(command) {
         console.log('Plane ' + planeID);
     }
     msg = planes[planeID].completeCallsign + ' ';
-    speak = planes[planeID].completeCallsign + ' ';
+    speak = 'PLANE: ' + planes[planeID].completeCallsign + ' ';
     if (words.length > 0) {
         var loop = 0;
         words.shift();
@@ -292,7 +292,7 @@ function parseCommand(command) {
             if (words.length > 0 && (words[0].toUpperCase() == 'REL' || words[0].toUpperCase() == 'RELEASE')) {
                 words.shift();
                 msg += ' release accepted ';
-                speak += ' RELEASE ';
+                speak += ' REL ';
                 director.planeRelease(planeID);
                 letter = '';
             }
@@ -318,7 +318,7 @@ function parseCommand(command) {
             if (words.length > 0 && (words[0].toUpperCase() == 'ID' || words[0].toUpperCase() == 'IDENT')) {
                 // Squack
                 msg+= ' squack ident ';
-                speak += ' SQUACK IDENT ';
+                speak += ' IDENT ';
                 words.shift();
                 planes[planeID].squack = planes[planeID].squack_assigned;
                 planes[planeID].addStatus(STATUS_IDENT);
@@ -416,7 +416,7 @@ console.log('MAP step = ' + s );
                 // Continue as instructed
                 words.shift();
                 msg += 'CONTINUE AS INSTRUCTED ';
-                speak += 'CIA ';
+                speak += 'CAI ';
                 planes[p].continueAsInstructed();
                 letter = '';
             }
@@ -445,7 +445,7 @@ console.log('MAP step = ' + s );
                 var newHeading = words[0];
                 words.shift();
                 msg += 'turn to heading ' + newHeading + ' ';
-                speak += 'H' + letter + ' ' + newHeading + ' ';
+                speak += 'H ' + letter + ' ' + newHeading + ' ';
                 delay_min = 2000;
                 delay_max = 5000;
                 if (planes[planeID].hasStatus(STATUS_MISSED_APPROACH)) {
@@ -464,6 +464,7 @@ console.log('MAP step = ' + s );
                 var newSpeed = words[0];
                 words.shift();
                 msg += 'set speed to ' + newSpeed + ' knots ';
+                speak += 'SPEED ' + newSpeed;
                 delay_min = 8000;
                 delay_max = 10000;
                 if (planes[planeID].hasStatus(STATUS_MISSED_APPROACH)) {
@@ -484,17 +485,17 @@ console.log('MAP step = ' + s );
                 words.shift();
                 if (planes[planeID].fl > newLevel) {
                     msg += 'descend to FL ' + flight_level + ' ';
-                    speak += 'FL ' + flight_level + ' ';
+                    speak += 'FL- ' + flight_level + ' ';
                 }
                 else if (planes[planeID].fl < newLevel) {
                     if (planes[planeID].hasStatus(STATUS_CLEARED_TAKEOFF)) {
                         msg += 'initial climb to FL ' + flight_level + ' ';
-                        speak += ' INITIAL FL ' + flight_level + ' ';
+                        speak += ' FLI ' + flight_level + ' ';
 
                     }
                     else {
                         msg += 'climb to FL ' + flight_level + ' ';
-                        speak += 'FL ' + flight_level + ' ';
+                        speak += 'FL+ ' + flight_level + ' ';
                     }
                 }
                 else {
@@ -514,6 +515,7 @@ console.log('MAP step = ' + s );
             if (letter == 'C') {
                 // Cleared to
                 msg += 'proceed to: ';
+                speak += 'CLEARED ';
                 var assigned_route = [];
                 var ar = -1;
                 var o_route = new Route();
@@ -524,6 +526,7 @@ console.log('MAP step = ' + s );
                     if (fix == 'TO' || fix == 'TAKEOFF') {
                         words.shift();
                         msg = planes[planeID].completeCallsign + ' cleared to take off ';
+                        speak += 'TO ';
                         director.planeTakeoff(planes[planeID]);
                         break;
                     }
@@ -531,7 +534,7 @@ console.log('MAP step = ' + s );
                     if (o_wp != undefined && !o_wp.isRunway) {
                         words.shift();
                         msg += fix + ' ';
-                        speak += 'DT ' + fix;
+                        speak += fix + ', ';
                         o_step = new Step();
                         o_step.type = 'TF';
                         o_step.identifier = o_wp.name;
@@ -553,7 +556,7 @@ console.log('MAP step = ' + s );
                             o_airport = findAirport(icao);
                             words.shift();
                             msg += fix + ' ';
-                            speak += 'DT ' + fix;
+                            speak += 'RW ' + fix;
                             // Find final procedure for landing
                             o_final_route = director.assignFinalRoute(o_airport, o_runway);
                             if (o_final_route instanceof Route) {
