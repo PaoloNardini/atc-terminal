@@ -718,8 +718,8 @@ LatLon.prototype.rhumbDistanceTo = function(point, radius) {
 
     // on Mercator projection, longitude distances shrink by latitude; q is the 'stretch factor'
     // q becomes ill-conditioned along E-W line (0/0); use empirical tolerance to avoid it
-    var deltaψ = Math.log(Math.tan(ph2/2+Math.PI/4)/Math.tan(ph1/2+Math.PI/4));
-    var q = Math.abs(deltaψ) > 10e-12 ? deltaph/deltaψ : Math.cos(ph1);
+    var delta = Math.log(Math.tan(ph2/2+Math.PI/4)/Math.tan(ph1/2+Math.PI/4));
+    var q = Math.abs(delta) > 10e-12 ? deltaph/delta : Math.cos(ph1);
 
     // distance is pythagoras on 'stretched' Mercator projection
     var delta = Math.sqrt(deltaph*deltaph + q*q*deltaLambda*deltaLambda); // angular distance in radians
@@ -749,9 +749,9 @@ LatLon.prototype.rhumbBearingTo = function(point) {
     if (deltaLambda >  Math.PI) deltaLambda -= 2*Math.PI;
     if (deltaLambda < -Math.PI) deltaLambda += 2*Math.PI;
 
-    var deltaψ = Math.log(Math.tan(ph2/2+Math.PI/4)/Math.tan(ph1/2+Math.PI/4));
+    var delta = Math.log(Math.tan(ph2/2+Math.PI/4)/Math.tan(ph1/2+Math.PI/4));
 
-    var theta = Math.atan2(deltaLambda, deltaψ);
+    var theta = Math.atan2(deltaLambda, delta);
 
     return (theta.toDegrees()+360) % 360;
 };
@@ -783,8 +783,8 @@ LatLon.prototype.rhumbDestinationPoint = function(distance, bearing, radius) {
     // check for some daft bugger going past the pole, normalise latitude if so
     if (Math.abs(ph2) > Math.PI/2) ph2 = ph2>0 ? Math.PI-ph2 : -Math.PI-ph2;
 
-    var deltaψ = Math.log(Math.tan(ph2/2+Math.PI/4)/Math.tan(ph1/2+Math.PI/4));
-    var q = Math.abs(deltaψ) > 10e-12 ? deltaph / deltaψ : Math.cos(ph1); // E-W course becomes ill-conditioned with 0/0
+    var delta = Math.log(Math.tan(ph2/2+Math.PI/4)/Math.tan(ph1/2+Math.PI/4));
+    var q = Math.abs(delta) > 10e-12 ? deltaph / delta : Math.cos(ph1); // E-W course becomes ill-conditioned with 0/0
 
     var deltaLambda = delta*Math.sin(theta)/q;
     var gamma2 = gamma1 + deltaLambda;
