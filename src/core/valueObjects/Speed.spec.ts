@@ -1,8 +1,8 @@
-import { Speed, speedLens } from './Speed'
+import { createSpeed, Speed, speedLens } from './Speed'
 
 describe('Test Speed Lenses', () => {
 
-    const speed: Speed = { speed_kts: 475}
+    const speed: Speed = createSpeed(475)
 
     it('should return the speed', async () => {
         const kts = speedLens.get(speed)

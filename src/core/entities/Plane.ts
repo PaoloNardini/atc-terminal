@@ -1,4 +1,5 @@
 import { Airline, Runway, Slot, Route } from ".";
+import { Bearing, Coordinate, Speed, Level } from "../valueObjects";
 
 export interface Plane {
 
@@ -21,20 +22,21 @@ export interface Plane {
     status: string
     atc_phase: string
 
-    latitude: number
-    longitude: number
-    coarse: number
+    coordinate: Coordinate
+    // latitude: number
+    // longitude: number
+    coarse: Bearing
     distance: number
 
     // Navigation data
-    speed: number
-    speed_target: number
-    heading: number
-    heading_target: number
-    fl: number
-    fl_final: number
-    fl_initial: number
-    fl_cleared: number
+    speed: Speed
+    speed_target: Speed
+    heading: Bearing
+    heading_target: Bearing
+    fl: Level
+    fl_final: Level
+    fl_initial: Level
+    fl_cleared: Level
     climb: number
     turn: number
 

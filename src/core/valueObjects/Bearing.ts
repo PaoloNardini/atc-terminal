@@ -8,7 +8,9 @@ const getBearing = (whole: Bearing): number => whole.degrees;
 const setBearing = (whole: Bearing) => (part: number): Bearing => ({...whole, degrees: part});
 export const bearingLens = Lens<Bearing, number>(getBearing, setBearing);
 
-
+export const createBearing = (degrees: number): Bearing => {
+    return {degrees: degrees}
+}
 
 
 
