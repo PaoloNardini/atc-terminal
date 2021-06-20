@@ -1,0 +1,6 @@
+{
+  "watch": ["src", "resources"],
+  "ignore": [".git", "node_modules/*"],
+  "verbose": true,
+  "ext": "json,js,ts,html"
+}
