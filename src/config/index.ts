@@ -21,6 +21,8 @@ const env = cleanEnv(
   { strict: true }
 )
 
+export const IS_PRODUCTION = env.isProduction
+
 export const PARAMS = {
   port: env.PORT,
   appEnv: env.APP_ENV,

@@ -1,6 +1,6 @@
 import { Speed } from './Speed'
 
-describe('Test Speed Lenses', () => {
+describe('Test Speed', () => {
 
     const speed: Speed = new Speed(475)
 
