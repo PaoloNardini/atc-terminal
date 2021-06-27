@@ -1,3 +1,3 @@
-export interface Fix {
+export class Fix {
     
 }

@@ -1,3 +1,3 @@
-export interface Waypoint {
+export class Waypoint {
     
 }

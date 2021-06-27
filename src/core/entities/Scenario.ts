@@ -1,7 +1,7 @@
 import { Route, Airport, Plane } from ".";
 
-export interface Scenario {
-    name: string
+export class Scenario {
+    name?: string
     airports?: Airport[]          
     procedures?: Route[]
     atsRoutes?: Route[]

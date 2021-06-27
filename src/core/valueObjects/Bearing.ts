@@ -1,15 +1,25 @@
-import { Lens } from './Lens'
+export class Bearing {
+    degrees?: number
 
-export interface Bearing {
-    degrees: number,
-}
+    constructor(degrees: number) {
+        if (degrees >= 0 && degrees <= 359) {
+            this.degrees = degrees
+        }
+        else {
+            throw Error(`Invalid bearing value: ${degrees}`)
+        }
+    }
 
-const getBearing = (whole: Bearing): number => whole.degrees;
-const setBearing = (whole: Bearing) => (part: number): Bearing => ({...whole, degrees: part});
-export const bearingLens = Lens<Bearing, number>(getBearing, setBearing);
+    getBearing(): number {
+        if (this.degrees) {     
+            return this.degrees 
+        }
+        throw Error(`Bearing not initialized`)
+    }
 
-export const createBearing = (degrees: number): Bearing => {
-    return {degrees: degrees}
+    setBearing(degrees: number) {
+        return new Bearing(degrees)
+    }
 }
 
 

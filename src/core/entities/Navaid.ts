@@ -15,27 +15,27 @@ export enum NavaidType {
     NAVAID_TYPE_RWY = 12,
     NAVAID_TYPE_ROUTE_FIX = 13,
 }
-export interface Navaid {
+export class Navaid {
     // General fix data
-    name: string         // Fix name
-    label: string        // Label on the screen
-    type: NavaidType          // See const FIX_TYPE...
-    release: boolean   // Is it a release point to/from other ATC?
+    name?: string         // Fix name
+    label?: string        // Label on the screen
+    type?: NavaidType          // See const FIX_TYPE...
+    release: boolean = false  // Is it a release point to/from other ATC?
     altitude?: Level      // Cross altitude
     mea?: Level           // Minimum enroute altitude (in feet)
     min_speed?: Speed     // Minimum speed
     max_speed?: Speed     // Maximum speed
-    freq: string// Navaid frequency
-    visible: boolean    // Default visibility
-    labelVisible: boolean
-    visibleTemp: boolean
-    labelVisibleTemp: boolean
+    freq?: string// Navaid frequency
+    visible: boolean = false    // Default visibility
+    labelVisible: boolean = false
+    visibleTemp: boolean = false
+    labelVisibleTemp: boolean = false
 
     // Navaid position
-    coordinate: Coordinate
-    x: number
-    y: number
+    coordinate?: Coordinate
+    x: number = 0
+    y: number = 0
 
-    zoom_min: number  // Min. visible zoom
-    zoom_max: number   // Max. visible zoom
+    zoom_min: number  = 0   // Min. visible zoom
+    zoom_max: number  = 0 // Max. visible zoom
 }

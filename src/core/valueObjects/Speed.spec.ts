@@ -1,20 +1,20 @@
-import { createSpeed, Speed, speedLens } from './Speed'
+import { Speed } from './Speed'
 
 describe('Test Speed Lenses', () => {
 
-    const speed: Speed = createSpeed(475)
+    const speed: Speed = new Speed(475)
 
     it('should return the speed', async () => {
-        const kts = speedLens.get(speed)
+        const kts = speed.getSpeed()
         expect(kts).toBe(475)
     })
     it('should set the speed', async () => {
-        const newSpeed: Speed = speedLens.set(speed)(498)
-        expect (newSpeed).toEqual({speed_kts: 498});
+        const newSpeed: Speed = speed.setSpeed(498)
+        expect (newSpeed.getSpeed()).toEqual(498);
     })
     it('should round the speed', async () => {
-        const newSpeed: Speed = speedLens.set(speed)(375.73)
-        expect (newSpeed).toEqual({speed_kts: 375});
+        const newSpeed: Speed = new Speed(375.73)
+        expect (newSpeed.getSpeed()).toEqual(375);
     })
 })
 
