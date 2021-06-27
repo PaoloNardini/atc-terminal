@@ -1,10 +1,10 @@
 // This is start.ts
-
 import { initializeUseCases } from "./core"
 import { createNewHttpServer } from "./gateways/http"
 import * as config from './config'
 import { Server } from 'http'
 import D from 'debug'
+import { createNewScreen, Screen } from "./gateways/screen"
 const debug = D('app:start')
 
 let isShuttingDown: boolean = false
@@ -44,15 +44,21 @@ export const main = () => {
     })
     debug(`Initialize use-cases: ok`)
   
+ 
+    const screen: Screen = createNewScreen({
+        isProduction: false,
+        useCases,
+    })
+
     debug(`Create new Http Sever...`)
     const httpServer = createNewHttpServer({
       useCases,
+      screen,
       isProduction: false,
       isServerShuttingDown,
     })
     debug(`Create new Http Sever: ok`)
 
-    
     httpServer.listen(config.PARAMS.port, (error?: Error) => {
         if (error) {
           debug(error)

@@ -1,5 +1,5 @@
 import { Scenario } from "../core/entities";
-import { ScenarioGatewayInterface } from "../gateways/ScenarioGatewayInterface";
+import { ScenarioGatewayInterface } from "./ScenarioGatewayInterface";
 
 export const makeScenarioGateway = (): ScenarioGatewayInterface => {
 
