@@ -12,7 +12,7 @@ import http from 'http'
 // import * as config from '../../config'
 
 import { UseCases } from '../../core'
-// import { EpV1 } from './routers/epv1'
+import { ApiV1 } from './routers/v1/endpoints'
 // import { ChecksRouter } from './routers/checks'
 
 const debug = D('app:gateways:http')
@@ -43,6 +43,9 @@ export function createNewHttpServer(httpConfig: HttpServerConfig): http.Server {
     }
     res.send('OK')
   })
+
+  // Api Endpoints
+  app.use('/api/v1', ApiV1({ useCases}))
 
   app.use('/',  (req, res) => {
       if (req) {
