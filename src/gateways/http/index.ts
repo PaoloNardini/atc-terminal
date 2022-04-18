@@ -1,8 +1,6 @@
 // import compression from 'compression'
 import D from 'debug'
-import express from 'express'
 // import { NextFunction, Request, Response } from 'express'
-import http from 'http'
 // import fs from 'fs'
 // import YAML from 'yaml'
 // import { authenticateMiddleware } from './middlewares/authenticate'
@@ -13,6 +11,13 @@ import { UseCases } from '../../core'
 import { ApiV1 } from './routers/v1/endpoints'
 import { Screen } from '../screen'
 // import { ChecksRouter } from './routers/checks'
+import path from 'path'
+
+
+import http from 'http'
+import express from 'express'
+import { Server }  from 'socket.io';
+import expressServeStatic from 'serve-static'
 
 const debug = D('app:gateways:http')
 const trace = D('app:trace')
@@ -36,6 +41,17 @@ export function createNewHttpServer(httpConfig: HttpServerConfig): http.Server {
 
   const app = express()
 
+  // Catch any static file in /public and resource/static folders adding cache-control header
+  // (see http://expressjs.com/en/resources/middleware/serve-static.html)
+  app.use(
+    expressServeStatic('public', {
+      cacheControl: false, // true TODO
+      maxAge: 1000 * 60 * 5,  // more TODO
+      etag: true,
+      immutable: false, // resource could be re-validated before expiration
+    })
+  )
+
   app.use('/healthcheck', (_, res) => {
     if (isServerShuttingDown()) {
       debug('healtcheck response 500 because shutting down')
@@ -45,10 +61,15 @@ export function createNewHttpServer(httpConfig: HttpServerConfig): http.Server {
     res.send('OK')
   })
 
+
   // Api Endpoints
   app.use('/api/v1', ApiV1({ useCases}))
 
-  app.use('/',  (req, res) => {
+  app.get('/', (_, res) => {
+    res.sendFile(path.resolve(__dirname + '/../screen/index.html'));
+  });
+
+  app.use('/home',  (req, res) => {
       if (req) {
           if (isProduction) {
 
@@ -59,7 +80,15 @@ export function createNewHttpServer(httpConfig: HttpServerConfig): http.Server {
       }
   })
 
-  return http.createServer(app).setTimeout(1000 * 30, () => {
-    trace('Closed connection longer than 30 sec')
+  const server = http.createServer(app).setTimeout(1000 * 60, () => {
+    trace('Closed connection longer than 60 sec')
   })
+
+  const io = new Server(server);
+  if (io) {
+    console.log(`io init`)
+  }
+
+  return server
+
 }

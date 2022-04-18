@@ -87,20 +87,14 @@ const compilerBundle = {
       cleanOnceBeforeBuildPatterns: ['**/*', '!*dummy*'],
       verbose: true,
     }),
-    /*
     new CopyPlugin({
       patterns: [
         {
-          from: 'node_modules/@dummy/dummy/dist/js/dummy.min.js',
+          from: 'node_modules/socket.io/client-dist/socket.io.min.js',
           to: './',
-        },
-        {
-          from: 'node_modules/@dummy/dummy/dist/css/summy.min.css',
-          to: './',
-        },
+        },    
       ],
     }),
-    */
   ],
 }
 
