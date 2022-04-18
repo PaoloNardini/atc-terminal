@@ -16,3 +16,4 @@ data/audio/test
 assets/src
 *.zip
 *.7z
+node_modules
