@@ -1,7 +1,7 @@
 // import compression from 'compression'
 import D from 'debug'
 // import { NextFunction, Request, Response } from 'express'
-// import fs from 'fs'
+import fs from 'fs'
 // import YAML from 'yaml'
 // import { authenticateMiddleware } from './middlewares/authenticate'
 // import basicAuth from 'express-basic-auth'
@@ -10,6 +10,7 @@ import D from 'debug'
 import { UseCases } from '../../core'
 import { ApiV1 } from './routers/v1/endpoints'
 import { Screen } from '../screen'
+import { SocketMsgType } from '../../core/entities'
 // import { ChecksRouter } from './routers/checks'
 import path from 'path'
 
@@ -61,6 +62,26 @@ export function createNewHttpServer(httpConfig: HttpServerConfig): http.Server {
     res.send('OK')
   })
 
+  app.use('/main.js', (_, res) => {
+    const assetName = 'main.js'
+    const publicPath = path.resolve(__dirname + '/../../../public')
+    const manifestStr = fs.readFileSync( `${publicPath}/manifest.json`, {
+      encoding: 'utf-8',
+    })
+    const manifest = JSON.parse(manifestStr)
+    console.log(manifestStr)
+    if (manifest[assetName]) {
+      const hashedAssetName = `/${manifest[assetName]}`
+      console.log(hashedAssetName)
+      const assetContent = fs.readFileSync(`${publicPath}/${hashedAssetName}`, {
+        encoding: 'utf-8',
+      })
+      res.send(assetContent)
+      return
+    }
+    res.status(404)
+    return
+  })
 
   // Api Endpoints
   app.use('/api/v1', ApiV1({ useCases}))
@@ -68,6 +89,7 @@ export function createNewHttpServer(httpConfig: HttpServerConfig): http.Server {
   app.get('/', (_, res) => {
     res.sendFile(path.resolve(__dirname + '/../screen/index.html'));
   });
+
 
   app.use('/home',  (req, res) => {
       if (req) {
@@ -88,6 +110,13 @@ export function createNewHttpServer(httpConfig: HttpServerConfig): http.Server {
   if (io) {
     console.log(`io init`)
   }
+
+  io.on('connection', (socket) => {
+    socket.on(SocketMsgType.MSG_GENERAL , (msg) => {
+      console.log('message: ' + msg);
+      io.emit(SocketMsgType.MSG_GENERAL, msg);
+    });
+  });
 
   return server
 
