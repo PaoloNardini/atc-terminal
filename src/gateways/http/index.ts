@@ -10,14 +10,14 @@ import fs from 'fs'
 import { UseCases } from '../../core'
 import { ApiV1 } from './routers/v1/endpoints'
 import { Screen } from '../screen'
-import { SocketMsgType } from '../../core/entities'
+// import { SocketMsgType } from '../../core/entities'
 // import { ChecksRouter } from './routers/checks'
 import path from 'path'
 
 
 import http from 'http'
 import express from 'express'
-import { Server }  from 'socket.io';
+// import { Server }  from 'socket.io';
 import expressServeStatic from 'serve-static'
 
 const debug = D('app:gateways:http')
@@ -106,17 +106,19 @@ export function createNewHttpServer(httpConfig: HttpServerConfig): http.Server {
     trace('Closed connection longer than 60 sec')
   })
 
+  /*
   const io = new Server(server);
   if (io) {
     console.log(`io init`)
   }
 
   io.on('connection', (socket) => {
-    socket.on(SocketMsgType.MSG_GENERAL , (msg) => {
-      console.log('message: ' + msg);
-      io.emit(SocketMsgType.MSG_GENERAL, msg);
+    socket.on(SocketMsgType.MSG_GENERAL , (payload) => {
+      console.log('message: ' + payload);
+      io.emit(SocketMsgType.MSG_GENERAL, payload);
     });
   });
+  */
 
   return server
 

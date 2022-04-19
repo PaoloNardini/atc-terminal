@@ -5,6 +5,7 @@ import * as config from './config'
 import { Server } from 'http'
 import D from 'debug'
 import { createNewScreen, Screen } from "./gateways/screen"
+import { createNewSocket } from "./infrastructure/socket"
 const debug = D('app:start')
 
 let isShuttingDown: boolean = false
@@ -58,6 +59,14 @@ export const main = () => {
       isServerShuttingDown,
     })
     debug(`Create new Http Sever: ok`)
+
+    const socket = createNewSocket({
+      isProduction: false,
+      useCases,
+      httpServer
+    })
+
+    void (socket) // dummy
 
     httpServer.listen(config.PARAMS.port, (error?: Error) => {
         if (error) {
