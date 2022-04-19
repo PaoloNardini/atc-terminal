@@ -14,8 +14,13 @@ interface SocketConfig {
     useCases: UseCases
     httpServer: http.Server
 }
+
+export interface Socket {
+    send: (msgType: SocketMsgType, payload: any) => boolean
+}
+
  
-export function createNewSocket(config: SocketConfig) {
+export function createNewSocket(config: SocketConfig): Socket {
     const {
         isProduction,
         useCases,
@@ -37,7 +42,12 @@ export function createNewSocket(config: SocketConfig) {
             });
         });
         debug(`socket initialized`)
-        return io
+        return {
+            send: (msgType: SocketMsgType, payload: any) =>  {
+                io.emit(msgType, payload);
+                return true
+            }
+        }
     }
     else {
         throw(`Error initializing socket: no http server`)
