@@ -93,6 +93,10 @@ const compilerBundle = {
           from: 'node_modules/socket.io/client-dist/socket.io.min.js',
           to: './',
         },    
+        {
+          from: 'node_modules/createjs/builds/1.0.0/createjs.min.js',
+          to: './',
+        },    
       ],
     }),
   ],

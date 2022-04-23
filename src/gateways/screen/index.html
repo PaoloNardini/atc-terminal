@@ -17,10 +17,28 @@
   </head>
   <script src="/socket.io.min.js"></script>
   <body>
+    <div style="float:left; display:block; border-color:black">
+      <canvas id="mainCanvas" width="900" height="768" style="float:left; display:block; height:100%; background-color: black;"></canvas>
+    </div>
+    <div id='stripColumn' style="float:right; display:block; border-color:black; background-color: black;">
+      <!-- <span id="scale" style="color:#000;"></span> -->
+      <!-- <span id="msg">...</span> -->
+      <input type="text" name="command" id="talk" value="" placeholder="enter radio message">
+      <div style="display:block;">
+          <canvas id="consoleCanvas" width="420" height="80"></canvas>
+      </div>
+      <div id="strip-arr">
+          <canvas id="arrStripsCanvas" width="420" height="400"></canvas>
+      </div>
+      <div id="strip-dep">
+          <canvas id="depStripsCanvas" width="420" height="400"></canvas>
+      </div>
+    </div>
     <ul id="messages"></ul>
     <form id="form" action="">
       <input id="input" autocomplete="off" /><button>Send</button>
     </form>
   </body>
+  <script src="/createjs.min.js"></script>
   <script src="/main.js"></script>
 </html>
