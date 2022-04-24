@@ -2,6 +2,7 @@
 import * as constants from '../../../src/core/constants'
 import { Parameters } from '../../../src/core/entities'
 import { PlaneGraphic } from './plane'
+import { Runway } from './runway'
 
 export class Main {
 
@@ -38,6 +39,14 @@ export class Main {
         planeGr.x = 100
         planeGr.y = 100
         this.mainContainer.addChild(planeGr)
+
+        const runwayGr = new Runway()
+        runwayGr.latitude = 10
+        runwayGr.longitude = 10
+        runwayGr.latitude_end = 12
+        runwayGr.longitude_end = 12
+        this.mainContainer.addChild(runwayGr)
+        runwayGr.plotRunway(this.parameters)
     
         createjs.Ticker.on("tick", this.tickFunction);
         createjs.Ticker.framerate = 3;

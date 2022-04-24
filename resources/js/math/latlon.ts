@@ -1,4 +1,4 @@
-import * as Dms from './dms.js'
+// import * as Dms from './dms'
 
 // See: https://stackoverflow.com/questions/39877156/how-to-extend-string-prototype-and-use-it-next-in-typescript
 declare global {
@@ -10,12 +10,12 @@ declare global {
 
   /** Extend Number object with method to convert numeric degrees to radians */
 if (Number.prototype.toRadians === undefined) {
-    Number.prototype.toRadians = function() { return this * Math.PI / 180; };
+    Number.prototype.toRadians = function() { return this as number * Math.PI / 180; };
 }
 
 /** Extend Number object with method to convert radians to numeric (signed) degrees */
 if (Number.prototype.toDegrees === undefined) {
-    Number.prototype.toDegrees = function() { return this * 180 / Math.PI; };
+    Number.prototype.toDegrees = function() { return this as number * 180 / Math.PI; };
 }
 
 
@@ -39,7 +39,7 @@ export class LatLon {
         this.lon = Number(lon);
     }
 
-    equals = function(point: LatLon) {
+    equals (point: LatLon) {
         if (!(point instanceof LatLon)) throw new TypeError('point is not LatLon object');
     
         if (this.lat != point.lat) return false;
@@ -48,9 +48,11 @@ export class LatLon {
         return true;
     }
 
+    /*
     toString = function(format, dp) {
         return Dms.toLat(this.lat, format, dp) + ', ' + Dms.toLon(this.lon, format, dp);
     };
+    */
     
     /**
      * Returns the distance from ‘this’ point to destination point (using haversine formula).
@@ -64,7 +66,7 @@ export class LatLon {
      *     var p2 = new LatLon(48.857, 2.351);
      *     var d = p1.distanceTo(p2); // 404.3 km
      */
-    distanceTo = function(point, radius) {
+    distanceTo (point: LatLon, radius: number = 6371e3) {
         if (!(point instanceof LatLon)) throw new TypeError('point is not LatLon object');
         radius = (radius === undefined) ? 6371e3 : Number(radius);
 
@@ -99,7 +101,7 @@ export class LatLon {
      *     var p2 = new LatLon(48.857, 2.351);
      *     var b1 = p1.bearingTo(p2); // 156.2°
      */
-    bearingTo = function(point: LatLon) {
+    bearingTo (point: LatLon) {
         if (!(point instanceof LatLon)) throw new TypeError('point is not LatLon object');
 
         // tantheta = sindeltaLambda⋅cosph2 / cosph1⋅sinph2 − sinph1⋅cosph2⋅cosdeltaLambda
@@ -128,7 +130,7 @@ export class LatLon {
      *     var p2 = new LatLon(48.857, 2.351);
      *     var b2 = p1.finalBearingTo(p2); // 157.9°
      */
-    finalBearingTo = function(point: LatLon) {
+    finalBearingTo (point: LatLon) {
         if (!(point instanceof LatLon)) throw new TypeError('point is not LatLon object');
 
         // get initial bearing from destination point to this point & reverse it by adding 180°
@@ -147,7 +149,7 @@ export class LatLon {
      *     var p2 = new LatLon(48.857, 2.351);
      *     var pMid = p1.midpointTo(p2); // 50.5363°N, 001.2746°E
      */
-    midpointTo = function(point: LatLon) {
+    midpointTo (point: LatLon) {
         if (!(point instanceof LatLon)) throw new TypeError('point is not LatLon object');
 
         // phm = atan2( sinph1 + sinph2, √( (cosph1 + cosph2⋅cosdeltaLambda) ⋅ (cosph1 + cosph2⋅cosdeltaLambda) ) + cos²ph2⋅sin²deltaLambda )
@@ -183,7 +185,7 @@ export class LatLon {
      *   let p2 = new LatLon(48.857, 2.351);
      *   let pMid = p1.intermediatePointTo(p2, 0.25); // 51.3721°N, 000.7073°E
      */
-    intermediatePointTo = function(point, fraction) {
+    intermediatePointTo (point: LatLon, fraction: number) {
         if (!(point instanceof LatLon)) throw new TypeError('point is not LatLon object');
 
         var ph1 = this.lat.toRadians(), gamma1 = this.lon.toRadians();
@@ -225,7 +227,7 @@ export class LatLon {
      *     var p1 = new LatLon(51.4778, -0.0015);
      *     var p2 = p1.destinationPoint(7794, 300.7); // 51.5135°N, 000.0983°W
      */
-    destinationPoint = function(distance, bearing, radius = 6371e3) {
+    destinationPoint (distance: number, bearing: number, radius: number = 6371e3) {
         radius = (radius === undefined) ? 6371e3 : Number(radius);
 
         // sinph2 = sinph1⋅cosdelta + cosph1⋅sindelta⋅costheta
@@ -266,7 +268,7 @@ export class LatLon {
      *     var p2 = LatLon(49.0034, 2.5735), brng2 =  32.435;
      *     var pInt = LatLon.intersection(p1, brng1, p2, brng2); // 50.9078°N, 004.5084°E
      */
-    intersection = function(p1, brng1, p2, brng2) {
+    intersection (p1: LatLon, brng1: number, p2: LatLon, brng2: number): LatLon | null {
         if (!(p1 instanceof LatLon)) throw new TypeError('p1 is not LatLon object');
         if (!(p2 instanceof LatLon)) throw new TypeError('p2 is not LatLon object');
 
@@ -320,7 +322,7 @@ export class LatLon {
      *   var p2 = new LatLon(53.1887,  0.1334);
      *   var d = pCurrent.crossTrackDistanceTo(p1, p2);  // -307.5 m
      */
-    crossTrackDistanceTo = function(pathStart, pathEnd, radius) {
+    crossTrackDistanceTo (pathStart: LatLon, pathEnd: LatLon, radius: number = 6371e3) {
         if (!(pathStart instanceof LatLon)) throw new TypeError('pathStart is not LatLon object');
         if (!(pathEnd instanceof LatLon)) throw new TypeError('pathEnd is not LatLon object');
         var R = (radius === undefined) ? 6371e3 : Number(radius);
@@ -351,7 +353,7 @@ export class LatLon {
      *   var p2 = new LatLon(53.1887,  0.1334);
      *   var d = pCurrent.alongTrackDistanceTo(p1, p2);  // 62.331 km
      */
-    alongTrackDistanceTo = function(pathStart, pathEnd, radius) {
+    alongTrackDistanceTo (pathStart: LatLon, pathEnd: LatLon, radius: number = 6371e3) {
         if (!(pathStart instanceof LatLon)) throw new TypeError('pathStart is not LatLon object');
         if (!(pathEnd instanceof LatLon)) throw new TypeError('pathEnd is not LatLon object');
         var R = (radius === undefined) ? 6371e3 : Number(radius);
@@ -379,7 +381,7 @@ export class LatLon {
      * @param {number} bearing - Initial bearing.
      * @param {number} latitude - Starting latitude.
      */
-    maxLatitude = function(bearing) {
+    maxLatitude (bearing: number) {
         var theta = Number(bearing).toRadians();
 
         var ph = this.lat.toRadians();
@@ -399,7 +401,7 @@ export class LatLon {
      * @param {number} latitude - Latitude crossings are to be determined for.
      * @returns {Object|null} Object containing { lon1, lon2 } or null if given latitude not reached.
      */
-    crossingParallels = function(point1, point2, latitude) {
+    crossingParallels (point1: LatLon, point2: LatLon, latitude: number) {
         var ph = Number(latitude).toRadians();
 
         var ph1 = point1.lat.toRadians();
@@ -439,7 +441,7 @@ export class LatLon {
      *     var p2 = new LatLon(50.964, 1.853);
      *     var d = p1.distanceTo(p2); // 40.31 km
      */
-    rhumbDistanceTo = function(point, radius) {
+    rhumbDistanceTo (point: LatLon, radius: number = 6371e3) {
         if (!(point instanceof LatLon)) throw new TypeError('point is not LatLon object');
         radius = (radius === undefined) ? 6371e3 : Number(radius);
 
@@ -476,7 +478,7 @@ export class LatLon {
      *     var p2 = new LatLon(50.964, 1.853);
      *     var d = p1.rhumbBearingTo(p2); // 116.7 m
      */
-    rhumbBearingTo = function(point) {
+    rhumbBearingTo(point: LatLon) {
         if (!(point instanceof LatLon)) throw new TypeError('point is not LatLon object');
 
         var ph1 = this.lat.toRadians(), ph2 = point.lat.toRadians();
@@ -506,7 +508,7 @@ export class LatLon {
      *     var p1 = new LatLon(51.127, 1.338);
      *     var p2 = p1.rhumbDestinationPoint(40300, 116.7); // 50.9642°N, 001.8530°E
      */
-    rhumbDestinationPoint = function(distance, bearing, radius) {
+    rhumbDestinationPoint (distance: number , bearing: number , radius: number = 6371e3) {
         radius = (radius === undefined) ? 6371e3 : Number(radius);
 
         var delta = Number(distance) / radius; // angular distance in radians
@@ -540,7 +542,7 @@ export class LatLon {
      *     var p2 = new LatLon(50.964, 1.853);
      *     var pMid = p1.rhumbMidpointTo(p2); // 51.0455°N, 001.5957°E
      */
-    rhumbMidpointTo = function(point: LatLon): LatLon {
+    rhumbMidpointTo (point: LatLon): LatLon {
         if (!(point instanceof LatLon)) throw new TypeError('point is not LatLon object');
 
         // see mathforum.org/kb/message.jspa?messageID=148837
@@ -566,6 +568,26 @@ export class LatLon {
 
     /* Area - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
+    // returns whether polygon encloses pole: sum of course deltas around pole is 0° rather than
+    // normal ±360°: blog.element84.com/determining-if-a-spherical-polygon-contains-a-pole.html
+    isPoleEnclosedBy(polygon: LatLon[]) {
+        // TODO: any better test than this?
+        var SumDelta = 0;
+        var prevBrng = polygon[0].bearingTo(polygon[1]);
+        for (var v=0; v<polygon.length-1; v++) {
+            var initBrng = polygon[v].bearingTo(polygon[v+1]);
+            var finalBrng = polygon[v].finalBearingTo(polygon[v+1]);
+            SumDelta += (initBrng - prevBrng + 540) % 360 - 180;
+            SumDelta += (finalBrng - initBrng + 540) % 360 - 180;
+            prevBrng = finalBrng;
+        }
+        var initBrng = polygon[0].bearingTo(polygon[1]);
+        SumDelta += (initBrng - prevBrng + 540) % 360 - 180;
+        // TODO: fix (intermittant) edge crossing pole - eg (85,90), (85,0), (85,-90)
+        var enclosed = Math.abs(SumDelta) < 90; // 0°-ish
+        return enclosed;
+    }
+
 
     /**
      * Calculates the area of a spherical polygon where the sides of the polygon are great circle
@@ -579,7 +601,7 @@ export class LatLon {
      *   var polygon = [new LatLon(0,0), new LatLon(1,0), new LatLon(0,1)];
      *   var area = LatLon.areaOf(polygon); // 6.18e9 m²
      */
-    areaOf = function(polygon, radius) {
+    areaOf (polygon: LatLon[], radius: number = 6371e3) {
         // uses method due to Karney: osgeo-org.1560.x6.nabble.com/Area-of-a-spherical-polygon-td3841625.html;
         // for each edge of the polygon, tan(E/2) = tan(deltaLambda/2)·(tan(ph1/2) + tan(ph2/2)) / (1 + tan(ph1/2)·tan(ph2/2))
         // where E is the spherical excess of the trapezium obtained by extending the edge to the equator
@@ -601,34 +623,15 @@ export class LatLon {
             S += E;
         }
 
-        if (isPoleEnclosedBy(polygon)) S = Math.abs(S) - 2*Math.PI;
+        if (this.isPoleEnclosedBy(polygon)) S = Math.abs(S) - 2*Math.PI;
 
         var A = Math.abs(S * R*R); // area in units of R
 
         if (!closed) polygon.pop(); // restore polygon to pristine condition
 
         return A;
+    }
 
-        // returns whether polygon encloses pole: sum of course deltas around pole is 0° rather than
-        // normal ±360°: blog.element84.com/determining-if-a-spherical-polygon-contains-a-pole.html
-        function isPoleEnclosedBy(polygon) {
-            // TODO: any better test than this?
-            var SumDelta = 0;
-            var prevBrng = polygon[0].bearingTo(polygon[1]);
-            for (var v=0; v<polygon.length-1; v++) {
-                var initBrng = polygon[v].bearingTo(polygon[v+1]);
-                var finalBrng = polygon[v].finalBearingTo(polygon[v+1]);
-                SumDelta += (initBrng - prevBrng + 540) % 360 - 180;
-                SumDelta += (finalBrng - initBrng + 540) % 360 - 180;
-                prevBrng = finalBrng;
-            }
-            var initBrng = polygon[0].bearingTo(polygon[1]);
-            SumDelta += (initBrng - prevBrng + 540) % 360 - 180;
-            // TODO: fix (intermittant) edge crossing pole - eg (85,90), (85,0), (85,-90)
-            var enclosed = Math.abs(SumDelta) < 90; // 0°-ish
-            return enclosed;
-        }
-    };
 }
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */

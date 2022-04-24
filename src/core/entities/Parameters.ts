@@ -9,8 +9,8 @@ export class Parameters {
     arrivalInterval: number  = 180     // Min Interval in secondsa between two arrivals
     directorInterval: number = 10      // Min interval in secs between director actions
 
-    latitudeCenter: number = 0
-    longitudeCenter: number = 0
+    latitudeCenter: number = 5
+    longitudeCenter: number = 5
 
     screenCenterX: number = 512
     screenCenterY: number = 384

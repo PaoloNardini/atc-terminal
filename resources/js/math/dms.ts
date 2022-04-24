@@ -5,26 +5,7 @@
 /* www.movable-type.co.uk/scripts/geodesy/docs/module-dms.html                                    */
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
 
-'use strict';
-/* eslint no-irregular-whitespace: [2, { skipComments: true }] */
-
-
-/**
- * Latitude/longitude points may be represented as decimal degrees, or subdivided into sexagesimal
- * minutes and seconds.
- *
- * @module dms
- */
-
-
-/**
- * Functions for parsing and representing degrees / minutes / seconds.
- * @class Dms
- */
-var Dms = {};
-
-// note Unicode Degree = U+00B0. Prime = U+2032, Double prime = U+2033
-
+// const DMS_SEPARATOR = ''
 
 /**
  * Parses string representing degrees/minutes/seconds into numeric degrees.
@@ -41,27 +22,29 @@ var Dms = {};
  *     var lon = Dms.parseDMS('000° 00′ 05.31″ W');
  *     var p1 = new LatLon(lat, lon); // 51.4778°N, 000.0015°W
  */
-Dms.parseDMS = function(dmsStr) {
+export const parseDMS = (dmsStr: string): number => {
     // check for signed decimal degrees without NSEW, if so return it directly
     if (typeof dmsStr == 'number' && isFinite(dmsStr)) return Number(dmsStr);
 
     // strip off any sign or compass dir'n & split out separate d/m/s
-    var dms = String(dmsStr).trim().replace(/^-/, '').replace(/[NSEW]$/i, '').split(/[^0-9.,]+/);
-    if (dms[dms.length-1]=='') dms.splice(dms.length-1);  // from trailing symbol
+    var dms: string[] = String(dmsStr).trim().replace(/^-/, '').replace(/[NSEW]$/i, '').split(/[^0-9.,]+/);
+    if (dms[dms.length-1]=='') {
+        dms.splice(dms.length-1);  // from trailing symbol
+    }
 
-    if (dms == '') return NaN;
+    if (dms.length == 0) return NaN;
 
     // and convert to decimal degrees...
     var deg;
     switch (dms.length) {
         case 3:  // interpret 3-part result as d/m/s
-            deg = dms[0]/1 + dms[1]/60 + dms[2]/3600;
+            deg = parseInt(dms[0])/1 + parseInt(dms[1])/60 + parseInt(dms[2])/3600;
             break;
         case 2:  // interpret 2-part result as d/m
-            deg = dms[0]/1 + dms[1]/60;
+            deg = parseInt(dms[0])/1 + parseInt(dms[1])/60;
             break;
         case 1:  // just d (possibly decimal) or non-separated dddmmss
-            deg = dms[0];
+            deg = parseInt(dms[0]);
             // check for fixed-width unseparated format eg 0033709W
             //if (/[NS]/i.test(dmsStr)) deg = '0' + deg;  // - normalise N/S to 3-digit degrees
             //if (/[0-9]{7}/.test(deg)) deg = deg.slice(0,3)/1 + deg.slice(3,5)/60 + deg.slice(5)/3600;
@@ -75,17 +58,6 @@ Dms.parseDMS = function(dmsStr) {
 };
 
 
-/**
- * Separator character to be used to separate degrees, minutes, seconds, and cardinal directions.
- *
- * Set to '\u202f' (narrow no-break space) for improved formatting.
- *
- * @example
- *   var p = new LatLon(51.2, 0.33);  // 51°12′00.0″N, 000°19′48.0″E
- *   Dms.separator = '\u202f';        // narrow no-break space
- *   var pʹ = new LatLon(51.2, 0.33); // 51° 12′ 00.0″ N, 000° 19′ 48.0″ E
- */
-Dms.separator = '';
 
 
 /**
@@ -99,7 +71,8 @@ Dms.separator = '';
  * @param   {number} [dp=0|2|4] - Number of decimal places to use – default 0 for dms, 2 for dm, 4 for d.
  * @returns {string} Degrees formatted as deg/min/secs according to specified format.
  */
-Dms.toDMS = function(deg, format, dp) {
+/*
+export const toDMS = (deg: number, format: string, dp: number): string | null => {
     if (isNaN(deg)) return null;  // give up here if we can't make a number from deg
 
     // default values
@@ -130,7 +103,7 @@ Dms.toDMS = function(deg, format, dp) {
         if (m == 60) { m = 0; d++; }               // check for rounding up
         d = ('000'+d).slice(-3);                   // left-pad with leading zeros
         if (m<10) m = '0' + m;                     // left-pad with leading zeros (note may include decimals)
-        dms = d + '°'+Dms.separator + m + '′';
+        dms = d + '°'+ DMS_SEPARATOR + m + '′';
         break;
         case 'dms': case 'deg+min+sec':
         d = Math.floor(deg);                       // get component deg
@@ -141,13 +114,13 @@ Dms.toDMS = function(deg, format, dp) {
         d = ('000'+d).slice(-3);                   // left-pad with leading zeros
         m = ('00'+m).slice(-2);                    // left-pad with leading zeros
         if (s<10) s = '0' + s;                     // left-pad with leading zeros (note may include decimals)
-        dms = d + '°'+Dms.separator + m + '′'+Dms.separator + s + '″';
+        dms = d + '°'+DMS_SEPARATOR + m + '′'+DMS_SEPARATOR + s + '″';
         break;
     }
 
     return dms;
 };
-
+*/
 
 /**
  * Converts numeric degrees to deg/min/sec latitude (2-digit degrees, suffixed with N/S).
@@ -157,10 +130,12 @@ Dms.toDMS = function(deg, format, dp) {
  * @param   {number} [dp=0|2|4] - Number of decimal places to use – default 0 for dms, 2 for dm, 4 for d.
  * @returns {string} Degrees formatted as deg/min/secs according to specified format.
  */
-Dms.toLat = function(deg, format, dp) {
-    var lat = Dms.toDMS(deg, format, dp);
-    return lat===null ? '–' : lat.slice(1)+Dms.separator + (deg<0 ? 'S' : 'N');  // knock off initial '0' for lat!
+/*
+export const toLat = (deg: number, format: string, dp: number): string => {
+    var lat = toDMS(deg, format, dp);
+    return lat===null ? '–' : lat.slice(1)+DMS_SEPARATOR + (deg<0 ? 'S' : 'N');  // knock off initial '0' for lat!
 };
+*/
 
 
 /**
@@ -171,11 +146,12 @@ Dms.toLat = function(deg, format, dp) {
  * @param   {number} [dp=0|2|4] - Number of decimal places to use – default 0 for dms, 2 for dm, 4 for d.
  * @returns {string} Degrees formatted as deg/min/secs according to specified format.
  */
-Dms.toLon = function(deg, format, dp) {
-    var lon = Dms.toDMS(deg, format, dp);
-    return lon===null ? '–' : lon+Dms.separator + (deg<0 ? 'W' : 'E');
+/*
+export const toLon = (deg: number, format: string, dp: number): string => {
+    var lon = toDMS(deg, format, dp);
+    return lon===null ? '–' : lon+DMS_SEPARATOR + (deg<0 ? 'W' : 'E');
 };
-
+*/
 
 /**
  * Converts numeric degrees to deg/min/sec as a bearing (0°..360°)
@@ -185,12 +161,13 @@ Dms.toLon = function(deg, format, dp) {
  * @param   {number} [dp=0|2|4] - Number of decimal places to use – default 0 for dms, 2 for dm, 4 for d.
  * @returns {string} Degrees formatted as deg/min/secs according to specified format.
  */
-Dms.toBrng = function(deg, format, dp) {
+/*
+export const toBrng = (deg, format, dp) => {
     deg = (Number(deg)+360) % 360;  // normalise -ve values to 180°..360°
-    var brng =  Dms.toDMS(deg, format, dp);
+    var brng = toDMS(deg, format, dp);
     return brng===null ? '–' : brng.replace('360', '0');  // just in case rounding took us up to 360°!
 };
-
+*/
 
 /**
  * Returns compass point (to given precision) for supplied bearing.
@@ -203,7 +180,7 @@ Dms.toBrng = function(deg, format, dp) {
  *   var point = Dms.compassPoint(24);    // point = 'NNE'
  *   var point = Dms.compassPoint(24, 1); // point = 'N'
  */
-Dms.compassPoint = function(bearing, precision) {
+export const compassPoint = (bearing: number, precision: number): string => {
     if (precision === undefined) precision = 3;
     // note precision could be extended to 4 for quarter-winds (eg NbNW), but I think they are little used
 
@@ -219,19 +196,3 @@ Dms.compassPoint = function(bearing, precision) {
 
     return cardinal;
 };
-
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
-if (typeof module != 'undefined' && module.exports) module.exports = Dms; // ≡ export default Dms
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
-/* Latitude/longitude spherical geodesy tools                         (c) Chris Veness 2002-2017  */
-/*                                                                                   MIT Licence  */
-/* www.movable-type.co.uk/scripts/latlong.html                                                    */
-/* www.movable-type.co.uk/scripts/geodesy/docs/module-latlon-spherical.html                       */
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
-
-'use strict';
-if (typeof module!='undefined' && module.exports) var Dms = require('./dms'); // ≡ import Dms from 'dms.js'
-
-

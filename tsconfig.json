@@ -24,7 +24,8 @@
     "listEmittedFiles": false,
     "listFiles": false,
     "pretty": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "allowJs": true,
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]

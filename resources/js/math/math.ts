@@ -4,44 +4,46 @@ import * as constants from '../../../src/core/constants';
 
 import { LatLon } from './latlon'
 
-export const radians = function(degrees) {
+export const radians = function(degrees: number) {
     return degrees * Math.PI / 180;
 };
 
-export const degrees = function(radians) {
+export const degrees = function(radians: number) {
     return radians * 180 / Math.PI;
 };
 
-export const round2 = function (value) {
+export const round2 = function (value: number) {
     return Math.round(value*100)/100;
 }
 
-export const feetToMiles = function(feet) {
+export const feetToMiles = function(feet: number) {
     return feet * 0.00016457883369330453;
 }
 
-export const milesToMeters = function(miles) {
+export const milesToMeters = function(miles: number) {
     return miles * 1852;
 }
 
-export const metersToMiles = function(meters) {
+export const metersToMiles = function(meters: number) {
     return meters / 1852;
 }
 
-export const feetToMeters = function (feet) {
+export const feetToMeters = function (feet: number) {
     return feet * 0.3048;
 }
 
-export const inverseBearing = function (bearing) {
+export const inverseBearing = function (bearing: number) {
     return (180 + bearing) % 360;
 }
 
-export const latitudeFromAngleDistance = function ( lat, long, angle, distance, latitude_center ) {
+export const latitudeFromAngleDistance = function ( lat: number, long: number, angle: number, distance: number, latitude_center: number ) {
+    void long   // TODO
     return Math.asin(Math.sin(latitude_center)*Math.cos(distance)+Math.cos(lat)*Math.sin(distance)*Math.cos(radians(angle)));
 }
 
-export const longitudeFromAngleDistance = function ( lat, long, angle, distance, latitude_center ) {
-    var latitude = latitudeFromAngleDistance( lat, long, angle, distance, latitude_center );
+export const longitudeFromAngleDistance = function ( lat: number, long: number, angle: number, distance: number, latitude_center: number ) {
+    void latitude_center    // TODO
+    // var latitude = latitudeFromAngleDistance( lat, long, angle, distance, latitude_center );
     if (Math.cos(lat)==0) {
         return long;      // endpoint a pole
     } else {
@@ -49,7 +51,7 @@ export const longitudeFromAngleDistance = function ( lat, long, angle, distance,
     }
 }
 
-export const distanceToCenter = function (lat1,lon1,lat2,lon2) {
+export const distanceToCenter = function (lat1: number, lon1: number, lat2: number, lon2: number) {
     /* compute distance (spherical) */
 
     var distance = 0;
@@ -67,7 +69,7 @@ export const distanceToCenter = function (lat1,lon1,lat2,lon2) {
     return distance * (180/Math.PI)*60;
 }
 
-export const coarseToCenter = function (lat1,lon1,lat2,lon2) {
+export const coarseToCenter = function (lat1: number, lon1: number, lat2: number, lon2: number) {
     /* compute course (spherical) */
 
     var coarse = 0;
@@ -113,7 +115,7 @@ export const coarseToCenter = function (lat1,lon1,lat2,lon2) {
     return coarse *(180/Math.PI);
 }
 
-export const coordsFromCoarseDistance = function (lat1, lon1, coarse, distance) {
+export const coordsFromCoarseDistance = function (lat1: number, lon1: number, coarse: number, distance: number) {
 
     var latlon = new LatLon(lat1,lon1);
     return latlon.destinationPoint(milesToMeters(distance), coarse);
@@ -148,7 +150,7 @@ export const coordsFromCoarseDistance = function (lat1, lon1, coarse, distance) 
     */
 }
 
-export const coordsToScreen = function (lat, lon, parameters: Parameters) { //  latitude_center, longitude_center, screenCenterX, screenCenterY, milesFactor) {
+export const coordsToScreen = function (lat: number, lon: number, parameters: Parameters) { //  latitude_center, longitude_center, screenCenterX, screenCenterY, milesFactor) {
     var x: number
     var y: number
     if (lat >= parameters.latitudeCenter) {
@@ -166,7 +168,7 @@ export const coordsToScreen = function (lat, lon, parameters: Parameters) { //  
     return {x, y}
 }
 
-export const middlePoint =  function (lat1, lon1, lat2, lon2) {
+export const middlePoint =  function (lat1: number, lon1: number, lat2: number, lon2: number) {
 
     var latlon1 = new LatLon(lat1, lon1);
     var latlon2 = new LatLon(lat2, lon2);
