@@ -48,7 +48,6 @@ export class Main {
             console.log('mousewheel', event.stageX, event.stageY, event.delta);
         })
     
-
         this.mainContainer.addEventListener('pressmove', function( e: any ) {
             console.log(`pressmove (${e.stageX}, ${e.stageY})`);
         })
@@ -65,7 +64,11 @@ export class Main {
             console.log(`mousedown (${e.stageX}, ${e.stageY})`);
         })
 
-        
+        window.addEventListener('mousewheel', function( event: any ) {
+            console.log('mousewheel',event.deltaX, event.deltaY, event.deltaFactor);
+        })
+   
+
     
         // mouse.mouseEventInit()
 
