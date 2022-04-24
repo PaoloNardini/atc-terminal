@@ -4,6 +4,7 @@ import { Parameters } from '../../../src/core/entities'
 import { PlaneGraphic } from './plane'
 import { RunwayGraphic } from './runway'
 // import * as geomath from '../math/geomath'
+// import * as mouse from '../controls/mouse'
 
 export class Main {
 
@@ -35,6 +36,38 @@ export class Main {
     }
     
     init = () => {
+
+        var hit = new createjs.Shape();
+    	hit.graphics.beginFill("#000").drawRect(0, 0, 999, 999);
+    	this.mainContainer.hitArea = hit;
+        this.mainContainer.addEventListener('click', function( event: any)  {
+            console.log('click', event.stageX, event.stageY, event.delta);
+        })
+
+        this.mainContainer.addEventListener('mousewheel', function( event: any) {
+            console.log('mousewheel', event.stageX, event.stageY, event.delta);
+        })
+    
+
+        this.mainContainer.addEventListener('pressmove', function( e: any ) {
+            console.log(`pressmove (${e.stageX}, ${e.stageY})`);
+        })
+    
+        this.mainContainer.addEventListener('pressup', function( e: any ) {
+            console.log(`pressup (${e.stageX}, ${e.stageY})`);
+        })
+    
+        this.mainContainer.addEventListener('mouseup', function( e: any ) {
+            console.log(`mouseup (${e.stageX}, ${e.stageY})`);
+        })
+    
+        this.mainContainer.addEventListener('mousedown', function( e: any ) {
+            console.log(`mousedown (${e.stageX}, ${e.stageY})`);
+        })
+
+        
+    
+        // mouse.mouseEventInit()
 
         this.parameters.latitudeCenter = 41.7
         this.parameters.longitudeCenter = 12.2
