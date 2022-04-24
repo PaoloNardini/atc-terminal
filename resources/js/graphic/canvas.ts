@@ -3,7 +3,7 @@ import * as constants from '../../../src/core/constants'
 import { Parameters } from '../../../src/core/entities'
 import { PlaneGraphic } from './plane'
 import { RunwayGraphic } from './runway'
-// import * as math from '../math/math'
+// import * as geomath from '../math/geomath'
 
 export class Main {
 
@@ -48,10 +48,9 @@ export class Main {
         this.mainContainer.addChild(planeGr)
 
         const runwayGr = new RunwayGraphic()
+
         // R,16L,161,12802,197,1,108.100,161,41.845969,12.261494,14,3.00,56,1,0
         // R,34R,341,12802,197,1,111.550,341,41.812444,12.275525,6,3.00,57,1,0
-
-
         runwayGr.latitude = 41.845969
         runwayGr.longitude = 12.261494
         runwayGr.latitude_end = 41.812444

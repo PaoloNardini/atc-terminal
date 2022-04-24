@@ -1,5 +1,5 @@
 import * as constants from '../../../src/core/constants'
-import * as math from '../math/math'
+import * as geomath from '../math/geomath'
 import { Parameters } from '../../../src/core/entities/Parameters'
 
 export class RunwayGraphic extends createjs.Container {
@@ -112,14 +112,14 @@ export class RunwayGraphic extends createjs.Container {
             color = constants.RWY_INACTIVE_BODY_COLOR;
         }
     
-        // var length_miles = math.feetToMiles(this.strip_length);
-        var threshold1 = math.coordsToScreen( this.latitude, this.longitude, parameters);
+        // var length_miles = geomath.feetToMiles(this.strip_length);
+        var threshold1 = geomath.coordsToScreen( this.latitude, this.longitude, parameters);
         this.setX(threshold1.x);
         this.setY(threshold1.y);
         // var opposite =  Math.coordsFromCoarseDistance(this.latitude, this.longitude, this.heading, length_miles / 1);
         // var threshold2 = Math.coordsToScreen( opposite.lat, opposite.lon);
-        var middle = math.middlePoint(this.latitude, this.longitude, this.latitude_end, this.longitude_end);
-        var threshold2 = math.coordsToScreen( middle.lat, middle.lon, parameters);
+        var middle = geomath.middlePoint(this.latitude, this.longitude, this.latitude_end, this.longitude_end);
+        var threshold2 = geomath.coordsToScreen( middle.lat, middle.lon, parameters);
         this.gRwy.graphics.clear();
         this.gRwy.graphics.setStrokeStyle(2).beginStroke(color).moveTo(0,0).lineTo(threshold2.x - threshold1.x,threshold2.y - threshold1.y).endStroke();
     }
@@ -154,10 +154,10 @@ export class RunwayGraphic extends createjs.Container {
 
     display(parameters: Parameters) {
 
-        var threshold1 = math.coordsToScreen( this.latitude, this.longitude, parameters);
+        var threshold1 = geomath.coordsToScreen( this.latitude, this.longitude, parameters);
         this.plotRunway(parameters);
-        var centerline =  math.coordsFromCoarseDistance(this.latitude, this.longitude, math.inverseBearing(this.heading), constants.RWY_CENTERLINE_LENGTH);
-        var centerlineXY = math.coordsToScreen( centerline.lat, centerline.lon, parameters);
+        var centerline =  geomath.coordsFromCoarseDistance(this.latitude, this.longitude, geomath.inverseBearing(this.heading), constants.RWY_CENTERLINE_LENGTH);
+        var centerlineXY = geomath.coordsToScreen( centerline.lat, centerline.lon, parameters);
         // console.log(`runway centerline`, centerlineXY)
         this.gCenterLine.graphics.clear();
         this.gCenterLine.graphics.setStrokeStyle(1).beginStroke(constants.RWY_CENTERLINE_COLOR).setStrokeDash([5,5],0).moveTo(0,0).lineTo(centerlineXY.x - threshold1.x, centerlineXY.y - threshold1.y).endStroke();

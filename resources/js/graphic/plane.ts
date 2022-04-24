@@ -1,6 +1,6 @@
 import * as constants from '../../../src/core/constants'
 import { Parameters } from '../../../src/core/entities'
-import * as math from '../math/math'
+import * as geomath from '../math/geomath'
 
 export class PlaneGraphic extends createjs.Container {
 
@@ -30,7 +30,7 @@ export class PlaneGraphic extends createjs.Container {
     }
 
     setPosition(parameters: Parameters) {
-        var coords = math.coordsToScreen(this.latitude, this.longitude, parameters)
+        var coords = geomath.coordsToScreen(this.latitude, this.longitude, parameters)
         this.x = coords.y
         this.y = coords.x
     }
