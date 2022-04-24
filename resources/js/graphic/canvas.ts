@@ -2,7 +2,8 @@
 import * as constants from '../../../src/core/constants'
 import { Parameters } from '../../../src/core/entities'
 import { PlaneGraphic } from './plane'
-import { Runway } from './runway'
+import { RunwayGraphic } from './runway'
+// import * as math from '../math/math'
 
 export class Main {
 
@@ -34,21 +35,36 @@ export class Main {
     }
     
     init = () => {
+
+        this.parameters.latitudeCenter = 41.7
+        this.parameters.longitudeCenter = 12.2
         this.mainStage.addChild(this.mainContainer);
         const planeGr = new PlaneGraphic()
-        planeGr.x = 100
-        planeGr.y = 100
+        planeGr.latitude = 41.6
+        planeGr.longitude = 12.1
+        planeGr.setPosition(this.parameters)
+        // planeGr.x = 100
+        // planeGr.y = 100
         this.mainContainer.addChild(planeGr)
 
-        const runwayGr = new Runway()
-        runwayGr.latitude = 10
-        runwayGr.longitude = 10
-        runwayGr.latitude_end = 12
-        runwayGr.longitude_end = 12
+        const runwayGr = new RunwayGraphic()
+        // R,16L,161,12802,197,1,108.100,161,41.845969,12.261494,14,3.00,56,1,0
+        // R,34R,341,12802,197,1,111.550,341,41.812444,12.275525,6,3.00,57,1,0
+
+
+        runwayGr.latitude = 41.845969
+        runwayGr.longitude = 12.261494
+        runwayGr.latitude_end = 41.812444
+        runwayGr.longitude_end = 12.275525
+        runwayGr.strip_length = 12802
+        runwayGr.strip_width = 197
+        runwayGr.heading = 161
+        // console.log(`runway heading = ${runwayGr.heading}`)
         this.mainContainer.addChild(runwayGr)
-        runwayGr.plotRunway(this.parameters)
+        // runwayGr.plotRunway(this.parameters)
+        runwayGr.display(this.parameters)
     
         createjs.Ticker.on("tick", this.tickFunction);
-        createjs.Ticker.framerate = 3;
+        createjs.Ticker.framerate = 1;
     }
 }

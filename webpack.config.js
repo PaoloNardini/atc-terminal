@@ -68,7 +68,7 @@ const compilerBundle = {
       },
       {
         test: /\.ts$/,
-        exclude: [/node_modules/],
+        exclude: ["/node_modules/"],
         loader: 'ts-loader',
         options: {
           configFile: 'tsconfig-webpack.json',

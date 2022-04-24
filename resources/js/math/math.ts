@@ -1,7 +1,6 @@
 /* Some mathematical formulas to compute everything needed */
 import { Parameters } from '../../../src/core/entities';
 import * as constants from '../../../src/core/constants';
-
 import { LatLon } from './latlon'
 
 export const radians = function(degrees: number) {
@@ -33,7 +32,7 @@ export const feetToMeters = function (feet: number) {
 }
 
 export const inverseBearing = function (bearing: number) {
-    return (180 + bearing) % 360;
+    return (bearing + 180) % 360
 }
 
 export const latitudeFromAngleDistance = function ( lat: number, long: number, angle: number, distance: number, latitude_center: number ) {
@@ -154,7 +153,7 @@ export const coordsToScreen = function (lat: number, lon: number, parameters: Pa
     var x: number
     var y: number
     if (lat >= parameters.latitudeCenter) {
-        y = parameters.screenCenterX - ((lat - parameters.latitudeCenter) * constants.MILESFACT);
+        y = parameters.screenCenterY - ((lat - parameters.latitudeCenter) * constants.MILESFACT);
     }
     else {
         y = parameters.screenCenterY + ((parameters.latitudeCenter - lat) * constants.MILESFACT );

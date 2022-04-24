@@ -29,5 +29,5 @@
     "skipLibCheck": true
   },
   "include": ["resources/**/*.ts"],
-  "exclude": ["node_modules", "public"]
+  "exclude": ["node_modules", "public", "**/*.spec.ts"]
 }

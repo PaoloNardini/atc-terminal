@@ -2,7 +2,7 @@ import * as constants from '../../../src/core/constants'
 import * as math from '../math/math'
 import { Parameters } from '../../../src/core/entities/Parameters'
 
-export class Runway extends createjs.Container {
+export class RunwayGraphic extends createjs.Container {
 
     // this.Container_constructor();
 
@@ -23,11 +23,10 @@ export class Runway extends createjs.Container {
     // Runway End
     latitude = 0;
     longitude = 0;
-    x = 0;
-    y = 0;
-
     latitude_end = 0;
     longitude_end = 0;
+    x = 0;
+    y = 0;
 
     zoom_min = -9999;  // Min. visible zoom
     zoom_max = 9999;   // Max. visible zoom
@@ -153,49 +152,15 @@ export class Runway extends createjs.Container {
     }
     */
 
-    setScreenPosition(parameters: Parameters) {
+    display(parameters: Parameters) {
 
-        // var length_miles = math.feetToMiles(this.strip_length);
-    
         var threshold1 = math.coordsToScreen( this.latitude, this.longitude, parameters);
-    
-        // this.setX(threshold1.x);
-        // this.setY(threshold1.y);
-    
-        // var opposite =  Math.coordsFromCoarseDistance(this.latitude, this.longitude, this.heading, length_miles);
-        // var threshold2 = Math.coordsToScreen( opposite.lat, opposite.lon);
-    
-        // console.log(this.latitude, this.longitude, threshold1.lat, threshold1.lon);
-    
         this.plotRunway(parameters);
-        // this.gRwy.graphics.clear();
-        // this.gRwy.graphics.setStrokeStyle(3).beginStroke(RWY_BODY_COLOR).moveTo(0,0).lineTo(threshold2.x - threshold1.x,threshold2.y - threshold1.y).endStroke();
-    
-        /*
-        this.gLabel1.x = -10;
-        this.gLabel1.y = -10;
-    
-        this.gLabel2.x = -10;
-        this.gLabel2.y = -10;
-        this.gLabel2.text = this.label2; // + '\n' + this.heading + '\n' + this.length; // + '('+ length_miles+')';
-        */
-    
         var centerline =  math.coordsFromCoarseDistance(this.latitude, this.longitude, math.inverseBearing(this.heading), constants.RWY_CENTERLINE_LENGTH);
         var centerlineXY = math.coordsToScreen( centerline.lat, centerline.lon, parameters);
-        // var cl1Y = centerlineXY.y;
-        // var cl1X = centerlineXY.x;
-    
-        // var cl1Y = (SCREEN_CENTER_Y - ((LATITUDE_CENTER - cl1.lat)  * MILESFACT ));
-        // var cl1X = (SCREEN_CENTER_X - ((LONGITUDE_CENTER - cl1.lon)  * MILESFACT ));
-        // var cl2 =  Math.coordsFromCoarseDistance(this.latitude, this.longitude, (180 + this.heading) % 360, RWY_CENTERLINE_LENGTH);
-        // var cl2Y = (SCREEN_CENTER_Y - ((LATITUDE_CENTER - cl2.lat)  * MILESFACT ));
-        // var cl2X = (SCREEN_CENTER_X - ((LONGITUDE_CENTER - cl2.lon)  * MILESFACT ));
-    
-    
+        // console.log(`runway centerline`, centerlineXY)
         this.gCenterLine.graphics.clear();
-        // this.gCenterLine.graphics.setStrokeStyle(1).beginStroke(RWY_CENTERLINE_COLOR).dashedLineTo(cl1X-th1X, cl1Y-th1Y, cl2X-th1X, cl2Y-th1Y, 3).endStroke();
         this.gCenterLine.graphics.setStrokeStyle(1).beginStroke(constants.RWY_CENTERLINE_COLOR).setStrokeDash([5,5],0).moveTo(0,0).lineTo(centerlineXY.x - threshold1.x, centerlineXY.y - threshold1.y).endStroke();
-        // this.gCenterLine.graphics.setStrokeStyle(1).beginStroke(RWY_CENTERLINE_COLOR).dashedLineTo(threshold1.x,threshold1.y, cl1X, cl1Y, 3).endStroke();
     }
     
     

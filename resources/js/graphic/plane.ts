@@ -1,6 +1,11 @@
 import * as constants from '../../../src/core/constants'
+import { Parameters } from '../../../src/core/entities'
+import * as math from '../math/math'
 
 export class PlaneGraphic extends createjs.Container {
+
+    latitude: number = 0
+    longitude: number = 0
 
     gBox: createjs.Shape
     gTail: createjs.Shape
@@ -23,6 +28,13 @@ export class PlaneGraphic extends createjs.Container {
         this.gLabelConnector = new createjs.Shape()
         super.addChild(this.gBox, this.gTail, this.gLabel, this.gLabelConnector);
     }
+
+    setPosition(parameters: Parameters) {
+        var coords = math.coordsToScreen(this.latitude, this.longitude, parameters)
+        this.x = coords.y
+        this.y = coords.x
+    }
+    
 }
 // createjs.extend(Plane, createjs.Container);
 // createjs.promote(Plane, "Container");
