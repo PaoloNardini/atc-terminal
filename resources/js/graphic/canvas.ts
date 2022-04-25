@@ -52,8 +52,19 @@ export class Canvas {
             })
         })
 
-        this.mainContainer.addEventListener('mousewheel', function( event: any) {
-            console.log('mousewheel', event.stageX, event.stageY, event.delta);
+        window.addEventListener('mousewheel', ( event: any ) => {
+            console.log('mousewheel',event, event.deltaX, event.deltaY, event.delta);
+            const delta = event.deltaY / 500
+            var scale = (1 / this.mainContainer.scaleX);
+            if (scale < 10 || delta > 0) {
+                this.mainContainer.scaleX = this.mainContainer.scaleX + delta
+                this.mainContainer.scaleY = this.mainContainer.scaleY + delta
+                // scale = (1 / mainContainer.scaleX);
+                this.updateScale()
+            }
+            console.log('NEW SCALE = ' + scale);
+            event.preventDefault();
+            event.stopImmediatePropagation();
         })
     
         this.mainContainer.addEventListener('pressmove', function( e: any ) {
@@ -126,4 +137,27 @@ export class Canvas {
         // runwayGr.plotRunway(this.parameters)
         runwayGr.display(this.parameters)
     }
+
+    updateScale = () => {
+        var scale = (1 / this.mainContainer.scaleX);
+        var m = 1;
+        if (scale < this.parameters.currentScale) {
+            this.mainContainer.regX = this.mainContainer.regX + (scale * m);
+            this.mainContainer.regY = this.mainContainer.regY + (scale * m);
+        }
+        else {
+            this.mainContainer.regX = this.mainContainer.regX - (scale * m);
+            this.mainContainer.regY = this.mainContainer.regY - (scale * m);
+        }
+        this.parameters.currentScale = scale;
+        // DEBUG
+        // $('#scale').html( Math.round(mainContainer.scaleX * 100) + ' - ' + currentScale); //  + ' / ' + mainContainer.regX + ' - ' + mainContainer.regY);
+
+        // updateWaypoints();
+        // // updateFixes();
+        // // updateNavaids();
+        // updateRoutes();
+        this.mainStage.update();
+    }
+
 }
