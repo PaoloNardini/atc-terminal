@@ -1,5 +1,6 @@
 import { UseCases } from '..'
 import D from 'debug'
+import { Scenario, SocketMsgType } from '../entities'
 
 const debug = D('app:core:usecases:LoadSCenario')
 
@@ -21,11 +22,29 @@ export const createUseCase = ({ }: Deps) => async (
   input: Input
 ): Promise<Output> => {
 
+     let context = input.context
+
     if (input.useCases) {
         debug(`loadScenario`)
     }
 
-    return { context: input.context }
+    const scenario: Scenario = {
+      name: 'Scenario Test',
+      airports: [],
+      procedures: [],
+      atsRoutes: [],
+      initialPlanes: []
+    }      
+
+    input.useCases.dispatch({
+      context,
+      msgType: SocketMsgType.MSG_SCENARIO, payload: {
+        type: 'SCENARIO',
+        scenario
+      }
+    })
+
+    return { context }
 
 }
 

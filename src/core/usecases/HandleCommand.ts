@@ -6,7 +6,7 @@ import util from 'util'
 const debug = D('app:core:usecases:HandleCommand')
 
 import { Deps } from '../gateways'
-import { Dispatch } from './Dispatch'
+// import { Dispatch } from './Dispatch'
 
 // export interface Deps {}
 
@@ -23,21 +23,32 @@ export type Output = {
   context: any
 }
 
-export const createUseCase = (dispatch: Dispatch, {}: Deps ) => async (
+export const createUseCase = ({}: Deps ) => async (
   input: Input
 ): Promise<Output> => {
 
-    if (input.useCases) {
-        debug(`HandleCommand: msg: ${util.inspect(input.msgPayload)}`)
-    }
+    let context = input.context
 
-    dispatch({ 
+    debug(`HandleCommand: msg: ${util.inspect(input.msgPayload)}`)
+
+    input.useCases.dispatch({ 
         msgType: input.msgType, 
         payload: 'Message received', 
-        context: input.context
+        context
     })
 
-    return { context: input.context }
+    switch (input.msgType) {
+        case SocketMsgType.MSG_GENERAL:
+            if (input.msgPayload === 'LOADSCENARIO') {
+                context = input.useCases.loadScenario({
+                    context, 
+                    useCases: input.useCases
+                })
+            }
+            break;
+    }
+
+    return { context }
 
 }
 

@@ -5,7 +5,6 @@ import * as LoadProcedures from './usecases/LoadProcedures'
 import * as LoadAtsRoutes from './usecases/LoadProcedures'
 import * as LoadDispatch from './usecases/Dispatch'
 
-
 import { Deps } from './gateways'
 
 export const initializeUseCases = (deps: Deps) => {
@@ -14,8 +13,9 @@ export const initializeUseCases = (deps: Deps) => {
     ...deps
   })
 
-  const handleCommand = LoadHandleCommand.createUseCase(dispatch, {...deps})
-
+  const handleCommand = LoadHandleCommand.createUseCase({
+    ...deps
+  })
   const loadScenario = LoadScenario.createUseCase({
     ...deps,
   })

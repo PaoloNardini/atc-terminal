@@ -10,10 +10,11 @@ export const sendMessage = (msgType: string, payload: any) => {
 }
 
 export const handleMessages = (msgType: string, payload: any) => {
-    console.log(`received message of type ${msgType} with payload ${payload}`)
+    console.log(`received message of type ${msgType} with payload ${util.inspect(payload)}`)
     // TODO dispatch message
 }
 
 socket.on(SocketMsgType.MSG_GENERAL, function(payload: any) { handleMessages(SocketMsgType.MSG_GENERAL, payload)})
 
+socket.on(SocketMsgType.MSG_SCENARIO, function(payload: any) { handleMessages(SocketMsgType.MSG_SCENARIO, payload)})
 

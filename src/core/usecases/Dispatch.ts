@@ -26,11 +26,13 @@ export const createUseCase = ({ transportGateway }: Deps) => async (
   input: Input
 ): Promise<Output> => {
 
+    let context = input.context
+
     debug(`Dispatch`)
 
-    transportGateway.sendMessage(SocketMsgType.MSG_GENERAL, `Message received!`)
+    transportGateway.sendMessage(input.msgType, input.payload )
 
-    return { context: input.context }
+    return { context }
 
 }
 
