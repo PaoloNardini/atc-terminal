@@ -1,6 +1,6 @@
 /* Some mathematical formulas to compute everything needed */
-import { Parameters } from '../../../src/core/entities';
-import * as constants from '../../../src/core/constants';
+import { Parameters } from '../core/entities';
+import * as constants from '../core/constants';
 import { LatLon } from './latlon'
 
 export const radians = function(degrees: number) {

@@ -1,5 +1,5 @@
 import * as constants from '../../../src/core/constants'
-import * as geomath from '../math/geomath'
+import * as geomath from '../../../src/helpers/geomath'
 import { Parameters } from '../../../src/core/entities/Parameters'
 
 export class RunwayGraphic extends createjs.Container {

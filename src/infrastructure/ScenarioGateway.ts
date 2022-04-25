@@ -4,7 +4,7 @@ import { Airport, Context, Runway, Scenario } from "../core/entities"
 import { ScenarioGateway } from "../core/gateways"
 import D from 'debug'
 import { Bearing, Coordinate } from '../core/valueObjects';
-import * as geomath from '../../resources/js/math/geomath'
+import * as geomath from '../helpers/geomath'
 
 const debug = D('app:src:infrastructure:scenarioGateway')
 

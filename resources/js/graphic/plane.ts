@@ -1,6 +1,6 @@
 import * as constants from '../../../src/core/constants'
 import { Parameters } from '../../../src/core/entities'
-import * as geomath from '../math/geomath'
+import * as geomath from '../../../src/helpers/geomath'
 
 export class PlaneGraphic extends createjs.Container {
 

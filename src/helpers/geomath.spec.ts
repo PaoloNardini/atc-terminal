@@ -1,7 +1,7 @@
-import { Parameters } from "../../../src/core/entities"
+import { Parameters } from "../core/entities"
 import { LatLon } from "./latlon"
 import * as geomath from './geomath'
-import * as constants from "../../../src/core/constants"
+import * as constants from "../core/constants"
 
 
 describe('LatLon and coordinates system tests', () => {
