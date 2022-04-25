@@ -1,6 +1,7 @@
 import { UseCases } from '..'
 import D from 'debug'
 import { Context, SocketMsgType } from '../entities'
+import util from 'util'
 
 const debug = D('app:core:usecases:LoadSCenario')
 
@@ -27,8 +28,9 @@ export const createUseCase = ({ scenarioGateway }: Deps) => async (
         debug(`loadScenario`)
     }
 
-    context.scenario = scenarioGateway.loadScenarioByName('TEST')
-    
+    context.scenario = await scenarioGateway.loadScenarioByName('ROME')
+
+    debug(`Scenario loaded: ${util.inspect(context.scenario,false,3)}`)
 
     /*
     const scenario: Scenario = {
