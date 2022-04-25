@@ -45,15 +45,10 @@ export const handleGeneralMessage = async (msgType: string, payload: any, canvas
 }
 
 export const handleScenarioMessage = async (msgType: SocketMsgType, payload: any, canvas: Canvas): Promise<void> => {
-    console.log(`received scenario message of type ${msgType} with payload ${util.inspect(payload)}`)
+    console.log(`received scenario message of type ${msgType} with payload ${util.inspect(payload, false, 5)}`)
     if (msgType == SocketMsgType.MSG_SCENARIO && payload.type == 'SCENARIO') {
         // 
         loadScenario(payload.scenario as Scenario, canvas)
     }
 }
 
-/*
-    socket.on(SocketMsgType.MSG_GENERAL, function(payload: any) { handleMessages(SocketMsgType.MSG_GENERAL, payload)})
-
-    socket.on(SocketMsgType.MSG_SCENARIO, function(payload: any) { handleMessages(SocketMsgType.MSG_SCENARIO, payload)})
-*/

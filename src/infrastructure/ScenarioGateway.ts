@@ -192,6 +192,7 @@ const loadAirport = async (context: Context, icao: string): Promise<Context> => 
                 runway.strip_width = parseInt(words[4]);
                 runway.coordinate1 = new Coordinate(parseFloat(words[8]), parseFloat(words[9]))
                 if (airport) airport.runways?.push(runway)
+                context.scenario.runways?.push(runway)
                 // runways[r].gLabel1.text = runways[r].label1;
                 // runways[r].gLabel2.text = runways[r].label2 + '\n' + runways[r].heading + '\n' + runways[r].strip_length;
 
