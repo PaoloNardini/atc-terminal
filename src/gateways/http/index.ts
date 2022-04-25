@@ -7,9 +7,9 @@ import fs from 'fs'
 // import basicAuth from 'express-basic-auth'
 // import * as config from '../../config'
 
-import { UseCases } from '../../core'
-import { ApiV1 } from './routers/v1/endpoints'
-import { Screen } from '../screen'
+// import { UseCases } from '../../core'
+// import { ApiV1 } from './routers/v1/endpoints'
+// import { Screen } from '../screen'
 // import { SocketMsgType } from '../../core/entities'
 // import { ChecksRouter } from './routers/checks'
 import path from 'path'
@@ -25,8 +25,8 @@ const trace = D('app:trace')
 
 interface HttpServerConfig {
   isProduction: boolean
-  useCases: UseCases
-  screen: Screen
+  // useCases: UseCases
+  // screen: Screen
   isServerShuttingDown: () => boolean
 }
 
@@ -35,8 +35,8 @@ export const COOKIE_OPTIONS = { httpOnly: true, secure: false }
 export function createNewHttpServer(httpConfig: HttpServerConfig): http.Server {
   const {
     isProduction,
-    useCases,
-    screen,
+    // useCases,
+    // screen,
     isServerShuttingDown,
   } = httpConfig
 
@@ -84,7 +84,7 @@ export function createNewHttpServer(httpConfig: HttpServerConfig): http.Server {
   })
 
   // Api Endpoints
-  app.use('/api/v1', ApiV1({ useCases}))
+  // app.use('/api/v1', ApiV1({ useCases}))
 
   app.get('/', (_, res) => {
     res.sendFile(path.resolve(__dirname + '/../screen/index.html'));
@@ -92,13 +92,14 @@ export function createNewHttpServer(httpConfig: HttpServerConfig): http.Server {
 
 
   app.use('/home',  (req, res) => {
+      void res
       if (req) {
           if (isProduction) {
 
           }
-          const status = screen.status
-          useCases.loadScenario({context: {}, useCases})
-          res.send(`This is home: screen status = ${status}`)
+          // const status = screen.status
+          // useCases.loadScenario({context: {}, useCases})
+          // res.send(`This is home: screen status = ${status}`)
       }
   })
 

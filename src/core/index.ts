@@ -1,11 +1,21 @@
+import * as LoadHandleCommand from './usecases/HandleCommand'
 import * as LoadScenario from './usecases/LoadScenario'
 import * as LoadAirlines from './usecases/LoadAirlines'
 import * as LoadProcedures from './usecases/LoadProcedures'
 import * as LoadAtsRoutes from './usecases/LoadProcedures'
+import * as LoadDispatch from './usecases/Dispatch'
 
-// import { Deps } from './entitygateway'
 
-export const initializeUseCases = (deps: any) => {
+import { Deps } from './gateways'
+
+export const initializeUseCases = (deps: Deps) => {
+
+  const dispatch = LoadDispatch.createUseCase({
+    ...deps
+  })
+
+  const handleCommand = LoadHandleCommand.createUseCase(dispatch, {...deps})
+
   const loadScenario = LoadScenario.createUseCase({
     ...deps,
   })
@@ -20,6 +30,8 @@ export const initializeUseCases = (deps: any) => {
   })
 
   return {
+    dispatch,
+    handleCommand,
     loadScenario,
     loadAirlines,
     loadProcedures,

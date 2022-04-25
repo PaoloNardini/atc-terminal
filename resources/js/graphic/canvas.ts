@@ -1,12 +1,14 @@
 /// <reference path="../../../node_modules/@types/easeljs/index.d.ts" />
+import * as socket from '../socket'
 import * as constants from '../../../src/core/constants'
+import { MouseMsg, SocketMsgType } from '../../../src/core/entities'
 import { Parameters } from '../../../src/core/entities'
 import { PlaneGraphic } from './plane'
 import { RunwayGraphic } from './runway'
 // import * as geomath from '../math/geomath'
 // import * as mouse from '../controls/mouse'
 
-export class Main {
+export class Canvas {
 
     mainStage: createjs.Stage
     mainContainer: createjs.Container
@@ -42,6 +44,12 @@ export class Main {
     	this.mainContainer.hitArea = hit;
         this.mainContainer.addEventListener('click', function( event: any)  {
             console.log('click', event.stageX, event.stageY, event.delta);
+            socket.sendMessage(SocketMsgType.MSG_MOUSE, {
+                e: MouseMsg.CLICK,
+                x: event.stageX,
+                y: event.stageY,
+                delta: event.delta
+            })
         })
 
         this.mainContainer.addEventListener('mousewheel', function( event: any) {

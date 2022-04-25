@@ -1,10 +1,11 @@
 declare const io: any
 import { SocketMsgType } from '../../src/core/entities'
+import util from 'util'
 
 var socket = io()
 
 export const sendMessage = (msgType: string, payload: any) => {
-    console.log(`Send message of type ${msgType} with payload ${payload}`)
+    console.log(`Send message of type ${msgType} with payload ${util.inspect(payload)}`)
     socket.emit(msgType, payload)
 }
 
