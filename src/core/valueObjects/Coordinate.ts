@@ -2,8 +2,8 @@ export class Coordinate {
     latitude?: number
     longitude?: number    
 
-    constructor(lat: number, lon: number) {
-        if (lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+    constructor(lat?: number, lon?: number) {
+        if (lat && lat >= -90 && lat <= 90 && lon && lon >= -180 && lon <= 180) {
             this.latitude = lat
             this.longitude = lon
         }

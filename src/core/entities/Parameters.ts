@@ -16,7 +16,7 @@ export class Parameters {
     screenCenterY: number = 384
 
     minLatitude: number = 0
-    maxLatirìtude: number = 0
+    maxLatitude: number = 0
     minLongitude: number = 0
     maxLongitude: number = 0
 

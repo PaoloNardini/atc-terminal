@@ -61,7 +61,7 @@ export const main = () => {
       httpServer
     })
 
-    const scenarioGateway = makeScenarioGateway()
+    const scenarioGateway = makeScenarioGateway(context)
 
     // void (socket) // dummy
 
@@ -112,7 +112,7 @@ export const main = () => {
       ({context } = await useCases.handleCommand({ 
         msgType, 
         msgPayload: payload,
-        context: {},
+        context,
         useCases
       }))
     })

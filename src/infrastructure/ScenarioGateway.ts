@@ -1,18 +1,20 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Scenario } from "../core/entities"
+import { Airport, Context, Runway, Scenario } from "../core/entities"
 import { ScenarioGateway } from "../core/gateways"
 import D from 'debug'
+import { Bearing, Coordinate } from '../core/valueObjects';
+import * as geomath from '../../resources/js/math/geomath'
 
 const debug = D('app:src:infrastructure:scenarioGateway')
 
 
-export const makeScenarioGateway = (): ScenarioGateway => {
+export const makeScenarioGateway = (context: Context): ScenarioGateway => {
 
     return {
         loadScenarioByName( name: string) {
             // Test
-            loadScenario({},'ROME', undefined )
+            loadScenario(context ,'ROME', undefined )
             const scenario: Scenario = {
                 name: name,
             }
@@ -20,7 +22,7 @@ export const makeScenarioGateway = (): ScenarioGateway => {
         },
         loadScenarioByAirportCode( icao: string) {
             // Test
-            loadScenario({}, undefined, 'LIRF' )
+            loadScenario(context, undefined, 'LIRF' )
             const scenario: Scenario = {
                 name: icao,
             }
@@ -29,59 +31,59 @@ export const makeScenarioGateway = (): ScenarioGateway => {
     }
 }
 
-function loadScenario ( context: any, name?: string, icao?: string ) {
+function loadScenario ( context: Context, name?: string, icao?: string ) {
     void context && name && icao
     debug( `Load scenario`)
     fs.readFile(path.join(__dirname, '../../data/scenery.txt'), 'utf8', (error, data) => {
-                if (error) {
-                    debug(error)
-                }
-                if (data) {
-                    debug(`data: ${data}`)
-                }
+        if (error) {
+            debug(error)
+        }
+        if (data) {
+            let icao: any[] = []
+            let runways: any[] = []
+            debug(`data: ${data}`)
+            var lines = data.split('\n');
+            var words;
+            var mode = '';
+            for (var i = 0; i < lines.length; i++) {
+                words = lines[i].split(',');
+                if (words[0] == 'SCENERY') {
+                    if (mode == '') {
+                        if (name && words[1].toUpperCase() == name.toUpperCase()) {
+                            mode = 'scenery';
+                            context.parameters.minLatitude = parseFloat(words[2]);
+                            context.parameters.minLongitude = parseFloat(words[3]);
+                            context.parameters.maxLatitude = parseFloat(words[4]);
+                            context.parameters.maxLongitude = parseFloat(words[5]);
 
-                 // ...
+                            context.parameters.latitudeCenter = (context.parameters.minLatitude + context.parameters.maxLatitude) / 2;
+                            context.parameters.longitudeCenter = (context.parameters.minLongitude + context.parameters.maxLongitude) / 2;
+                        }
+                    }
+                    else if (mode == 'scenery') {
+                        // End of scenery
+                        break;
+                    }
+                }
+                if (mode == 'scenery') {
+                    if (words[0] == 'AIRP') {
+                        const airport_icao = words[1] 
+                        icao[icao.length] = airport_icao
+                        loadAirport(context, airport_icao)
+                    }
+                    if (words[0] == 'RWY' && words.length > 3) {
+                        // Runway open/close status
+                        var r = new Runway()
+                        r.icao = words[1];
+                        r.name = words[2];
+                        r.status = words[3];
+                        runways.push(r)
+                    }
+                }
+            }
+            context.scenario.runways = runways
+        }
                 /*
-                var lines = data.split('\n');
-                var words;
-                var mode = '';
-                for (var i = 0; i < lines.length; i++) {
-                    words = lines[i].split(',');
-                    if (words[0] == 'SCENERY') {
-                        if (mode == '') {
-                            if (words[1].toUpperCase() == name.toUpperCase()) {
-                                mode = 'scenery';
-                                MIN_LATITUDE = parseFloat(words[2]);
-                                MIN_LONGITUDE = parseFloat(words[3]);
-                                MAX_LATITUDE = parseFloat(words[4]);
-                                MAX_LONGITUDE = parseFloat(words[5]);
-
-                                LATITUDE_CENTER = (MIN_LATITUDE + MAX_LATITUDE) / 2;
-                                LONGITUDE_CENTER = (MIN_LONGITUDE + MAX_LONGITUDE) / 2;
-                            }
-                        }
-                        else if (mode == 'scenery') {
-                            // End of scenery
-                            resolve(true);
-                            break;
-                        }
-                    }
-                    if (mode == 'scenery') {
-                        if (words[0] == 'AIRP') {
-                            icao[icao.length] = words[1];
-                            // loadAirports(icao);
-                        }
-                        if (words[0] == 'RWY' && words.length > 3) {
-                            // Runway open/close status
-                            var r = runway_status.length;
-                            runway_status[r] = new runwayStatus();
-                            var rws = runway_status[r];
-                            rws.icao = words[1];
-                            rws.runway = words[2];
-                            rws.status = words[3];
-                        }
-                    }
-                }
                 if (mode == '') {
                     // No scenery found with that name ... try to load as airport
                     words = name.split(',');
@@ -163,4 +165,102 @@ function loadScenario ( context: any, name?: string, icao?: string ) {
             }
         }); 
         */
+}
+
+const loadAirport = (context: Context, icao: string) => {
+    debug( `Load airport ${icao}`)
+    if (context.scenario.airports?.find((airp: Airport) => {
+        return airp.icao == icao
+    })) {
+        // Airport already loaded
+        return
+    }
+    fs.readFile(path.join(__dirname, '../../data/1712/Airports.txt'), 'utf8', (error, data) => {
+        if (error) {
+            debug(error)
+        }
+        if (data) {
+            let airport: Airport | undefined = undefined
+            let runway: Runway | undefined = undefined
+            var found = false;
+            var lines = data.split('\n');
+            var words;
+            var mode = '';
+            // var route = -1;
+            for (var i = 0; i < lines.length; i++) {
+                words = lines[i].split(',');
+                if (words[0] == 'A') {
+                    if (found) {
+                        break;
+                    }
+                    if (mode == '') {
+                        if (words[1] == icao) {
+                            found = true;
+                            airport = new Airport()
+                            airport.name = words[2];
+                            airport.icao = words[1];
+                            const latitude = parseFloat(words[3]);
+                            const longitude = parseFloat(words[4]);
+                            airport.coordinate = new Coordinate(latitude, longitude)
+                            context.scenario.airports?.push(airport)
+                            mode = 'A';
+                        }
+                    }
+                    else {
+                        mode = '';
+                    }
+                }
+                if (mode == 'A' && words[0] == 'R') {
+                    // Add runway to airport
+                    runway = new Runway()
+                    runway.name = words[1];
+                    runway.heading = new Bearing(parseInt(words[2]))
+                    runway.strip_length =  parseInt(words[3]);
+                    runway.strip_width = parseInt(words[4]);
+                    runway.coordinate1 = new Coordinate(parseFloat(words[8]), parseFloat(words[9]))
+                    if (airport) airport.runways?.push(runway)
+                    // runways[r].gLabel1.text = runways[r].label1;
+                    // runways[r].gLabel2.text = runways[r].label2 + '\n' + runways[r].heading + '\n' + runways[r].strip_length;
+
+                    // Check for reciprocal runway to merge data
+                    var opposite_heading = geomath.inverseBearing(runway.heading.getBearing());
+                    var marker: string | undefined = undefined;
+                    if (runway.name.includes('R')) {
+                        marker = 'L';
+                    }
+                    if (runway.name.includes('L')) {
+                        marker = 'R';
+                    }
+                    if (runway.name.includes('C')) {
+                        marker = 'C';
+                    }
+                    debug('Created runway ' + words[1] + '(' + icao + ') ' + words[2] + ' / ' + opposite_heading);
+
+                    airport?.runways?.forEach( rwy2 => {
+                        if (runway && rwy2.icao == icao) {
+                            if (rwy2.heading?.getBearing() == opposite_heading) {
+                                if (marker == undefined || rwy2.name?.includes(marker)) {
+                                    if (rwy2.strip_length == runway.strip_length && rwy2.strip_width == runway.strip_width) {
+                                        // Found the reciprocal runway
+                                        rwy2.coordinate2 = new Coordinate(runway.coordinate1?.latitude, runway.coordinate1?.longitude)
+                                        runway.coordinate2 = new Coordinate(rwy2.coordinate1?.latitude, rwy2.coordinate1?.longitude)
+                                    }
+                                }
+                            }
+                        }
+                    })
+                    // TODO
+                    /*
+                    // Create FIX for runways
+                    var o_wp = findWaypoint(name, latitude, longitude );
+                    if (o_wp == undefined) {
+                        o_wp = addWaypoint(name, '', latitude, longitude);
+                    }
+                    o_wp.isRunway = true;
+                    o_wp.useCounter++;
+                    */
+                }
+            }
+        }
+    })
 }

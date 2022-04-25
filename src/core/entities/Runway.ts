@@ -22,6 +22,7 @@ export class Runway {
     zoom_max: number = 0 // Max. visible zoom
 
     // Runway status
+    status?: string
     active: boolean = false
     takeoff: boolean = false
     landing: boolean = false
