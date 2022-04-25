@@ -91,8 +91,8 @@ export class Canvas {
         // planeGr.y = 100
         this.mainContainer.addChild(planeGr)
 
+        /*
         const runwayGr = new RunwayGraphic()
-
         // R,16L,161,12802,197,1,108.100,161,41.845969,12.261494,14,3.00,56,1,0
         // R,34R,341,12802,197,1,111.550,341,41.812444,12.275525,6,3.00,57,1,0
         runwayGr.latitude = 41.845969
@@ -106,6 +106,7 @@ export class Canvas {
         this.mainContainer.addChild(runwayGr)
         // runwayGr.plotRunway(this.parameters)
         runwayGr.display(this.parameters)
+        */
     
         createjs.Ticker.on("tick", this.tickFunction);
         createjs.Ticker.framerate = 1;
@@ -113,8 +114,6 @@ export class Canvas {
 
     addRunway = (runway: Runway) => {
         const runwayGr = new RunwayGraphic()
-        // R,16L,161,12802,197,1,108.100,161,41.845969,12.261494,14,3.00,56,1,0
-        // R,34R,341,12802,197,1,111.550,341,41.812444,12.275525,6,3.00,57,1,0
         runwayGr.latitude = runway.coordinate1?.latitude || 0
         runwayGr.longitude = runway.coordinate1?.longitude || 0
         runwayGr.latitude_end = runway.coordinate2?.latitude || 0

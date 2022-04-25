@@ -54,9 +54,10 @@ const loadScenario = async ( context: Context, name: string): Promise<Context> =
                         context.parameters.minLongitude = parseFloat(words[3]);
                         context.parameters.maxLatitude = parseFloat(words[4]);
                         context.parameters.maxLongitude = parseFloat(words[5]);
-
                         context.parameters.latitudeCenter = (context.parameters.minLatitude + context.parameters.maxLatitude) / 2;
                         context.parameters.longitudeCenter = (context.parameters.minLongitude + context.parameters.maxLongitude) / 2;
+                        context.scenario.latitudeCenter = context.parameters.latitudeCenter
+                        context.scenario.longitudeCenter = context.parameters.longitudeCenter
                     }
                 }
                 else if (mode == 'scenery') {
