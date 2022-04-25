@@ -2,24 +2,58 @@ declare const io: any
 import { Scenario, SocketMsgType } from '../../src/core/entities'
 import util from 'util'
 import { loadScenario } from './scenario'
+import { Canvas } from './graphic/canvas'
 
 var socket = io()
 
-export const sendMessage = (msgType: string, payload: any) => {
-    console.log(`Send message of type ${msgType} with payload ${util.inspect(payload)}`)
-    socket.emit(msgType, payload)
+export type SocketClientCallback = (msgType: SocketMsgType, payload: any, canvas: Canvas) => Promise<void>
+
+export interface SocketFactoryInterface {
+    sendMessage: (msgType: string, payload: any) => void
+    handleMessages: (msgType: string, payload: any) => void
+    attachHandler: (msgType: SocketMsgType, handler: SocketClientCallback) => void
 }
 
-export const handleMessages = (msgType: string, payload: any) => {
-    console.log(`received message of type ${msgType} with payload ${util.inspect(payload)}`)
-    // TODO dispatch message
-    if (msgType == SocketMsgType.MSG_SCENARIO && payload.type == 'SCENARIO') {
-         // 
-         loadScenario(payload.scenario as Scenario)
+export const SocketFactory = (canvas: Canvas): SocketFactoryInterface => {
+    void canvas
+    return {
+        sendMessage: (msgType: string, payload: any) => {
+            console.log(`Send message of type ${msgType} with payload ${util.inspect(payload)}`)
+            socket.emit(msgType, payload)
+        },
+        handleMessages: (msgType: string, payload: any) => {
+            console.log(`received message of type ${msgType} with payload ${util.inspect(payload)}`)
+            // TODO dispatch message
+            /*
+            if (msgType == SocketMsgType.MSG_SCENARIO && payload.type == 'SCENARIO') {
+                // 
+                loadScenario(payload.scenario as Scenario)
+            }
+            */
+        },
+        attachHandler: (msgType: SocketMsgType, handler: SocketClientCallback) => {
+            socket.on(msgType , (payload: any) => {
+                handler(msgType, payload, canvas)
+            })
+        }
     }
 }
 
-socket.on(SocketMsgType.MSG_GENERAL, function(payload: any) { handleMessages(SocketMsgType.MSG_GENERAL, payload)})
+export const handleGeneralMessage = async (msgType: string, payload: any, canvas: Canvas): Promise<void> => {
+    void canvas
+    console.log(`received message of type ${msgType} with payload ${util.inspect(payload)}`)
+}
 
-socket.on(SocketMsgType.MSG_SCENARIO, function(payload: any) { handleMessages(SocketMsgType.MSG_SCENARIO, payload)})
+export const handleScenarioMessage = async (msgType: SocketMsgType, payload: any, canvas: Canvas): Promise<void> => {
+    console.log(`received scenario message of type ${msgType} with payload ${util.inspect(payload)}`)
+    if (msgType == SocketMsgType.MSG_SCENARIO && payload.type == 'SCENARIO') {
+        // 
+        loadScenario(payload.scenario as Scenario, canvas)
+    }
+}
 
+/*
+    socket.on(SocketMsgType.MSG_GENERAL, function(payload: any) { handleMessages(SocketMsgType.MSG_GENERAL, payload)})
+
+    socket.on(SocketMsgType.MSG_SCENARIO, function(payload: any) { handleMessages(SocketMsgType.MSG_SCENARIO, payload)})
+*/

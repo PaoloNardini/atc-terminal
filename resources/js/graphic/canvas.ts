@@ -37,14 +37,14 @@ export class Canvas {
         this.mainStage.update()
     }
     
-    init = () => {
+    init = (socketInstance: socket.SocketFactoryInterface) => {
 
         var hit = new createjs.Shape();
     	hit.graphics.beginFill("#000").drawRect(0, 0, 999, 999);
     	this.mainContainer.hitArea = hit;
         this.mainContainer.addEventListener('click', function( event: any)  {
             console.log('click', event.stageX, event.stageY, event.delta);
-            socket.sendMessage(SocketMsgType.MSG_MOUSE, {
+            socketInstance.sendMessage(SocketMsgType.MSG_MOUSE, {
                 e: MouseMsg.CLICK,
                 x: event.stageX,
                 y: event.stageY,
