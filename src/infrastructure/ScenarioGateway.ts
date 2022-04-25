@@ -13,28 +13,14 @@ export const makeScenarioGateway = (context: Context): ScenarioGateway => {
 
     return {
         async loadScenarioByName( name: string) {
-            // Test
             context = await loadScenario(context, name)
             debug(`Scenario loaded: ${util.inspect(context.scenario,false,5)}`)
-
             return context.scenario
-            /*
-            const scenario: Scenario = {
-                name: name,
-            }
-            return scenario
-            */
         },
         async loadScenarioByAirportCode( icao: string) {
-            // Test
+            // TODO
             context = await loadScenario(context, icao )
             return context.scenario
-            /*
-            const scenario: Scenario = {
-                name: icao,
-            }
-            return scenario
-            */
         }
     }
 }
@@ -100,34 +86,6 @@ const loadScenario = async ( context: Context, name: string): Promise<Context> =
         context.scenario.runways = runways
     }
     return context
-        /*
-                if (mode == '') {
-                    // No scenery found with that name ... try to load as airport
-                    words = name.split(',');
-                    for (var w=0; w<words.length; w++) {
-                        icao[icao.length] = words[w].toUpperCase();
-                    }
-                    loadAirport(icao[0]).then(function () {
-                        if (airports.length > 0) {
-                            if (LATITUDE_CENTER == 0 && LONGITUDE_CENTER == 0) {
-                                LATITUDE_CENTER = Math.floor(airports[0].latitude * 10) / 10;
-                                LONGITUDE_CENTER = Math.floor(airports[0].longitude * 10) / 10;
-                                MIN_LATITUDE = LATITUDE_CENTER - 2;
-                                MAX_LATITUDE = LATITUDE_CENTER + 2;
-                                MIN_LONGITUDE = LONGITUDE_CENTER - 2;
-                                MAX_LONGITUDE = LONGITUDE_CENTER + 2;
-                            }
-                            resolve(true);
-                        }
-                        else {
-                            reject(true);
-                        }
-                    });
-                }
-                else {
-                    resolve(true);
-                }
-                */
         /*
         promiseScenery.then(function () {
             if (icao.length > 0) {
