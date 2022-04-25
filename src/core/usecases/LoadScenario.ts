@@ -4,8 +4,8 @@ import { Scenario, SocketMsgType } from '../entities'
 
 const debug = D('app:core:usecases:LoadSCenario')
 
-export interface Deps {
-}
+// export interface Deps {}
+import { Deps } from '../gateways'
 
 export const useCaseName = 'load-scenario'
 
@@ -18,7 +18,7 @@ export type Output = {
   context: any
 }
 
-export const createUseCase = ({ }: Deps) => async (
+export const createUseCase = ({ scenarioGateway }: Deps) => async (
   input: Input
 ): Promise<Output> => {
 
@@ -28,13 +28,17 @@ export const createUseCase = ({ }: Deps) => async (
         debug(`loadScenario`)
     }
 
+    const scenario: Scenario = scenarioGateway.loadScenarioByName('TEST')
+
+    /*
     const scenario: Scenario = {
       name: 'Scenario Test',
       airports: [],
       procedures: [],
       atsRoutes: [],
       initialPlanes: []
-    }      
+    } 
+    */     
 
     input.useCases.dispatch({
       context,

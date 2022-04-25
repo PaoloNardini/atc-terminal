@@ -1,6 +1,6 @@
-import { Scenario } from "../core/entities";
+import { Scenario } from "../entities";
 
-export interface ScenarioGatewayInterface {
+export interface ScenarioGateway {
     loadScenarioByName( name: string): Scenario
     loadScenarioByAirportCode( icao: string): Scenario
 }

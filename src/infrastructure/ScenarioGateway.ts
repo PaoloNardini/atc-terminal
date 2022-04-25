@@ -1,7 +1,7 @@
-import { Scenario } from "../core/entities";
-import { ScenarioGatewayInterface } from "./ScenarioGatewayInterface";
+import { Scenario } from "../core/entities"
+import { ScenarioGateway } from "../core/gateways"
 
-export const makeScenarioGateway = (): ScenarioGatewayInterface => {
+export const makeScenarioGateway = (): ScenarioGateway => {
 
     return {
         loadScenarioByName( name: string) {

@@ -7,6 +7,7 @@ import D from 'debug'
 import { createNewScreen, Screen } from "./gateways/screen"
 import { createNewSocket } from "./infrastructure/socket"
 import { SocketMsgType } from "./core/entities"
+import { makeScenarioGateway } from "./infrastructure/ScenarioGateway"
 const debug = D('app:start')
 
 let isShuttingDown: boolean = false
@@ -58,11 +59,14 @@ export const main = () => {
       httpServer
     })
 
+    const scenarioGateway = makeScenarioGateway()
+
     // void (socket) // dummy
 
     debug(`Initialize use-cases...`)
     const useCases = initializeUseCases({
-      transportGateway
+      transportGateway,
+      scenarioGateway
     })
     debug(`Initialize use-cases: ok`)
   
