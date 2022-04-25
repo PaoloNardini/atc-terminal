@@ -1,26 +1,22 @@
 import { UseCases } from '..'
-import D from 'debug'
-import { SocketMsgType } from '../entities'
+import { SocketMsgType, Context } from '../entities'
+import { Deps } from '../gateways'
 import util from 'util'
+import D from 'debug'
 
 const debug = D('app:core:usecases:HandleCommand')
-
-import { Deps } from '../gateways'
-// import { Dispatch } from './Dispatch'
-
-// export interface Deps {}
 
 export const useCaseName = 'handle-command'
 
 export type Input = {
   msgType: SocketMsgType,
   msgPayload: any,  
-  context: any,
+  context: Context,
   useCases: UseCases,
 }
 
 export type Output = {
-  context: any
+  context: Context
 }
 
 export const createUseCase = ({}: Deps ) => async (
@@ -40,10 +36,11 @@ export const createUseCase = ({}: Deps ) => async (
     switch (input.msgType) {
         case SocketMsgType.MSG_GENERAL:
             if (input.msgPayload === 'LOADSCENARIO') {
-                context = input.useCases.loadScenario({
+                const output = await input.useCases.loadScenario({
                     context, 
                     useCases: input.useCases
                 })
+                context = output.context
             }
             break;
     }

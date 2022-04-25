@@ -1,6 +1,6 @@
 import { SocketMsgType } from "../entities"
 
-export type SocketCallback = (msgType: SocketMsgType, payload: any) => void
+export type SocketCallback = (msgType: SocketMsgType, payload: any) => Promise<void>
 
 export interface TransportGateway {
     sendMessage: (

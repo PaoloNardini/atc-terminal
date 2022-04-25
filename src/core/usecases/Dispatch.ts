@@ -1,6 +1,6 @@
 // import { UseCases } from '..'
 import D from 'debug'
-import { SocketMsgType } from '../entities'
+import { Context, SocketMsgType } from '../entities'
 // import { SocketMsgType } from '../entities'
 // import util from 'util'
 
@@ -13,20 +13,20 @@ import { Deps } from '../gateways'
 export const useCaseName = 'dispatch'
 
 export type Input = {
-  context: any,
+  context: Context,
   msgType: SocketMsgType
   payload: any
 }
 
 export type Output = {
-  context: any
+  context: Context
 }
 
 export const createUseCase = ({ transportGateway }: Deps) => async (
   input: Input
 ): Promise<Output> => {
 
-    let context = input.context
+    let context: Context = input.context
 
     debug(`Dispatch`)
 

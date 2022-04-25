@@ -8,6 +8,7 @@ import { createNewScreen, Screen } from "./gateways/screen"
 import { createNewSocket } from "./infrastructure/socket"
 import { SocketMsgType } from "./core/entities"
 import { makeScenarioGateway } from "./infrastructure/ScenarioGateway"
+import { Context } from "./core/entities/Context"
 const debug = D('app:start')
 
 let isShuttingDown: boolean = false
@@ -42,7 +43,8 @@ const isServerShuttingDown = (): boolean => isShuttingDown
 export const main = () => {
     console.log('This is Main')
 
-    // let socket: any = undefined
+    // The main global context object
+    let context: Context = new Context()
 
     debug(`Create new Http Sever...`)
     const httpServer = createNewHttpServer({
@@ -96,23 +98,23 @@ export const main = () => {
     })
 
     // Attach usecase handleCommand as socket message handler
-    transportGateway.attachHandler(SocketMsgType.MSG_GENERAL, (msgType, payload) => {
-      debug(`HANDLER: RECEIVED MSG`)
-      useCases.handleCommand({ 
+    transportGateway.attachHandler(SocketMsgType.MSG_GENERAL, async (msgType, payload) => {
+      debug(`HANDLER: RECEIVED MSG`);
+      ({context } = await useCases.handleCommand({ 
         msgType, 
         msgPayload: payload,
-        context: {},
+        context,
         useCases
-      })
+      }))
     })
-    transportGateway.attachHandler(SocketMsgType.MSG_MOUSE, (msgType, payload) => {
-      debug(`HANDLER: RECEIVED MOUSE MSG`)
-      useCases.handleCommand({ 
+    transportGateway.attachHandler(SocketMsgType.MSG_MOUSE, async(msgType, payload) => {
+      debug(`HANDLER: RECEIVED MOUSE MSG`);
+      ({context } = await useCases.handleCommand({ 
         msgType, 
         msgPayload: payload,
         context: {},
         useCases
-      })
+      }))
     })
 }
 
