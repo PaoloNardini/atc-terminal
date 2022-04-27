@@ -3,7 +3,7 @@
   <head>
     <title>Socket.IO chat</title>
     <style>
-      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+      body { margin: 0; padding-bottom: 3rem; font-family: Roboto, Helvetica, Arial, sans-serif; }
 
       #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
       #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
@@ -17,20 +17,20 @@
   </head>
   <script src="/socket.io.min.js"></script>
   <body>
-    <div style="float:left; display:block; border-color:black">
-      <canvas id="mainCanvas" width="1280" height="1024" style="float:left; display:block; height:100%; background-color: black;"></canvas>
+    <div style="float:left; display:block;">
+      <canvas id="mainCanvas" width="1280" height="1024" style="float:left; display:block; background-color: black; border: 2px solid yellow"></canvas>
     </div>
     <div id='stripColumn' style="float:right; display:block; border-color:black; background-color: black;">
       <!-- <span id="scale" style="color:#000;"></span> -->
       <!-- <span id="msg">...</span> -->
       <input type="text" name="command" id="talk" value="" placeholder="enter radio message">
-      <div style="display:block;">
+      <div style="display:block; border: 2px solid yellow">
           <canvas id="consoleCanvas" width="420" height="80"></canvas>
       </div>
-      <div id="strip-arr">
+      <div id="strip-arr" style="display:block; border: 2px solid yellow">
           <canvas id="arrStripsCanvas" width="420" height="400"></canvas>
       </div>
-      <div id="strip-dep">
+      <div id="strip-dep" style="display:block; border: 2px solid yellow">
           <canvas id="depStripsCanvas" width="420" height="400"></canvas>
       </div>
     </div>
