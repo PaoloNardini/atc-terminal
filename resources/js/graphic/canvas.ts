@@ -67,28 +67,41 @@ export class Canvas {
             event.stopImmediatePropagation();
         })
     
-        this.mainContainer.addEventListener('pressmove', function( e: any ) {
+        this.mainContainer.addEventListener('pressmove', ( e: any ) => {
             console.log(`pressmove (${e.stageX}, ${e.stageY})`);
+            // Move stage center position following the mouse
+            if (e.stageX < this.parameters.mouseX) {
+                this.mainContainer.regX = this.parameters.currentX - ((e.stageX - this.parameters.mouseX) * this.parameters.currentScale);
+            } else {
+                this.mainContainer.regX = this.parameters.currentX + ((this.parameters.mouseX - e.stageX) * this.parameters.currentScale);
+            }
+            if (e.stageY < this.parameters.mouseY) {
+                this.mainContainer.regY = this.parameters.currentY - ((e.stageY - this.parameters.mouseY) * this.parameters.currentScale);
+            } else {
+                this.mainContainer.regY = this.parameters.currentY + ((this.parameters.mouseY - e.stageY) * this.parameters.currentScale);
+            }
+            // updatePlanes(masterTimer);
+            this.mainStage.update();
+
         })
     
-        this.mainContainer.addEventListener('pressup', function( e: any ) {
+        this.mainContainer.addEventListener('pressup', ( e: any ) => {
             console.log(`pressup (${e.stageX}, ${e.stageY})`);
         })
     
-        this.mainContainer.addEventListener('mouseup', function( e: any ) {
+        this.mainContainer.addEventListener('mouseup', ( e: any ) => {
             console.log(`mouseup (${e.stageX}, ${e.stageY})`);
         })
     
-        this.mainContainer.addEventListener('mousedown', function( e: any ) {
+        this.mainContainer.addEventListener('mousedown', ( e: any ) => {
+            // Save current position
+            this.parameters.mouseX = e.stageX
+            this.parameters.mouseY = e.stageY
+            this.parameters.currentX = this.mainContainer.regX
+            this.parameters.currentY = this.mainContainer.regY
             console.log(`mousedown (${e.stageX}, ${e.stageY})`);
         })
 
-        window.addEventListener('mousewheel', function( event: any ) {
-            console.log('mousewheel',event.deltaX, event.deltaY, event.deltaFactor);
-        })
-   
-
-    
         // mouse.mouseEventInit()
 
         this.parameters.latitudeCenter = 41.7

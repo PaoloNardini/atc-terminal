@@ -16,6 +16,12 @@ export class Parameters {
     screenCenterY: number = 384
 
     currentScale: number = 0
+    
+    // attributes where saving current mouse and stage coordinates during pressmove
+    mouseX: number = 0
+    mouseY: number = 0
+    currentX: number = 0
+    currentY: number = 0
 
     minLatitude: number = 0
     maxLatitude: number = 0
