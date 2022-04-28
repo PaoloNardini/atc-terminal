@@ -54,32 +54,30 @@ export class Canvas {
 
         window.addEventListener('mousewheel', ( event: any ) => {
             console.log('mousewheel',event, event.deltaX, event.deltaY, event.delta);
-            const delta = event.deltaY / 500
-            var scale = (1 / this.mainContainer.scaleX);
-            if (scale < 10 || delta > 0) {
-                this.mainContainer.scaleX = this.mainContainer.scaleX + delta
-                this.mainContainer.scaleY = this.mainContainer.scaleY + delta
-                // scale = (1 / mainContainer.scaleX);
-                this.updateScale()
-            }
-            console.log('NEW SCALE = ' + scale);
+            var oldScale: number = this.mainContainer.scaleX;
+            const delta = (event.deltaY > 0) ? -0.1 : 0.1
+            this.mainContainer.scaleX = this.mainContainer.scaleX + delta
+            this.mainContainer.scaleY = this.mainContainer.scaleY + delta
+            this.updateScale(oldScale)
+            console.log('NEW SCALE = ' + oldScale);
             event.preventDefault();
             event.stopImmediatePropagation();
         })
-    
+
         this.mainContainer.addEventListener('pressmove', ( e: any ) => {
-            console.log(`pressmove (${e.stageX}, ${e.stageY})`);
+            // console.log(`pressmove (${e.stageX}, ${e.stageY})`);
             // Move stage center position following the mouse
             if (e.stageX < this.parameters.mouseX) {
-                this.mainContainer.regX = this.parameters.currentX - ((e.stageX - this.parameters.mouseX) * this.parameters.currentScale);
+                this.mainContainer.regX = this.parameters.currentX - ((e.stageX - this.parameters.mouseX) * (1 / this.parameters.currentScale));
             } else {
-                this.mainContainer.regX = this.parameters.currentX + ((this.parameters.mouseX - e.stageX) * this.parameters.currentScale);
+                this.mainContainer.regX = this.parameters.currentX + ((this.parameters.mouseX - e.stageX) * (1 / this.parameters.currentScale));
             }
             if (e.stageY < this.parameters.mouseY) {
-                this.mainContainer.regY = this.parameters.currentY - ((e.stageY - this.parameters.mouseY) * this.parameters.currentScale);
+                this.mainContainer.regY = this.parameters.currentY - ((e.stageY - this.parameters.mouseY) * (1 / this.parameters.currentScale));
             } else {
-                this.mainContainer.regY = this.parameters.currentY + ((this.parameters.mouseY - e.stageY) * this.parameters.currentScale);
+                this.mainContainer.regY = this.parameters.currentY + ((this.parameters.mouseY - e.stageY) * (1 / this.parameters.currentScale));
             }
+            console.log(`regX:  ${this.mainContainer.regX} regY: ${this.mainContainer.regY}`)
             // updatePlanes(masterTimer);
             this.mainStage.update();
 
@@ -136,6 +134,24 @@ export class Canvas {
         createjs.Ticker.framerate = 1;
     }
 
+    updateScale = (oldScale: number) => {
+        // var scale = (1 / this.mainContainer.scaleX);
+        console.log(`scale: ${oldScale} currentScale: ${this.parameters.currentScale}`)
+        const factor: number = (oldScale - this.parameters.currentScale) * 400
+        this.mainContainer.regX = this.mainContainer.regX + factor
+        this.mainContainer.regY = this.mainContainer.regY + factor
+        console.log(`regX:  ${this.mainContainer.regX} regY: ${this.mainContainer.regY}`)
+        this.parameters.currentScale = oldScale;
+        // DEBUG
+        // $('#scale').html( Math.round(mainContainer.scaleX * 100) + ' - ' + currentScale); //  + ' / ' + mainContainer.regX + ' - ' + mainContainer.regY);
+
+        // updateWaypoints();
+        // // updateFixes();
+        // // updateNavaids();
+        // updateRoutes();
+        this.mainStage.update();
+    }
+
     addRunway = (runway: Runway) => {
         const runwayGr = new RunwayGraphic()
         runwayGr.latitude = runway.coordinate1?.latitude || 0
@@ -151,26 +167,5 @@ export class Canvas {
         runwayGr.display(this.parameters)
     }
 
-    updateScale = () => {
-        var scale = (1 / this.mainContainer.scaleX);
-        var m = 1;
-        if (scale < this.parameters.currentScale) {
-            this.mainContainer.regX = this.mainContainer.regX + (scale * m);
-            this.mainContainer.regY = this.mainContainer.regY + (scale * m);
-        }
-        else {
-            this.mainContainer.regX = this.mainContainer.regX - (scale * m);
-            this.mainContainer.regY = this.mainContainer.regY - (scale * m);
-        }
-        this.parameters.currentScale = scale;
-        // DEBUG
-        // $('#scale').html( Math.round(mainContainer.scaleX * 100) + ' - ' + currentScale); //  + ' / ' + mainContainer.regX + ' - ' + mainContainer.regY);
-
-        // updateWaypoints();
-        // // updateFixes();
-        // // updateNavaids();
-        // updateRoutes();
-        this.mainStage.update();
-    }
 
 }
