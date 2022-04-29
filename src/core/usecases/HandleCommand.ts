@@ -35,14 +35,31 @@ export const createUseCase = ({}: Deps ) => async (
 
     switch (input.msgType) {
         case SocketMsgType.MSG_GENERAL:
-            if (input.msgPayload === 'LOADSCENARIO') {
+            switch (input.msgPayload) {
+              case 'LOADSCENARIO':
                 const output = await input.useCases.loadScenario({
                     context, 
                     useCases: input.useCases
                 })
                 context = output.context
+                break;
+              case 'TESTPLANES':
+                const output2 = await input.useCases.testPlanes({
+                  context,
+                  useCases: input.useCases
+                })
+                context = output2.context
+                break;
+
+              default:
+                // TODO
+                break;
             }
             break;
+        default:
+            // TODO
+            break;
+              
     }
 
     return { context }

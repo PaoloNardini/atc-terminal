@@ -5,6 +5,8 @@ import * as LoadProcedures from './usecases/LoadProcedures'
 import * as LoadAtsRoutes from './usecases/LoadProcedures'
 import * as LoadDispatch from './usecases/Dispatch'
 
+import * as TestPlanes from './usecases/TestPlanes'
+
 import { Deps } from './gateways'
 
 export const initializeUseCases = (deps: Deps) => {
@@ -29,6 +31,10 @@ export const initializeUseCases = (deps: Deps) => {
     ...deps,
   })
 
+  const testPlanes = TestPlanes.createUseCase({
+    ...deps,
+  })
+
   return {
     dispatch,
     handleCommand,
@@ -36,6 +42,7 @@ export const initializeUseCases = (deps: Deps) => {
     loadAirlines,
     loadProcedures,
     loadAtsRoutes,
+    testPlanes,
   }
 }
 

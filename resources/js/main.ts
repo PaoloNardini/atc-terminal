@@ -33,6 +33,7 @@ socketInstance.attachHandler(SocketMsgType.MSG_GENERAL, socket.handleGeneralMess
 
 socketInstance.attachHandler(SocketMsgType.MSG_SCENARIO, socket.handleScenarioMessage)
 
+socketInstance.attachHandler(SocketMsgType.MSG_PLANES, socket.handlePlanesMessage)
 
 
 
