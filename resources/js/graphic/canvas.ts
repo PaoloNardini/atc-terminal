@@ -1,11 +1,12 @@
 /// <reference path="../../../node_modules/@types/easeljs/index.d.ts" />
 import * as socket from '../socket'
 import * as constants from '../../../src/core/constants'
-import { MouseMsg, Runway, SocketMsgType } from '../../../src/core/entities'
+import { MouseMsg, NavaidType, Runway, SocketMsgType } from '../../../src/core/entities'
 import { Parameters, Waypoint } from '../../../src/core/entities'
 import { PlaneGraphic } from './plane'
 import { RunwayGraphic } from './runway'
 import { WaypointGraphic } from './waypoint'
+import { Bearing, Coordinate } from '../../../src/core/valueObjects'
 // import * as geomath from '../math/geomath'
 // import * as mouse from '../controls/mouse'
 
@@ -105,6 +106,7 @@ export class Canvas {
 
         this.parameters.latitudeCenter = 41.7
         this.parameters.longitudeCenter = 12.2
+        this.parameters.currentScale = 1
         this.mainStage.addChild(this.mainContainer);
         const planeGr = new PlaneGraphic()
         planeGr.latitude = 41.6
@@ -130,7 +132,29 @@ export class Canvas {
         // runwayGr.plotRunway(this.parameters)
         runwayGr.display(this.parameters)
         */
-    
+
+        const rw = new Runway()
+        rw.coordinate1 = new Coordinate(41.6,12.1)
+        rw.coordinate2 = new Coordinate(41.7,12.2)
+        rw.strip_length = 12802
+        rw.strip_width = 197
+        rw.heading = new Bearing(161)
+        this.addRunway(rw)
+
+        const wp = new Waypoint()
+        wp.name = 'TEST'
+        wp.latitude = 41.6
+        wp.longitude = 12.1
+        wp.navaidType = NavaidType.NAVAID_TYPE_VORDME
+        this.addWaypoint(wp)
+
+        const wp2 = new Waypoint()
+        wp2.name = 'TEST2'
+        wp2.latitude = 41.7
+        wp2.longitude = 12.2
+        wp2.navaidType = NavaidType.NAVAID_TYPE_VORDME
+        this.addWaypoint(wp2)
+
         createjs.Ticker.on("tick", this.tickFunction);
         createjs.Ticker.framerate = 1;
     }
