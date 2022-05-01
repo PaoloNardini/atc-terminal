@@ -47,7 +47,8 @@ export const createUseCase = ({ scenarioGateway, navaidsGateway }: Deps) => asyn
       context,
       msgType: SocketMsgType.MSG_SCENARIO, payload: {
         type: 'SCENARIO',
-        scenario: context.scenario
+        scenario: context.scenario,
+        waypoints: context.waypoints
       }
     })
 

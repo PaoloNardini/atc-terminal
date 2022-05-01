@@ -2,6 +2,7 @@ declare const io: any
 import { Plane, Scenario, SocketMsgType } from '../../src/core/entities'
 import util from 'util'
 import { loadScenario } from './scenario'
+import { loadWaypoints } from './waypoints'
 import { Canvas } from './graphic/canvas'
 import { addPlane } from './planes'
 
@@ -50,6 +51,7 @@ export const handleScenarioMessage = async (msgType: SocketMsgType, payload: any
     if (msgType == SocketMsgType.MSG_SCENARIO && payload.type == 'SCENARIO') {
         // 
         loadScenario(payload.scenario as Scenario, canvas)
+        loadWaypoints(payload.waypoints, canvas)
     }
 }
 

@@ -2,9 +2,10 @@
 import * as socket from '../socket'
 import * as constants from '../../../src/core/constants'
 import { MouseMsg, Runway, SocketMsgType } from '../../../src/core/entities'
-import { Parameters } from '../../../src/core/entities'
+import { Parameters, Waypoint } from '../../../src/core/entities'
 import { PlaneGraphic } from './plane'
 import { RunwayGraphic } from './runway'
+import { WaypointGraphic } from './waypoint'
 // import * as geomath from '../math/geomath'
 // import * as mouse from '../controls/mouse'
 
@@ -167,5 +168,9 @@ export class Canvas {
         runwayGr.display(this.parameters)
     }
 
-
+    addWaypoint = (waypoint: Waypoint) => {
+        const wp = new WaypointGraphic(waypoint)
+        this.mainContainer.addChild(wp)
+        wp.display(this.parameters)
+    }
 }
