@@ -78,7 +78,7 @@ export class Canvas {
             } else {
                 this.mainContainer.regY = this.parameters.currentY + ((this.parameters.mouseY - e.stageY) * (1 / this.parameters.currentScale));
             }
-            console.log(`regX:  ${this.mainContainer.regX} regY: ${this.mainContainer.regY}`)
+            console.log(`pressmove: regX:  ${this.mainContainer.regX} regY: ${this.mainContainer.regY}`)
             // updatePlanes(masterTimer);
             this.mainStage.update();
 
@@ -137,7 +137,7 @@ export class Canvas {
 
     updateScale = (oldScale: number) => {
         // var scale = (1 / this.mainContainer.scaleX);
-        console.log(`scale: ${oldScale} currentScale: ${this.parameters.currentScale}`)
+        console.log(`updateScale: scale: ${oldScale} currentScale: ${this.parameters.currentScale}`)
         const factor: number = (oldScale - this.parameters.currentScale) * 400
         this.mainContainer.regX = this.mainContainer.regX + factor
         this.mainContainer.regY = this.mainContainer.regY + factor

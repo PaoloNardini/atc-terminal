@@ -6,43 +6,6 @@ import * as geomath from '../../../src/helpers/geomath'
 export class WaypointGraphic extends createjs.Container {
 
     waypoint: Waypoint
-    /*
-    type: WaypointType = WaypointType.WAYPOINT_TYPE_FIX
-    name: string = ''
-    label: string  = ''
-    latitude: number = 0
-    longitude: number = 0 
-    coordinate?: Coordinate
-    useCounter: number = 0
-
-    visible: boolean = false 
-    labelVisible: boolean = false
-    visibleTemp: boolean = false
-    labelVisibleTemp: boolean = false
-    isNavaid: boolean = false
-    isFix: boolean = false
-    isWaypoint: boolean = false
-    isRunway: boolean = false
-    isAts: boolean = false
-    isNavaidVisible: boolean = false
-    isFixVisible: boolean = false
-    isWaypointVisible: boolean = false
-    isRunwayVisible: boolean = false
-    isAtsVisible: boolean = false
-
-    freq: number | undefined
-
-    // Navaid specific attributes
-    navaidType: NavaidType | undefined
-    mea?: Level           // Minimum enroute altitude (in feet)
-    min_speed?: Speed     // Minimum speed
-    max_speed?: Speed     // Maximum speed
-    // release: boolean = false  // Is it a release point to/from other ATC?
-    // visible: boolean = false    // Default visibility
-    altitude: number | undefined
-    isRouteFix: boolean = false
-    */
-   
 
     // Graphic object
     gBox: createjs.Shape
@@ -57,27 +20,31 @@ export class WaypointGraphic extends createjs.Container {
         super.addChild(this.gBox, this.gLabel)
     }
 
+    /*
     setPosition(parameters: Parameters) {
         var coords = geomath.coordsToScreen(this.waypoint.latitude, this.waypoint.longitude, parameters)
         this.x = coords.y
         this.y = coords.x
     }
+    */
 
     display(parameters: Parameters ) {
 
         const scale = parameters.currentScale + 0.4 / 1.2;
-        // scale = scale + 0.4;
         this.gBox.scaleX = scale; //  / 1.5;
         this.gBox.scaleY = scale; // / 1.5;
         this.gLabel.scaleX = scale;
         this.gLabel.scaleY = scale;
     
         this.gBox.graphics.clear();
+        this.gLabel.text = this.waypoint.label
+
         if (this.waypoint.isNavaid) {
             if (this.waypoint.navaidType == NavaidType.NAVAID_TYPE_NDB) {
                 this.gBox.graphics.setStrokeStyle(1).beginStroke(constants.FIX_BODY_COLOR).drawCircle(0, 0, 6).endStroke();
             }
             else if (this.waypoint.navaidType  == NavaidType.NAVAID_TYPE_VORDMENDB || this.waypoint.navaidType  == NavaidType.NAVAID_TYPE_VORDME) {
+                // console.log(`${this.waypoint.name}: ${this.waypoint.latitude} / ${this.waypoint.longitude}`)
                 this.gBox.graphics.setStrokeStyle(1).beginStroke(constants.FIX_BODY_COLOR).drawCircle(0, 0, 7).beginFill(constants.FIX_BODY_COLOR).moveTo(-4, 4).lineTo(0, -4).lineTo(4, 4).lineTo(-4, 4).endStroke();
             }
             else {
@@ -95,8 +62,8 @@ export class WaypointGraphic extends createjs.Container {
         }
         else {
             this.gBox.graphics.setStrokeStyle(1).beginStroke(constants.FIX_BODY_COLOR).moveTo(-3,3).lineTo(0,-3).lineTo(3,3).lineTo(-3,3).endStroke();
-            this.gLabel.scaleX = scale * 0.8;
-            this.gLabel.scaleY = scale * 0.8;
+            this.gLabel.scaleX = scale * 0.9;
+            this.gLabel.scaleY = scale * 0.9;
         }
         if (this.waypoint.labelVisibleTemp) {
             this.gLabel.color = "rgba(255,255,0,1)";
@@ -106,7 +73,10 @@ export class WaypointGraphic extends createjs.Container {
         else {
             this.gLabel.color = constants.FIX_TEXT_COLOR;
         }
-        this.setPosition(parameters);
+        var coords = geomath.coordsToScreen(this.waypoint.latitude, this.waypoint.longitude, parameters)
+        this.x = coords.y
+        this.y = coords.x
+        // this.setPosition(parameters);
     }    
 }
 

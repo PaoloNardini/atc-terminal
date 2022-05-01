@@ -81,14 +81,6 @@ export class RunwayGraphic extends createjs.Container {
         */
     }
 
-    setX( x:number ) {
-        this.x = x;
-    }
-    
-    setY( y:number ) {
-        this.y = y;
-    }
-
     plotRunway(parameters: Parameters) {
 
         if (this.latitude_end == 0 || this.longitude_end == 0) {
@@ -114,8 +106,8 @@ export class RunwayGraphic extends createjs.Container {
     
         // var length_miles = geomath.feetToMiles(this.strip_length);
         var threshold1 = geomath.coordsToScreen( this.latitude, this.longitude, parameters);
-        this.setX(threshold1.x);
-        this.setY(threshold1.y);
+        this.x = threshold1.x
+        this.y = threshold1.y
         // var opposite =  Math.coordsFromCoarseDistance(this.latitude, this.longitude, this.heading, length_miles / 1);
         // var threshold2 = Math.coordsToScreen( opposite.lat, opposite.lon);
         var middle = geomath.middlePoint(this.latitude, this.longitude, this.latitude_end, this.longitude_end);
