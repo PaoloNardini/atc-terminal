@@ -1,7 +1,7 @@
 import { UseCases } from '..'
 import D from 'debug'
 import { Context, SocketMsgType } from '../entities'
-import util from 'util'
+// import util from 'util'
 
 const debug = D('app:core:usecases:LoadSCenario')
 
@@ -18,7 +18,7 @@ export type Output = {
   context: Context
 }
 
-export const createUseCase = ({ scenarioGateway }: Deps) => async (
+export const createUseCase = ({ scenarioGateway, navaidsGateway }: Deps) => async (
   input: Input
 ): Promise<Output> => {
 
@@ -29,8 +29,9 @@ export const createUseCase = ({ scenarioGateway }: Deps) => async (
     }
 
     context.scenario = await scenarioGateway.loadScenarioByName('ROME')
-
-    debug(`Scenario loaded: ${util.inspect(context.scenario,false,3)}`)
+    await navaidsGateway.loadWaypointsByCoordinates(context.parameters.minCoordinates, context.parameters.maxCoordinates)
+    await navaidsGateway.loadNavaidsByCoordinates(context.parameters.minCoordinates, context.parameters.maxCoordinates)
+    // debug(`Scenario loaded: ${util.inspect(context.scenario,false,3)}`)
 
     /*
     const scenario: Scenario = {

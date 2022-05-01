@@ -7,7 +7,8 @@ import D from 'debug'
 import { createNewScreen, Screen } from "./gateways/screen"
 import { createNewSocket } from "./infrastructure/socket"
 import { SocketMsgType } from "./core/entities"
-import { makeScenarioGateway } from "./infrastructure/ScenarioGateway"
+import { makeScenarioGateway } from "./infrastructure/Scenario"
+import { makeNavaidsGateway } from './infrastructure/NavaidsLoader'
 import { Context } from "./core/entities/Context"
 const debug = D('app:start')
 
@@ -61,14 +62,15 @@ export const main = () => {
       httpServer
     })
 
+    // Build gateways from factory
     const scenarioGateway = makeScenarioGateway(context)
-
-    // void (socket) // dummy
+    const navaidsGateway = makeNavaidsGateway(context)
 
     debug(`Initialize use-cases...`)
     const useCases = initializeUseCases({
       transportGateway,
-      scenarioGateway
+      scenarioGateway,
+      navaidsGateway,
     })
     debug(`Initialize use-cases: ok`)
   

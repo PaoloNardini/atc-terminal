@@ -32,6 +32,7 @@ const loadScenario = async ( context: Context, name: string): Promise<Context> =
     context.scenario.runways = []
     context.scenario.atsRoutes = []
     context.scenario.initialPlanes = []
+    context.waypoints = {}
     const data = fs.readFileSync(path.join(__dirname, '../../data/scenery.txt'), 'utf8')
     if (data) {
         let icao: any[] = []
@@ -50,12 +51,10 @@ const loadScenario = async ( context: Context, name: string): Promise<Context> =
                         debug(`name: ${name}`)
                         context.scenario.name = name
                         mode = 'scenery';
-                        context.parameters.minLatitude = parseFloat(words[2]);
-                        context.parameters.minLongitude = parseFloat(words[3]);
-                        context.parameters.maxLatitude = parseFloat(words[4]);
-                        context.parameters.maxLongitude = parseFloat(words[5]);
-                        context.parameters.latitudeCenter = (context.parameters.minLatitude + context.parameters.maxLatitude) / 2;
-                        context.parameters.longitudeCenter = (context.parameters.minLongitude + context.parameters.maxLongitude) / 2;
+                        context.parameters.minCoordinates = new Coordinate(parseFloat(words[2]), parseFloat(words[3]))
+                        context.parameters.maxCoordinates = new Coordinate(parseFloat(words[4]), parseFloat(words[5]))
+                        context.parameters.latitudeCenter = (context.parameters.minCoordinates.getLatitude() + context.parameters.maxCoordinates.getLatitude()) / 2;
+                        context.parameters.longitudeCenter = (context.parameters.minCoordinates.getLongitude() + context.parameters.maxCoordinates.getLongitude()) / 2;
                         context.scenario.latitudeCenter = context.parameters.latitudeCenter
                         context.scenario.longitudeCenter = context.parameters.longitudeCenter
                     }
@@ -217,8 +216,8 @@ const loadAirport = async (context: Context, icao: string): Promise<Context> => 
                             if (marker == undefined || rwy2.name?.includes(marker)) {
                                 if (rwy2.strip_length == runway.strip_length && rwy2.strip_width == runway.strip_width) {
                                     // Found the reciprocal runway
-                                    rwy2.coordinate2 = new Coordinate(runway.coordinate1?.latitude, runway.coordinate1?.longitude)
-                                    runway.coordinate2 = new Coordinate(rwy2.coordinate1?.latitude, rwy2.coordinate1?.longitude)
+                                    rwy2.coordinate2 = new Coordinate(runway.coordinate1?.latitude || 0, runway.coordinate1?.longitude || 0)
+                                    runway.coordinate2 = new Coordinate(rwy2.coordinate1?.latitude || 0, rwy2.coordinate1?.longitude || 0)
                                 }
                             }
                         }

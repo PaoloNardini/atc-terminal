@@ -1,3 +1,5 @@
+import { Coordinate } from "../valueObjects"
+
 export class Parameters {
     departuresEnabled: boolean = true
     arrivalsEnabled: boolean = true
@@ -23,10 +25,15 @@ export class Parameters {
     currentX: number = 0
     currentY: number = 0
 
+    minCoordinates: Coordinate = new Coordinate(0,0)
+    maxCoordinates: Coordinate = new Coordinate(0,0)
+
+    /*
     minLatitude: number = 0
     maxLatitude: number = 0
     minLongitude: number = 0
     maxLongitude: number = 0
+    */
 
     planeRefreshSeconds: number = 0.8
 }
