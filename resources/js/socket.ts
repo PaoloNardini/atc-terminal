@@ -3,7 +3,7 @@ import { Plane, Scenario, SocketMsgType } from '../../src/core/entities'
 import util from 'util'
 import { loadScenario } from './scenario'
 import { Canvas } from './graphic/canvas'
-import { loadPlanes } from './planes'
+import { addPlane } from './planes'
 
 var socket = io()
 
@@ -55,8 +55,8 @@ export const handleScenarioMessage = async (msgType: SocketMsgType, payload: any
 
 export const handlePlanesMessage = async (msgType: SocketMsgType, payload: any, canvas: Canvas): Promise<void> => {
     console.log(`received planes message of type ${msgType} with payload ${util.inspect(payload)}`)
-    if (msgType == SocketMsgType.MSG_PLANES && payload.type == 'PLANES') {
+    if (msgType == SocketMsgType.MSG_PLANES && payload.type == 'ADD_PLANE') {
         // 
-        loadPlanes(payload.planes as Plane[], canvas)
+        addPlane(payload.plane as Plane, canvas)
     }
 }

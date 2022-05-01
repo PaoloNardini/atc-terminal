@@ -26,18 +26,19 @@ export const createUseCase = ({ }: Deps) => async (
     let context: Context = input.context
 
     if (input.useCases) {
-        debug(`testPlanes`)
+        debug(`AddPlane`)
     }
 
     const plane = new Plane()
-    plane.coordinate = new Coordinate(context.parameters.latitudeCenter + (Math.random()*10), context.parameters.longitudeCenter + (Math.random()*10))
+    plane.coordinate = new Coordinate(context.parameters.latitudeCenter + (Math.random()-0.5), context.parameters.longitudeCenter + (Math.random()-0.5))
+    plane.callsign = `PLANE-${context.planes.length}`
     context.planes.push(plane)
 
     input.useCases.dispatch({
       context,
       msgType: SocketMsgType.MSG_PLANES, payload: {
-        type: 'PLANES',
-        planes: context.planes
+        type: 'ADD_PLANE',
+        plane: plane
       }
     })
 

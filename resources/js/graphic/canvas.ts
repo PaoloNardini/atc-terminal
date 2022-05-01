@@ -40,7 +40,7 @@ export class Canvas {
     init = (socketInstance: socket.SocketFactoryInterface) => {
 
         var hit = new createjs.Shape();
-    	hit.graphics.beginFill("#000").drawRect(0, 0, 999, 999);
+    	hit.graphics.beginFill("#808080").drawRect(0, 0, 10000, 10000);
     	this.mainContainer.hitArea = hit;
         this.mainContainer.addEventListener('click', function( event: any)  {
             console.log('click', event.stageX, event.stageY, event.delta);

@@ -7,7 +7,7 @@ export class Scenario {
     runways: Runway[] = []   
     procedures: Route[] = []
     atsRoutes: Route[] = []
-    initialPlanes: Plane[] = []     // Initial planes situation at scneario startup
+    initialPlanes: Plane[] = []     // Initial planes situation at scenario startup
     latitudeCenter: number = 0
     longitudeCenter: number = 0
 }
