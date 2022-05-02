@@ -138,27 +138,42 @@ export class Canvas {
         runwayGr.display(this.parameters)
         */
 
-        const rw = new Runway()
-        rw.coordinate1 = new Coordinate(41.6,12.1)
-        rw.coordinate2 = new Coordinate(41.7,12.2)
-        rw.strip_length = 12802
-        rw.strip_width = 197
-        rw.heading = new Bearing(161)
-        this.addRunway(rw)
-
         const wp = new Waypoint()
         wp.name = 'TEST'
-        wp.latitude = 41.6
-        wp.longitude = 12.1
+        wp.label = 'TEST1'
+        wp.latitude = 41.5
+        wp.longitude = 12
         wp.navaidType = NavaidType.NAVAID_TYPE_VORDME
+        wp.visible = true
         this.addWaypoint(wp)
 
         const wp2 = new Waypoint()
         wp2.name = 'TEST2'
+        wp2.label = 'TEST2'
         wp2.latitude = 41.7
         wp2.longitude = 12.2
         wp2.navaidType = NavaidType.NAVAID_TYPE_VORDME
+        wp2.visible = true
         this.addWaypoint(wp2)
+
+        const rw = new Runway()
+        rw.active = true
+        rw.coordinate1 = new Coordinate(41.5,12)
+        rw.coordinate2 = new Coordinate(41.7,12.2)
+        rw.strip_length = 12802
+        rw.strip_width = 197
+        rw.heading = new Bearing(45)
+        this.addRunway(rw)
+
+        const rw1 = new Runway()
+        rw1.active = false
+        rw1.coordinate1 = new Coordinate(41.7,12.2)
+        rw1.coordinate2 = new Coordinate(41.5,12)
+        rw1.strip_length = 12802
+        rw1.strip_width = 197
+        rw1.heading = new Bearing(180+45)
+        this.addRunway(rw1)
+
 
         createjs.Ticker.on("tick", this.tickFunction);
         createjs.Ticker.framerate = 1;
@@ -200,6 +215,7 @@ export class Canvas {
     addWaypoint = (waypoint: Waypoint) => {
         const wp = new WaypointGraphic(waypoint)
         this.mainContainer.addChild(wp)
+        console.log(`add waypoint at ${wp.latitude} / ${wp.longitude}`)
         wp.display(this.parameters)
     }
 

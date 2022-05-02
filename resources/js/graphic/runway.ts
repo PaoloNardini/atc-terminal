@@ -111,10 +111,10 @@ export class RunwayGraphic extends createjs.Container {
         // var opposite =  Math.coordsFromCoarseDistance(this.latitude, this.longitude, this.heading, length_miles / 1);
         // var threshold2 = Math.coordsToScreen( opposite.lat, opposite.lon);
 
-        // var middle = geomath.middlePoint(this.latitude, this.longitude, this.latitude_end, this.longitude_end);
-        // var threshold2 = geomath.coordsToScreen( middle.lat, middle.lon, parameters);
+        var middle = geomath.middlePoint(this.latitude, this.longitude, this.latitude_end, this.longitude_end);
+        var threshold2 = geomath.coordsToScreen( middle.lat, middle.lon, parameters);
 
-        var threshold2 = geomath.coordsToScreen( this.latitude_end, this.longitude_end, parameters);
+        // var threshold2 = geomath.coordsToScreen( this.latitude_end, this.longitude_end, parameters);
         this.gRwy.graphics.clear();
         this.gRwy.graphics.setStrokeStyle(2).beginStroke(color).moveTo(0,0).lineTo(threshold2.x - threshold1.x, threshold2.y - threshold1.y).endStroke();
     }

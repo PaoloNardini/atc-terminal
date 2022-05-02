@@ -152,7 +152,7 @@ export const coordsFromCoarseDistance = function (lat1: number, lon1: number, co
 export const coordsToScreen = function (lat: number, lon: number, parameters: Parameters) { //  latitude_center, longitude_center, screenCenterX, screenCenterY, milesFactor) {
     var x: number
     var y: number
-    console.log(`center: ${parameters.latitudeCenter} / ${parameters.longitudeCenter} Screen: ${parameters.screenCenterX} / ${parameters.screenCenterY}`)
+    // console.log(`center: ${parameters.latitudeCenter} / ${parameters.longitudeCenter} Screen: ${parameters.screenCenterX} / ${parameters.screenCenterY}`)
     if (lat >= parameters.latitudeCenter) {
         y = parameters.screenCenterY - ((lat - parameters.latitudeCenter) * constants.MILESFACT);
     }
