@@ -7,6 +7,7 @@ import { PlaneGraphic } from './plane'
 import { RunwayGraphic } from './runway'
 import { WaypointGraphic } from './waypoint'
 import { Bearing, Coordinate } from '../../../src/core/valueObjects'
+import { GridGraphic } from './grid'
 // import * as geomath from '../math/geomath'
 // import * as mouse from '../controls/mouse'
 
@@ -108,6 +109,10 @@ export class Canvas {
         this.parameters.longitudeCenter = 12.2
         this.parameters.currentScale = 1
         this.mainStage.addChild(this.mainContainer);
+
+
+        this.addGrid()
+
         const planeGr = new PlaneGraphic()
         planeGr.latitude = 41.6
         planeGr.longitude = 12.1
@@ -196,5 +201,30 @@ export class Canvas {
         const wp = new WaypointGraphic(waypoint)
         this.mainContainer.addChild(wp)
         wp.display(this.parameters)
+    }
+
+    addGrid = () => {
+        const step = 0.2
+        for(var lat=this.parameters.latitudeCenter -5; lat < this.parameters.latitudeCenter +5; lat += step) {
+            for(var lon= this.parameters.longitudeCenter -5; lon < this.parameters.longitudeCenter +5; lon += step) {
+                lat = Math.floor(lat * 10)/10;
+                lon = Math.floor(lon * 10)/10;
+                const grid = new GridGraphic();
+                grid.p1_latitude = lat;
+                grid.p1_longitude = lon;
+                grid.p2_latitude = lat+step;
+                grid.p2_longitude = lon;
+                grid.setPosition(this.parameters);
+                this.mainContainer.addChild(grid);
+    
+                const gridv = new GridGraphic();
+                gridv.p1_latitude = lat;
+                gridv.p1_longitude = lon;
+                gridv.p2_latitude = lat;
+                gridv.p2_longitude = lon+step;
+                gridv.setPosition(this.parameters)
+                this.mainContainer.addChild(gridv);
+            }
+        }
     }
 }
