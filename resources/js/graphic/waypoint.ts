@@ -5,7 +5,8 @@ import * as geomath from '../../../src/helpers/geomath'
 
 export class WaypointGraphic extends createjs.Container {
 
-    // waypoint: Waypoint
+    waypoint: Waypoint
+    /*
     latitude: number = 0
     longitude: number = 0
     label: string = 'WP'
@@ -25,6 +26,7 @@ export class WaypointGraphic extends createjs.Container {
     isAtsVisible: boolean = false
     useCounter: number = 0
     navaidType: NavaidType | undefined
+    */
 
 
     // Graphic object
@@ -33,7 +35,8 @@ export class WaypointGraphic extends createjs.Container {
 
     constructor(waypoint: Waypoint) {
         super()
-        // this.waypoint = waypoint
+        this.waypoint = waypoint
+        /*
         this.latitude = waypoint.latitude
         this.longitude = waypoint.longitude
         this.label = waypoint.label
@@ -54,6 +57,7 @@ export class WaypointGraphic extends createjs.Container {
         this.isAtsVisible = waypoint.isAtsVisible
         this.useCounter = waypoint.useCounter
         this.navaidType = waypoint.navaidType
+        */
     
         this.gBox = new createjs.Shape()
         this.gBox.graphics.setStrokeStyle(1).beginStroke(constants.FIX_BODY_COLOR).moveTo(-4,4).lineTo(0,-4).lineTo(4,4).lineTo(-4,4).endStroke()
@@ -82,13 +86,13 @@ export class WaypointGraphic extends createjs.Container {
         */
     
         this.gBox.graphics.clear();
-        this.gLabel.text = this.label
+        this.gLabel.text = this.waypoint.label
 
-        if (this.isNavaid) {
-            if (this.navaidType == NavaidType.NAVAID_TYPE_NDB) {
+        if (this.waypoint.isNavaid) {
+            if (this.waypoint.navaidType == NavaidType.NAVAID_TYPE_NDB) {
                 this.gBox.graphics.setStrokeStyle(1).beginStroke(constants.FIX_BODY_COLOR).moveTo(0,0).drawCircle(0, 0, 6).endStroke();
             }
-            else if (this.navaidType  == NavaidType.NAVAID_TYPE_VORDMENDB || this.navaidType  == NavaidType.NAVAID_TYPE_VORDME) {
+            else if (this.waypoint.navaidType  == NavaidType.NAVAID_TYPE_VORDMENDB || this.waypoint.navaidType  == NavaidType.NAVAID_TYPE_VORDME) {
                 // console.log(`${this.name}: ${this.latitude} / ${this.longitude}`)
                 this.gBox.graphics.setStrokeStyle(1).beginStroke(constants.FIX_BODY_COLOR).moveTo(0,0).drawCircle(0, 0, 7).beginFill(constants.FIX_BODY_COLOR).moveTo(-4, 4).lineTo(0, -4).lineTo(4, 4).lineTo(-4, 4).endStroke();
             }
@@ -96,11 +100,11 @@ export class WaypointGraphic extends createjs.Container {
                 this.gBox.graphics.setStrokeStyle(1).beginStroke(constants.FIX_BODY_COLOR).moveTo(0,0).beginFill(constants.FIX_BODY_COLOR).moveTo(-2, 2).lineTo(0, -2).lineTo(2, 2).lineTo(-2, 2).endStroke();
             }
         }
-        else if (this.isAts) {
+        else if (this.waypoint.isAts) {
             this.gBox.graphics.setStrokeStyle(1).beginStroke(constants.FIX_BODY_COLOR).moveTo(0,0).beginFill(constants.FIX_BODY_COLOR).moveTo(-4,4).lineTo(0,-4).lineTo(4,4).lineTo(-4,4).endStroke();
         }
-        else if (this.isFix) {
-            var c = this.useCounter;
+        else if (this.waypoint.isFix) {
+            var c = this.waypoint.useCounter;
             if (c<4) c = 4;
             if (c>4) c = 5;
             this.gBox.graphics.setStrokeStyle(1).beginStroke(constants.FIX_BODY_COLOR).moveTo(-c,c).lineTo(0,-c).lineTo(c,c).lineTo(-c,c).endStroke();
@@ -110,7 +114,7 @@ export class WaypointGraphic extends createjs.Container {
             // this.gLabel.scaleX = scale * 0.9;
             // this.gLabel.scaleY = scale * 0.9;
         }
-        if (this.labelVisibleTemp) {
+        if (this.waypoint.labelVisibleTemp) {
             this.gLabel.color = "rgba(255,255,0,1)";
             // this.gLabel.scaleX = scale * 1.5;
             // this.gLabel.scaleY = scale * 1.5;
@@ -119,9 +123,9 @@ export class WaypointGraphic extends createjs.Container {
             this.gLabel.color = constants.FIX_TEXT_COLOR;
         }
 
-        var coords = geomath.coordsToScreen(this.latitude, this.longitude, parameters)
-        this.x = coords.y
-        this.y = coords.x
+        var coords = geomath.coordsToScreen(this.waypoint.latitude, this.waypoint.longitude, parameters)
+        this.x = coords.x
+        this.y = coords.y
         // this.setPosition(parameters);
     }    
 }

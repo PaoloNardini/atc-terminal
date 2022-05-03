@@ -1,13 +1,14 @@
 /// <reference path="../../../node_modules/@types/easeljs/index.d.ts" />
 import * as socket from '../socket'
 import * as constants from '../../../src/core/constants'
-import { MouseMsg, NavaidType, Runway, SocketMsgType } from '../../../src/core/entities'
+import { MouseMsg, Runway, SocketMsgType } from '../../../src/core/entities'
 import { Parameters, Waypoint } from '../../../src/core/entities'
-import { PlaneGraphic } from './plane'
 import { RunwayGraphic } from './runway'
 import { WaypointGraphic } from './waypoint'
-import { Bearing, Coordinate } from '../../../src/core/valueObjects'
 import { GridGraphic } from './grid'
+// import { NavaidType } from '../../../src/core/entities'
+// import { PlaneGraphic } from './plane'
+// import { Bearing, Coordinate } from '../../../src/core/valueObjects'
 // import * as geomath from '../math/geomath'
 // import * as mouse from '../controls/mouse'
 
@@ -113,6 +114,7 @@ export class Canvas {
 
         this.addGrid()
 
+        /*
         const planeGr = new PlaneGraphic()
         planeGr.latitude = 41.6
         planeGr.longitude = 12.1
@@ -120,23 +122,6 @@ export class Canvas {
         // planeGr.x = 100
         // planeGr.y = 100
         this.mainContainer.addChild(planeGr)
-
-        /*
-        const runwayGr = new RunwayGraphic()
-        // R,16L,161,12802,197,1,108.100,161,41.845969,12.261494,14,3.00,56,1,0
-        // R,34R,341,12802,197,1,111.550,341,41.812444,12.275525,6,3.00,57,1,0
-        runwayGr.latitude = 41.845969
-        runwayGr.longitude = 12.261494
-        runwayGr.latitude_end = 41.812444
-        runwayGr.longitude_end = 12.275525
-        runwayGr.strip_length = 12802
-        runwayGr.strip_width = 197
-        runwayGr.heading = 161
-        // console.log(`runway heading = ${runwayGr.heading}`)
-        this.mainContainer.addChild(runwayGr)
-        // runwayGr.plotRunway(this.parameters)
-        runwayGr.display(this.parameters)
-        */
 
         const wp = new Waypoint()
         wp.name = 'TEST'
@@ -173,6 +158,7 @@ export class Canvas {
         rw1.strip_width = 197
         rw1.heading = new Bearing(180+45)
         this.addRunway(rw1)
+        */
 
 
         createjs.Ticker.on("tick", this.tickFunction);
@@ -215,7 +201,7 @@ export class Canvas {
     addWaypoint = (waypoint: Waypoint) => {
         const wp = new WaypointGraphic(waypoint)
         this.mainContainer.addChild(wp)
-        console.log(`add waypoint at ${wp.latitude} / ${wp.longitude}`)
+        // console.log(`add waypoint at ${wp.latitude} / ${wp.longitude}`)
         wp.display(this.parameters)
     }
 
@@ -223,8 +209,8 @@ export class Canvas {
         const step = 0.2
         for(var lat=this.parameters.latitudeCenter -5; lat < this.parameters.latitudeCenter +5; lat += step) {
             for(var lon= this.parameters.longitudeCenter -5; lon < this.parameters.longitudeCenter +5; lon += step) {
-                lat = Math.floor(lat * 10)/10;
-                lon = Math.floor(lon * 10)/10;
+                lat = Math.round(lat * 10)/10;
+                lon = Math.round(lon * 10)/10;
                 const grid = new GridGraphic();
                 grid.p1_latitude = lat;
                 grid.p1_longitude = lon;

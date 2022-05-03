@@ -1,4 +1,4 @@
-import { NavaidType, Waypoint } from "../../src/core/entities"
+import { Waypoint } from "../../src/core/entities"
 import { Canvas } from "./graphic/canvas"
 
 export const loadWaypoints = (waypoints: Record<string, Waypoint>, canvas: Canvas) => {
@@ -6,8 +6,6 @@ export const loadWaypoints = (waypoints: Record<string, Waypoint>, canvas: Canva
     console.log( `Received waypoints`)
     Object.entries(waypoints).forEach(([key, wp])  => {
         void key
-        if (wp.navaidType == NavaidType.NAVAID_TYPE_VORDME) {
-            canvas.addWaypoint(wp)
-        }
+        canvas.addWaypoint(wp)
     })
 }
