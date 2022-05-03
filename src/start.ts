@@ -10,6 +10,7 @@ import { SocketMsgType } from "./core/entities"
 import { makeScenarioGateway } from "./infrastructure/Scenario"
 import { makeNavaidsGateway } from './infrastructure/NavaidsLoader'
 import { Context } from "./core/entities/Context"
+import { makeAtsRoutesGateway } from "./infrastructure/AtsRoutesLoader"
 const debug = D('app:start')
 
 let isShuttingDown: boolean = false
@@ -65,12 +66,14 @@ export const main = () => {
     // Build gateways from factory
     const scenarioGateway = makeScenarioGateway(context)
     const navaidsGateway = makeNavaidsGateway(context)
+    const atsRoutesGateway = makeAtsRoutesGateway(context)
 
     debug(`Initialize use-cases...`)
     const useCases = initializeUseCases({
       transportGateway,
       scenarioGateway,
       navaidsGateway,
+      atsRoutesGateway,
     })
     debug(`Initialize use-cases: ok`)
   

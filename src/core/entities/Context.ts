@@ -1,3 +1,4 @@
+import { AtsRoute } from "./AtsRoute";
 import { Parameters } from "./Parameters";
 import { Plane } from "./Plane";
 import { Scenario } from "./Scenario";
@@ -8,4 +9,5 @@ export class Context {
     parameters: Parameters = new Parameters()
     planes: Plane[] = []
     waypoints: Record<string, Waypoint> = {}
+    atsRoutes: AtsRoute[] = []
 }

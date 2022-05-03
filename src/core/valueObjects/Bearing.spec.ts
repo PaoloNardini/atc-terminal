@@ -12,10 +12,14 @@ describe('Test Bearing', () => {
         const newRadial: Bearing = radial.setBearing(150)
         expect (newRadial).toEqual({degrees: 150});
     })
+    it('should convert 360 to 0', async () => {
+        const newRadial: Bearing = radial.setBearing(360)
+        expect (newRadial).toEqual({degrees: 0});
+    })
     it('should throw exception', async() => {
         expect(() => {
-            radial.setBearing(360)
-        }).toThrow('Invalid bearing value: 360')
+            radial.setBearing(361)
+        }).toThrow('Invalid bearing value: 361')
         expect(() => {
             radial.setBearing(-1)
         }).toThrow('Invalid bearing value: -1')

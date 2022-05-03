@@ -62,7 +62,7 @@ const loadWaypoints = async (context: Context, minCoordinates: Coordinate, maxCo
     return waypoints
 }
 
-const findWaypoint = (context: Context, name: string, coordinates?: Coordinate): Waypoint | undefined => {
+export const findWaypoint = (context: Context, name: string, coordinates?: Coordinate): Waypoint | undefined => {
     debug(`findWaypoint ${name}`)
     const w: Waypoint = context.waypoints[name]
     if (w) {
@@ -79,7 +79,7 @@ const findWaypoint = (context: Context, name: string, coordinates?: Coordinate):
     return undefined
 }
 
-const addWaypoint = (context: Context, name: string, coordinate: Coordinate): Waypoint => {
+export const addWaypoint = (context: Context, name: string, coordinate: Coordinate): Waypoint => {
     debug(`addWaypoint ${name}`)
     const w = new Waypoint()
     w.name = name.toUpperCase()
