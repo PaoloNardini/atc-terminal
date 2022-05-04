@@ -1,22 +1,25 @@
 /// <reference path="../../../node_modules/@types/easeljs/index.d.ts" />
 import * as socket from '../socket'
 import * as constants from '../../../src/core/constants'
-import { MouseMsg, Runway, SocketMsgType } from '../../../src/core/entities'
+import { MouseMsg, Runway, SocketMsgType, Plane } from '../../../src/core/entities'
 import { Parameters, Waypoint } from '../../../src/core/entities'
 import { RunwayGraphic } from './runway'
 import { WaypointGraphic } from './waypoint'
 import { GridGraphic } from './grid'
+import { PlaneGraphic } from './plane'
 // import { NavaidType } from '../../../src/core/entities'
-// import { PlaneGraphic } from './plane'
 // import { Bearing, Coordinate } from '../../../src/core/valueObjects'
 // import * as geomath from '../math/geomath'
 // import * as mouse from '../controls/mouse'
+// import util from 'util'
 
 export class Canvas {
 
     mainStage: createjs.Stage
     mainContainer: createjs.Container
     parameters: Parameters
+
+    planesRef: PlaneGraphic[] = []
 
     constructor() {
         void constants
@@ -38,6 +41,18 @@ export class Canvas {
     tickFunction = (event: any) => {
         void event
         // console.log('tick')
+        if (this.parameters.speedX2) {
+            this.parameters.mainTimer = new Date().getTime() / 500;
+        }
+        else {
+            this.parameters.mainTimer = new Date().getTime() / 1000;
+        }
+        for (const plane of this.planesRef ) {
+            plane.move(this.parameters)
+            plane.getTail(this.parameters)
+            plane.getDisplayData(this.parameters.currentScale)
+        }
+
         this.mainStage.update()
     }
     
@@ -228,5 +243,15 @@ export class Canvas {
                 this.mainContainer.addChild(gridv);
             }
         }
+    }
+
+    addPlane = (plane: Plane) => {
+        const planeGr = new PlaneGraphic(plane)
+        // planeGr.latitude = plane.coordinate?.latitude || 0
+        // planeGr.longitude = plane.coordinate?.longitude || 0
+        planeGr.setPosition(this.parameters)
+        console.log(`Added plane at ${plane.latitude} - ${plane.longitude} - ${planeGr.x}/${planeGr.y}`)
+        this.mainContainer.addChild(planeGr)
+        this.planesRef.push(planeGr)
     }
 }

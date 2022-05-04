@@ -11,8 +11,8 @@ export class Parameters {
     arrivalInterval: number  = 180     // Min Interval in secondsa between two arrivals
     directorInterval: number = 10      // Min interval in secs between director actions
 
-    latitudeCenter: number = 5
-    longitudeCenter: number = 5
+    latitudeCenter: number = 41
+    longitudeCenter: number = 12
 
     screenCenterX: number = 512
     screenCenterY: number = 384
@@ -27,6 +27,9 @@ export class Parameters {
 
     minCoordinates: Coordinate = new Coordinate(0,0)
     maxCoordinates: Coordinate = new Coordinate(0,0)
+
+    mainTimer: number = 0   // Main tick timer
+    speedX2: boolean = false
 
     /*
     minLatitude: number = 0

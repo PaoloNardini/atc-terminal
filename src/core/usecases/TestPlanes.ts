@@ -30,8 +30,16 @@ export const createUseCase = ({ }: Deps) => async (
     }
 
     const plane = new Plane()
-    plane.coordinate = new Coordinate(context.parameters.latitudeCenter + (Math.random()-0.5), context.parameters.longitudeCenter + (Math.random()-0.5))
-    plane.callsign = `PLANE-${context.planes.length}`
+    plane.setCoordinate(new Coordinate(context.parameters.latitudeCenter + (Math.random()-0.5), context.parameters.longitudeCenter + (Math.random()-0.5)))
+    plane.callsign = `PLANE${context.planes.length}`
+    plane.completeCallsign = plane.callsign
+    plane.heading = (Math.random() * 360)
+    plane.speed = (Math.random()*300 + 150)
+    plane.fl = (Math.random()*300+50)
+    plane.climb = (Math.random()*2000 - 100)
+    if (Math.random() > 0.7) {
+      plane.turn = (Math.random()*2-1)
+    }
     context.planes.push(plane)
 
     input.useCases.dispatch({

@@ -1,5 +1,5 @@
 import { Airline, Runway, Slot, Route } from ".";
-import { Bearing, Coordinate, Speed, Level } from "../valueObjects";
+import { Bearing, Coordinate } from "../valueObjects";
 
 export class Plane {
 
@@ -9,8 +9,8 @@ export class Plane {
     // Flight info
     airline?: Airline
     callsign?: string
-    completeCallsign?: string
-    aircraft?: string
+    completeCallsign: string = 'NONE'
+    aircraft: string = 'B738'
     vfr: boolean = false
     airp_dep?: string
     airp_dest?: string
@@ -22,28 +22,28 @@ export class Plane {
     status?: string
     atc_phase?: string
 
-    coordinate?: Coordinate
-    // latitude: number
-    // longitude: number
+    // coordinate?: Coordinate
+    latitude: number = 0
+    longitude: number = 0
     coarse?: Bearing
     distance?: number
 
-    // Navigation data
-    speed?: Speed
-    speed_target?: Speed
-    heading?: Bearing
-    heading_target?: Bearing
-    fl?: Level
-    fl_final?: Level
-    fl_initial?: Level
-    fl_cleared?: Level
-    climb?: number
-    turn?: number
+    // Private Navigation data
+    speed: number = 0
+    speed_target: number = -1
+    heading: number = 0
+    heading_target: number = -1
+    fl: number = 0
+    fl_final: number = -1
+    fl_initial: number = -1
+    fl_cleared: number = -1
+    climb: number = 0
+    turn: number = 0
 
     // Route data
     // route = -1;
     route?: Route            // Route object
-    // tracks = [];         // OLD Tracks
+    // tracks = [];          // OLD Tracks
     steps?: [];              // NEW Legs Steps
     fix_next?: number        // OLD
     fix_step?: number        // OLD
@@ -76,5 +76,10 @@ export class Plane {
     // recurse: boolean
 
     constructor() {
+    }
+
+    setCoordinate(coordinate: Coordinate) {
+        this.latitude = coordinate.getLatitude()
+        this.longitude = coordinate.getLongitude()
     }
 }
