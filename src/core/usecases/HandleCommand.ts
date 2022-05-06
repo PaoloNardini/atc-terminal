@@ -37,6 +37,12 @@ export const createUseCase = ({}: Deps ) => async (
     switch (input.msgType) {
         case SocketMsgType.MSG_GENERAL:
           switch (input.msgPayload) {
+              case 'INIT':
+                  // Client has been reloaded....
+                  // ... clear everything
+                  context.planes = []
+                  context.waypoints = {}
+                  break;
               case 'LOADSCENARIO':
               case 'LS':
                 const output = await input.useCases.loadScenario({
@@ -210,6 +216,7 @@ const parseTalkCommand = async (command: string, input: Input): Promise<void> =>
               break;
           case 'S':
               // Set Speed
+              plane.setNewSpeed(parseInt(param))
               /*
               words.shift();
               var newSpeed = words[0];
@@ -229,6 +236,7 @@ const parseTalkCommand = async (command: string, input: Input): Promise<void> =>
               break
           case 'F':
               // Set Level
+              plane.setNewFL(parseInt(param))
               /*
               var newLevel;
               words.shift();

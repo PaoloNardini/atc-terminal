@@ -47,7 +47,7 @@ export const createUseCase = ({ }: Deps) => async (
     plane.completeCallsign = plane.callsign
     plane.heading = (Math.random() * 360)
     plane.speed = (Math.random()*300 + 150)
-    plane.fl = (Math.random()*300+50)
+    plane.fl = (Math.random()*42000+1000)
     plane.climb = (Math.random()*2000 - 100)
     if (Math.random() > 0.7) {
       plane.turn = (Math.random()*2-1)

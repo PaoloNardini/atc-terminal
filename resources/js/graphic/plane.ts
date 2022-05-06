@@ -2,6 +2,7 @@ import * as constants from '../../../src/core/constants'
 import { Parameters, Plane } from '../../../src/core/entities'
 import * as geomath from '../../../src/helpers/geomath'
 // import { LatLon } from '../../../src/helpers/latlon'
+import { planeMove } from '../../../src/core/entities'
 
 export class PlaneGraphic extends createjs.Container {
 
@@ -48,7 +49,7 @@ export class PlaneGraphic extends createjs.Container {
     }
     
     move(parameters: Parameters) {
-        var tmp;
+        // var tmp;
         if (this.lastTimer == 0) {
             this.lastTimer = parameters.mainTimer
         }
@@ -70,6 +71,9 @@ export class PlaneGraphic extends createjs.Container {
         }
         this.lastTimer = parameters.mainTimer
 
+        planeMove(this.plane, elapsed)
+
+        /*
         if (this.plane.turn != 0) {
             // Compute new heading
             // console.log('Turn hdg ' + this.heading + ' > ' + this.heading_target + ' turn = ' + this.turn);
@@ -89,33 +93,36 @@ export class PlaneGraphic extends createjs.Container {
             }
             this.plane.heading = tmp;
         }
+        */
+
         if (this.plane.heading < 180) {
             this.connectorDeg = 225;
         }
         else {
             this.connectorDeg = 45;
         }
-    
+
+        /*
         this.plane.speed = 0 + this.plane.speed;
         this.plane.speed_target = 0 + this.plane.speed_target;
     
         if (this.plane.speed_target > 0) {
             if (this.plane.speed_target > this.plane.speed) {
                 // Increase speed
-                if (false /* this.hasStatus(STATUS_TAKEOFF) */) {
+                if (false) { // this.hasStatus(STATUS_TAKEOFF)
                     this.plane.speed = Math.floor(this.plane.speed + (elapsed * 5));
                 }
                 else {
                     this.plane.speed = Math.floor(this.plane.speed + (elapsed * 1.5));
                 }
-                if (this.plane.speed < 140 /* && !this.hasStatus(STATUS_LANDED) */) {
+                if (this.plane.speed < 140) { // && !this.hasStatus(STATUS_LANDED)
                     this.plane.speed = 140;
                     this.plane.speed_target = 140;
                 }
             }
             if (this.plane.speed_target < this.plane.speed) {
                 // Decrease speed
-                if (false /* this.hasStatus(STATUS_LANDED) */) {
+                if (false) { // this.hasStatus(STATUS_LANDED)
                     //Brakes!!
                     this.plane.speed = Math.floor(this.plane.speed - (elapsed * 10));
                 }
@@ -127,6 +134,7 @@ export class PlaneGraphic extends createjs.Container {
                 this.plane.speed = this.plane.speed_target;
             }
         }
+        */
     
         var latlon = geomath.coordsFromCoarseDistance(this.plane.latitude, this.plane.longitude, this.plane.heading, (this.plane.speed / 3600) * elapsed);
         this.plane.latitude = latlon.lat;
@@ -147,6 +155,7 @@ export class PlaneGraphic extends createjs.Container {
         */
     
         // Compute new FL
+        /*
         var ratio = (this.plane.climb * elapsed / 60 );
         if (ratio != 0) {
             if (Math.abs(this.plane.fl - this.plane.fl_cleared) < Math.abs(ratio)) {
@@ -168,6 +177,7 @@ export class PlaneGraphic extends createjs.Container {
                 }
             }
         }
+        */
     
         /* 
         // TODO

@@ -84,7 +84,13 @@ export class Plane {
         this.longitude = coordinate.getLongitude()
     }
 
-    turnToHeading(newHeading: number, turnDirection: string | undefined) {
+
+
+    /**
+     * COMMANDS MANAGEMENT
+     */
+
+    turnToHeading = (newHeading: number, turnDirection: string | undefined): void => {
         // Set new heading to stop turn
         this.heading_target = newHeading
         // Calculate turn ratio and direction
@@ -97,6 +103,143 @@ export class Plane {
             }
         }
     }
+
+    setNewSpeed = (newSpeed: number):void => {
+        this.speed_target = newSpeed
+    }
+
+    setNewFL = (newLevel: number):void => {
+        if (newLevel < 500) {
+            // Convert feet to FL
+            newLevel = newLevel * 100
+        }
+        if (this.fl == newLevel) {
+            // TODO
+            return
+        }
+        if (newLevel > this.fl) {
+            this.climb = constants.PLANE_CLIMB_RATIO
+        }
+        else {
+            this.climb = -constants.PLANE_CLIMB_RATIO
+        }
+        this.fl_cleared = newLevel
+    }
+
+    /**
+     * AI & DECISION (PILOT SIMULATOR)
+     */
+
+
+
+
+}
+
+
+/**
+ * BASIC PLANE MOVEMENTS
+ */
+export const planeMove = (plane: Plane, elapsedSeconds: number):void => {
+   // Calculate plane 3 axis movements
+   if (plane.fl == 0 && plane.speed == 0) {
+       // Plane on the ground ... nothing to do
+       return
+   }
+   // TURN
+   if (plane.turn != 0) {
+       // Compute new heading
+       if (Math.abs(plane.heading - plane.heading_target) < Math.abs(plane.turn * elapsedSeconds)) {
+           // Reached assigned heading
+           plane.turn = 0;
+           plane.heading = plane.heading_target;
+       }
+       var tmp = plane.heading;
+       if (plane.turn != 0) {
+           tmp = tmp + plane.turn * elapsedSeconds;
+       }
+       if (tmp < 0) {
+           tmp = 360 + tmp;
+       } else if (tmp >= 360) {
+           tmp = tmp - 360;
+       }
+       plane.heading = tmp;
+   }
+
+   // SPEED
+   if (plane.speed_target > 0) {
+       if (plane.speed_target > plane.speed) {
+           // Increase speed
+           if (false /* plane.hasStatus(STATUS_TAKEOFF) */) {
+               plane.speed = Math.floor(plane.speed + (elapsedSeconds * 5));
+           }
+           else {
+               plane.speed = Math.floor(plane.speed + (elapsedSeconds * 1.5));
+           }
+           if (plane.speed < 140 /* && !plane.hasStatus(STATUS_LANDED) */) {
+               plane.speed = 140;
+               plane.speed_target = 140;
+           }
+       }
+       if (plane.speed_target < plane.speed) {
+           // Decrease speed
+           if (false /* plane.hasStatus(STATUS_LANDED) */) {
+               //Brakes!!
+               plane.speed = Math.floor(plane.speed - (elapsedSeconds * 10));
+           }
+           else {
+               plane.speed = Math.floor(plane.speed - (elapsedSeconds * 2));
+           }
+       }
+       if (Math.abs(plane.speed_target - plane.speed) < 5) {
+           plane.speed = plane.speed_target;
+       }
+   }
+
+   // ALTITUDE 
+   var ratio = (plane.climb * elapsedSeconds / 60 );
+   if (ratio != 0) {
+       if (Math.abs(plane.fl - plane.fl_cleared) < Math.abs(ratio)) {
+           console.log('Plane ' + plane.completeCallsign + ' Level ' + plane.fl + ' > ' + plane.fl_cleared + ' ratio = ' + ratio);
+           // Reached assigned altitude
+           plane.climb = 0;
+           plane.fl = plane.fl_cleared;
+           console.log('(move 11) Plane ' + plane.completeCallsign + ' reached assigned altitude ' + plane.fl_cleared + ' : new ratio = 0');
+       }
+       else {
+           plane.fl = plane.fl + ratio;
+           // TODO
+           /*
+           if (plane.fl < plane.fl_cleared && ratio <= 0) {
+               plane.setLevel(plane.plane.fl_cleared);
+           }
+           else if (plane.plane.fl > plane.plane.fl_cleared && ratio >= 0) {
+               plane.setLevel(plane.plane.fl_cleared);
+           }
+           else {
+               plane.fl = plane.fl + ratio;
+           }
+           */
+       }
+   }
+   // TODO move to AI
+   /*
+   if (true) { // plane.hasStatus(STATUS_CRUISE)
+       if (plane.climb >= 0 && plane.fl > plane.fl_cleared) {
+           plane.climb = constants.PLANE_DESCENT_RATIO
+       }
+       else if (plane.climb <= 0 && plane.fl < plane.fl_cleared) {
+           plane.climb = constants.PLANE_CLIMB_RATIO;
+       }
+   }
+   else {
+       if (plane.l < plane.fl_cleared && plane.climb > 0) {
+           // Continue climbing / descending accordingly to phase flight
+       }
+       if (plane.fl < plane.fl_cleared && plane.climb <= 0) {
+           plane.climb = constants.PLANE_CLIMB_RATIO;
+       }
+   }
+   */
 
 
 }
