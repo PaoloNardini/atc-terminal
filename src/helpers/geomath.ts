@@ -152,7 +152,26 @@ export const coordsFromCoarseDistance = function (lat1: number, lon1: number, co
 export const coordsToScreen = function (lat: number, lon: number, parameters: Parameters) { //  latitude_center, longitude_center, screenCenterX, screenCenterY, milesFactor) {
     var x: number
     var y: number
-    // console.log(`center: ${parameters.latitudeCenter} / ${parameters.longitudeCenter} Screen: ${parameters.screenCenterX} / ${parameters.screenCenterY}`)
+    console.log(`[coordsToScreen] center: ${parameters.latitudeCenter} / ${parameters.longitudeCenter} Screen: ${parameters.screenCenterY} / ${parameters.screenCenterX}`)
+    /*
+    if (lat >= LATITUDE_CENTER) {
+        out.y = SCREEN_CENTER_Y - ((lat - LATITUDE_CENTER) * MILESFACT );
+    }
+    else {
+        out.y = SCREEN_CENTER_Y + ((LATITUDE_CENTER - lat) * MILESFACT );
+    }
+    if (lon >= LONGITUDE_CENTER) {
+        out.x = SCREEN_CENTER_X + ((lon - LONGITUDE_CENTER) * MILESFACT );
+    }
+    else {
+        out.x = SCREEN_CENTER_X - ((LONGITUDE_CENTER - lon) * MILESFACT );
+    }
+    */    
+
+    y = parameters.screenCenterY - ((lat - parameters.latitudeCenter) * constants.MILESFACT)
+    x = parameters.screenCenterX + ((lon - parameters.longitudeCenter) * constants.MILESFACT)
+    /*
+
     if (lat >= parameters.latitudeCenter) {
         y = parameters.screenCenterY - ((lat - parameters.latitudeCenter) * constants.MILESFACT);
     }
@@ -165,7 +184,8 @@ export const coordsToScreen = function (lat: number, lon: number, parameters: Pa
     else {
         x = parameters.screenCenterX - ((parameters.longitudeCenter - lon) * constants.MILESFACT );
     }
-    console.log(`lat: ${lat} lon: ${lon} x: ${x} y: ${y}`)
+    */
+    console.log(`[coordsToScreen] lat: ${lat} lon: ${lon} x: ${x} y: ${y}`)
     return {x, y}
 }
 

@@ -36,8 +36,9 @@ export class PlaneGraphic extends createjs.Container {
 
     setPosition(parameters: Parameters) {
         var coords = geomath.coordsToScreen(this.plane.latitude, this.plane.longitude, parameters)
-        this.x = coords.y
-        this.y = coords.x
+        console.log(`[setPosition] lat: ${this.plane.latitude} lon: ${this.plane.longitude} y:${coords.y} x:${coords.x} scale: ${this.scaleY}/${this.scaleX}`)
+        this.x = coords.x
+        this.y = coords.y
     }
     
     move(parameters: Parameters) {
@@ -286,11 +287,11 @@ export class PlaneGraphic extends createjs.Container {
         }
         */
         const inverse = geomath.inverseBearing(this.plane.heading)
-        console.log(`${this.plane.completeCallsign} - heading: ${this.plane.heading} / ${inverse} - speed: ${this.plane.speed}`)
-        var latlon = geomath.coordsFromCoarseDistance(this.plane.latitude, this.plane.longitude, inverse, (this.plane.speed / 3600) * 60);
+        console.log(`[getTail] ${this.plane.completeCallsign} - heading: ${this.plane.heading} / ${inverse} - speed: ${this.plane.speed}`)
+        var tailLatlon = geomath.coordsFromCoarseDistance(this.plane.latitude, this.plane.longitude, inverse, (this.plane.speed / 3600) * 60);
         // var latlon = Math.coordsFromCoarseDistance(this.latitude, this.longitude, this.heading, (this.speed / 3600) * 60);
 
-        var coords = geomath.coordsToScreen( latlon.lat, latlon.lon, parameters);
+        var coords = geomath.coordsToScreen( tailLatlon.lat, tailLatlon.lon, parameters);
 
         var shiftX = this.x - coords.x;
         var shiftY = this.y - coords.y;
