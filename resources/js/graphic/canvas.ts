@@ -48,9 +48,8 @@ export class Canvas {
             this.parameters.mainTimer = new Date().getTime() / 1000;
         }
         for (const plane of this.planesRef ) {
-            plane.move(this.parameters)
-            plane.getTail(this.parameters)
-            plane.getDisplayData(this.parameters.currentScale)
+            // Update all planes position and refresh on screen
+            plane.moveAndDisplay(this.parameters)
         }
 
         this.mainStage.update()

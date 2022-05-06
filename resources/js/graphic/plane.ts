@@ -34,9 +34,15 @@ export class PlaneGraphic extends createjs.Container {
         super.addChild(this.gBox, this.gTail, this.gLabel, this.gLabelConnector);
     }
 
+    moveAndDisplay(parameters) {
+        this.move(parameters)
+        this.getTail(parameters)
+        this.getDisplayData(parameters.currentScale)
+    }
+
     setPosition(parameters: Parameters) {
         var coords = geomath.coordsToScreen(this.plane.latitude, this.plane.longitude, parameters)
-        console.log(`[setPosition] lat: ${this.plane.latitude} lon: ${this.plane.longitude} y:${coords.y} x:${coords.x} scale: ${this.scaleY}/${this.scaleX}`)
+        // console.log(`[setPosition] lat: ${this.plane.latitude} lon: ${this.plane.longitude} y:${coords.y} x:${coords.x} scale: ${this.scaleY}/${this.scaleX}`)
         this.x = coords.x
         this.y = coords.y
     }
@@ -126,7 +132,7 @@ export class PlaneGraphic extends createjs.Container {
         this.plane.latitude = latlon.lat;
         this.plane.longitude = latlon.lon;
     
-        console.log(this.plane.completeCallsign + ' new position - ' + this.plane.latitude + ' - ' + this.plane.longitude);
+        // console.log(this.plane.completeCallsign + ' new position - ' + this.plane.latitude + ' - ' + this.plane.longitude);
 
         this.setPosition(parameters);
     
@@ -492,6 +498,4 @@ export class PlaneGraphic extends createjs.Container {
 
     
 }
-// createjs.extend(Plane, createjs.Container);
-// createjs.promote(Plane, "Container");
 

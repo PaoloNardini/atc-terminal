@@ -115,77 +115,16 @@ export const coarseToCenter = function (lat1: number, lon1: number, lat2: number
 }
 
 export const coordsFromCoarseDistance = function (lat1: number, lon1: number, coarse: number, distance: number) {
-
     var latlon = new LatLon(lat1,lon1);
     return latlon.destinationPoint(milesToMeters(distance), coarse);
-
-    /*
-
-    var EPS = 0.00000000005;
-    var dlon,lat,lon
-    lat1 = radians( lat1 );
-    lon1 = radians( lon1 );
-    console.log('coordsFromCoarsDistance: coarse=' + coarse);
-    // coarse = (180 + coarse) % 360;
-    coarse = radians(coarse);
-    console.log('coarse=' + coarse);
-    // coarse = radians(coarse);
-    distance = distance / 60 / (180/Math.PI);
-
-    if ((export const abs(Math.cos(lat1))<EPS) && !(export const abs(Math.sin(coarse))<EPS)){
-        alert("Only N-S courses are meaningful, starting at a pole!")
-    }
-    lat=Math.asin(Math.sin(lat1)*Math.cos(distance)+Math.cos(lat1)*Math.sin(distance)*Math.cos(coarse))
-    if (export const abs(Math.cos(lat))<EPS){
-        lon=0.; //endpoint a pole
-    }else{
-        dlon=export const atan2(Math.sin(coarse)*Math.sin(distance)*Math.cos(lat1),Math.cos(distance)-Math.sin(lat1)*Math.sin(lat))
-        lon= ( lon1-dlon+Math.PI % (2*Math.PI) )-Math.PI
-    }
-    out = [];
-    out.lat = export const degrees(lat);
-    out.lon = export const degrees(lon);
-    return out
-    */
 }
 
 export const coordsToScreen = function (lat: number, lon: number, parameters: Parameters) { //  latitude_center, longitude_center, screenCenterX, screenCenterY, milesFactor) {
     var x: number
     var y: number
-    console.log(`[coordsToScreen] center: ${parameters.latitudeCenter} / ${parameters.longitudeCenter} Screen: ${parameters.screenCenterY} / ${parameters.screenCenterX}`)
-    /*
-    if (lat >= LATITUDE_CENTER) {
-        out.y = SCREEN_CENTER_Y - ((lat - LATITUDE_CENTER) * MILESFACT );
-    }
-    else {
-        out.y = SCREEN_CENTER_Y + ((LATITUDE_CENTER - lat) * MILESFACT );
-    }
-    if (lon >= LONGITUDE_CENTER) {
-        out.x = SCREEN_CENTER_X + ((lon - LONGITUDE_CENTER) * MILESFACT );
-    }
-    else {
-        out.x = SCREEN_CENTER_X - ((LONGITUDE_CENTER - lon) * MILESFACT );
-    }
-    */    
-
     y = parameters.screenCenterY - ((lat - parameters.latitudeCenter) * constants.MILESFACT)
     x = parameters.screenCenterX + ((lon - parameters.longitudeCenter) * constants.MILESFACT)
-    /*
-
-    if (lat >= parameters.latitudeCenter) {
-        y = parameters.screenCenterY - ((lat - parameters.latitudeCenter) * constants.MILESFACT);
-    }
-    else {
-        y = parameters.screenCenterY + ((parameters.latitudeCenter - lat) * constants.MILESFACT );
-    }
-    if (lon >= parameters.longitudeCenter) {
-        x = parameters.screenCenterX + ((lon - parameters.longitudeCenter) * constants.MILESFACT );
-    }
-    else {
-        x = parameters.screenCenterX - ((parameters.longitudeCenter - lon) * constants.MILESFACT );
-    }
-    */
-    console.log(`[coordsToScreen] lat: ${lat} lon: ${lon} x: ${x} y: ${y}`)
+    // console.log(`[coordsToScreen] center: ${parameters.latitudeCenter} / ${parameters.longitudeCenter} Screen: ${parameters.screenCenterY} / ${parameters.screenCenterX}`)
     return {x, y}
 }
 
