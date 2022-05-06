@@ -25,11 +25,13 @@ export const updatePlane = (plane: Plane, canvas: Canvas) => {
     }
     const localPlaneGraphic = canvas.findPlaneGraphicByCallsign(plane.callsign)
     if (localPlaneGraphic) {
-        // localPlaneGraphic.plane.heading = plane.heading
+        localPlaneGraphic.plane.latitude = plane.latitude
+        localPlaneGraphic.plane.longitude = plane.longitude
+        localPlaneGraphic.plane.heading = plane.heading
         localPlaneGraphic.plane.heading_target = plane.heading_target
-        // localPlaneGraphic.plane.speed = plane.speed
+        localPlaneGraphic.plane.speed = plane.speed
         localPlaneGraphic.plane.speed_target = plane.speed_target
-        // localPlaneGraphic.plane.fl = plane.fl
+        localPlaneGraphic.plane.fl = plane.fl
         localPlaneGraphic.plane.fl_final = plane.fl_final
         localPlaneGraphic.plane.fl_initial = plane.fl_initial
         localPlaneGraphic.plane.fl_cleared = plane.fl_cleared

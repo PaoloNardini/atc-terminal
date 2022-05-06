@@ -2,7 +2,7 @@ import * as constants from '../../../src/core/constants'
 import { Parameters, Plane } from '../../../src/core/entities'
 import * as geomath from '../../../src/helpers/geomath'
 // import { LatLon } from '../../../src/helpers/latlon'
-import { planeMove } from '../../../src/core/entities'
+// import { planeMove } from '../../../src/core/entities'
 
 export class PlaneGraphic extends createjs.Container {
 
@@ -50,6 +50,7 @@ export class PlaneGraphic extends createjs.Container {
     
     move(parameters: Parameters) {
         // var tmp;
+        /*
         if (this.lastTimer == 0) {
             this.lastTimer = parameters.mainTimer
         }
@@ -57,6 +58,7 @@ export class PlaneGraphic extends createjs.Container {
         if (elapsed > 1000) {
             console.log(elapsed + ' - ' + this.plane.latitude + ' - ' + this.plane.longitude);
         }
+        */
     
         // TEST
         /*
@@ -65,13 +67,16 @@ export class PlaneGraphic extends createjs.Container {
         }
         */
     
+        /*
         if (this.plane.fl == 0 && this.plane.speed == 0) {
             // Plane on the ground
             return;
         }
-        this.lastTimer = parameters.mainTimer
+        */
 
-        planeMove(this.plane, elapsed)
+        // this.lastTimer = parameters.mainTimer
+
+        // TEST - planeMove(this.plane, elapsed)
 
         /*
         if (this.plane.turn != 0) {
@@ -135,10 +140,12 @@ export class PlaneGraphic extends createjs.Container {
             }
         }
         */
-    
+
+        /*
         var latlon = geomath.coordsFromCoarseDistance(this.plane.latitude, this.plane.longitude, this.plane.heading, (this.plane.speed / 3600) * elapsed);
         this.plane.latitude = latlon.lat;
         this.plane.longitude = latlon.lon;
+        */
     
         // console.log(this.plane.completeCallsign + ' new position - ' + this.plane.latitude + ' - ' + this.plane.longitude);
 

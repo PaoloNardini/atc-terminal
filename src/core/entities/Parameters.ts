@@ -29,6 +29,7 @@ export class Parameters {
     maxCoordinates: Coordinate = new Coordinate(0,0)
 
     mainTimer: number = 0   // Main tick timer
+    lastTimer: number = 0   
     speedX2: boolean = false
 
     /*

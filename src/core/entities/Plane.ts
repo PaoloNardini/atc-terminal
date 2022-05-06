@@ -1,6 +1,7 @@
 import { Airline, Runway, Slot, Route } from ".";
 import { Bearing, Coordinate } from "../valueObjects";
 import * as constants from '../constants'
+import * as geomath from '../../../src/helpers/geomath'
 
 export class Plane {
 
@@ -125,20 +126,12 @@ export class Plane {
         }
         this.fl_cleared = newLevel
     }
-
-    /**
-     * AI & DECISION (PILOT SIMULATOR)
-     */
-
-
-
-
 }
-
 
 /**
  * BASIC PLANE MOVEMENTS
  */
+
 export const planeMove = (plane: Plane, elapsedSeconds: number):void => {
    // Calculate plane 3 axis movements
    if (plane.fl == 0 && plane.speed == 0) {
@@ -152,6 +145,7 @@ export const planeMove = (plane: Plane, elapsedSeconds: number):void => {
            // Reached assigned heading
            plane.turn = 0;
            plane.heading = plane.heading_target;
+           planeEventTurnStopped(plane)
        }
        var tmp = plane.heading;
        if (plane.turn != 0) {
@@ -192,6 +186,7 @@ export const planeMove = (plane: Plane, elapsedSeconds: number):void => {
        }
        if (Math.abs(plane.speed_target - plane.speed) < 5) {
            plane.speed = plane.speed_target;
+           planeEventSpeedReached(plane)
        }
    }
 
@@ -204,6 +199,8 @@ export const planeMove = (plane: Plane, elapsedSeconds: number):void => {
            plane.climb = 0;
            plane.fl = plane.fl_cleared;
            console.log('(move 11) Plane ' + plane.completeCallsign + ' reached assigned altitude ' + plane.fl_cleared + ' : new ratio = 0');
+           planeEventLevelReached(plane)
+
        }
        else {
            plane.fl = plane.fl + ratio;
@@ -241,5 +238,30 @@ export const planeMove = (plane: Plane, elapsedSeconds: number):void => {
    }
    */
 
+   // COORDINATES
 
+   var latlon = geomath.coordsFromCoarseDistance(plane.latitude, plane.longitude, plane.heading, (plane.speed / 3600) * elapsedSeconds);
+   plane.latitude = latlon.lat;
+   plane.longitude = latlon.lon;
+
+}
+
+
+/**
+ * AI & DECISION (PILOT SIMULATOR)
+ */
+
+export const planeEventTurnStopped = (plane: Plane) => {
+    // TODO
+    void plane    
+}
+
+export const planeEventSpeedReached = (plane: Plane) => {
+    // TODO
+    void plane    
+}
+
+export const planeEventLevelReached = (plane: Plane) => {
+    // TODO
+    void plane    
 }

@@ -27,6 +27,6 @@
     "skipLibCheck": true,
     "allowJs": true,
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/core/usecases/TimerTick.ts"],
   "exclude": ["node_modules", "dist", "**/*.spec.ts"]
 }

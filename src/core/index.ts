@@ -4,6 +4,7 @@ import * as LoadAirlines from './usecases/LoadAirlines'
 import * as LoadProcedures from './usecases/LoadProcedures'
 import * as LoadAtsRoutes from './usecases/LoadProcedures'
 import * as LoadDispatch from './usecases/Dispatch'
+import * as TimerTick from './usecases/TimerTick'
 
 import * as TestPlanes from './usecases/TestPlanes'
 
@@ -13,6 +14,9 @@ export const initializeUseCases = (deps: Deps) => {
 
   const dispatch = LoadDispatch.createUseCase({
     ...deps
+  })
+  const timerTick = TimerTick.createUseCase({
+    ...deps,
   })
 
   const handleCommand = LoadHandleCommand.createUseCase({
@@ -35,8 +39,10 @@ export const initializeUseCases = (deps: Deps) => {
     ...deps,
   })
 
+
   return {
     dispatch,
+    timerTick,
     handleCommand,
     loadScenario,
     loadAirlines,

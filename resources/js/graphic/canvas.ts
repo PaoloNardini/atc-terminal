@@ -125,8 +125,6 @@ export class Canvas {
         this.parameters.currentScale = 1
         this.mainStage.addChild(this.mainContainer);
 
-
-
         // COMMAND!
         // this.addGrid()
 

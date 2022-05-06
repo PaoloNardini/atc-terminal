@@ -130,6 +130,13 @@ export const main = () => {
         useCases
       }))
     })
+
+    setInterval(function() {
+      useCases.timerTick( {
+        context,
+        useCases
+      })
+    }, 1500)
 }
 
 main()
