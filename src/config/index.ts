@@ -13,9 +13,10 @@ const env = cleanEnv(
     DEPARTURES_ENABLED: num({ default: 1 }),
     ARRIVALS_ENABLED: num({ default: 0 }),
 
-
     STRIP_ARRIVALS: str({ default: 'ARRIVALS'}),
-    STRIP_DEPARTURES:str({ default: 'DEPARTURES'})
+    STRIP_DEPARTURES:str({ default: 'DEPARTURES'}),
+
+    TALK_GENERAL_PREFIX:str({ default: '!'}),
 
   },
   { strict: true }
@@ -30,6 +31,7 @@ export const PARAMS = {
   test_mode: env.TEST_MODE,
   departures_enabled: env.DEPARTURES_ENABLED,
   arrivals_enabled: env.ARRIVALS_ENABLED,
+  talk_general_prefix: env.TALK_GENERAL_PREFIX,
 }
 
 export const STRIP = {

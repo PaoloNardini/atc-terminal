@@ -1,5 +1,6 @@
 import { Airline, Runway, Slot, Route } from ".";
 import { Bearing, Coordinate } from "../valueObjects";
+import * as constants from '../constants'
 
 export class Plane {
 
@@ -82,4 +83,20 @@ export class Plane {
         this.latitude = coordinate.getLatitude()
         this.longitude = coordinate.getLongitude()
     }
+
+    turnToHeading(newHeading: number, turnDirection: string | undefined) {
+        // Set new heading to stop turn
+        this.heading_target = newHeading
+        // Calculate turn ratio and direction
+        if (Math.abs(newHeading - this.heading) > 1) {
+            if (turnDirection == 'R' || (newHeading > this.heading && (newHeading - this.heading) < 180) || (this.heading > newHeading && (this.heading - newHeading) > 180)) {
+                this.turn = constants.PLANE_TURN_RATIO
+            }
+            else {
+                this.turn = -constants.PLANE_TURN_RATIO
+            }
+        }
+    }
+
+
 }

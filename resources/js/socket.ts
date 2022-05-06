@@ -4,7 +4,7 @@ import util from 'util'
 import { loadScenario } from './scenario'
 import { loadWaypoints } from './waypoints'
 import { Canvas } from './graphic/canvas'
-import { addPlane } from './planes'
+import { addPlane, updatePlane } from './planes'
 
 var socket = io()
 
@@ -20,6 +20,10 @@ export const SocketFactory = (canvas: Canvas): SocketFactoryInterface => {
     void canvas
     return {
         sendMessage: (msgType: string, payload: any) => {
+            if (typeof(payload) == 'string') {
+                // Convert uppercase any command typed
+                payload = payload.toUpperCase()
+            }
             console.log(`Send message of type ${msgType} with payload ${util.inspect(payload)}`)
             socket.emit(msgType, payload)
         },
@@ -60,5 +64,9 @@ export const handlePlanesMessage = async (msgType: SocketMsgType, payload: any, 
     if (msgType == SocketMsgType.MSG_PLANES && payload.type == 'ADD_PLANE') {
         // 
         addPlane(payload.plane as Plane, canvas)
+    }
+    if (msgType == SocketMsgType.MSG_PLANES && payload.type == 'UPDATE_PLANE') {
+        // 
+        updatePlane(payload.plane as Plane, canvas)
     }
 }

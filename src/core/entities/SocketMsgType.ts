@@ -3,6 +3,7 @@ export enum SocketMsgType {
     MSG_MOUSE = 'MOUSE',
     MSG_SCENARIO = 'SCENARIO',
     MSG_PLANES = 'PLANES',
+    MSG_TALK = 'TALK'
 }
 
 export enum MouseMsg {

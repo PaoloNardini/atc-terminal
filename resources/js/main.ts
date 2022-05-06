@@ -20,7 +20,7 @@ if (form && input) {
     e.preventDefault();
     if (input.value) {
         // console.log(`socket emit`)
-        socketInstance.sendMessage(SocketMsgType.MSG_GENERAL, input.value)
+        socketInstance.sendMessage(SocketMsgType.MSG_TALK, input.value)
         // socket.emit('chat message', input.value);
         input.value = '';
     }

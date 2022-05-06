@@ -34,7 +34,7 @@ export class PlaneGraphic extends createjs.Container {
         super.addChild(this.gBox, this.gTail, this.gLabel, this.gLabelConnector);
     }
 
-    moveAndDisplay(parameters) {
+    moveAndDisplay(parameters: Parameters) {
         this.move(parameters)
         this.getTail(parameters)
         this.getDisplayData(parameters.currentScale)
@@ -293,7 +293,7 @@ export class PlaneGraphic extends createjs.Container {
         }
         */
         const inverse = geomath.inverseBearing(this.plane.heading)
-        console.log(`[getTail] ${this.plane.completeCallsign} - heading: ${this.plane.heading} / ${inverse} - speed: ${this.plane.speed}`)
+        // console.log(`[getTail] ${this.plane.completeCallsign} - heading: ${this.plane.heading} / ${inverse} - speed: ${this.plane.speed}`)
         var tailLatlon = geomath.coordsFromCoarseDistance(this.plane.latitude, this.plane.longitude, inverse, (this.plane.speed / 3600) * 60);
         // var latlon = Math.coordsFromCoarseDistance(this.latitude, this.longitude, this.heading, (this.speed / 3600) * 60);
 

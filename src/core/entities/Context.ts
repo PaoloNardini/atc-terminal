@@ -10,4 +10,11 @@ export class Context {
     planes: Plane[] = []
     waypoints: Record<string, Waypoint> = {}
     atsRoutes: AtsRoute[] = []
+
+
+    findPlaneByCallsign(callsign: string): Plane | undefined {
+        return this.planes.find(plane => {
+            return (plane.callsign?.substring(0, callsign.length) == callsign)
+        })
+    }
 }

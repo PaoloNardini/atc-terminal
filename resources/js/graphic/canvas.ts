@@ -126,7 +126,9 @@ export class Canvas {
         this.mainStage.addChild(this.mainContainer);
 
 
-        this.addGrid()
+
+        // COMMAND!
+        // this.addGrid()
 
         /*
         const planeGr = new PlaneGraphic()
@@ -252,5 +254,11 @@ export class Canvas {
         console.log(`Added plane at ${plane.latitude} - ${plane.longitude} - ${planeGr.x}/${planeGr.y}`)
         this.mainContainer.addChild(planeGr)
         this.planesRef.push(planeGr)
+    }
+
+    findPlaneGraphicByCallsign = (callsign: string): PlaneGraphic | undefined => {
+        return this.planesRef.find(planeRef => {
+            return (planeRef.plane?.callsign == callsign)
+        })
     }
 }
