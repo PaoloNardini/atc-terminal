@@ -1,6 +1,7 @@
 import { AtsRoute } from './AtsRoute'
 import { Parameters } from './Parameters'
 import { Plane } from './Plane'
+import { Runway } from './Runway'
 import { Scenario } from './Scenario'
 import { Waypoint } from './Waypoint'
 
@@ -11,7 +12,7 @@ export class Context {
   parameters: Parameters = new Parameters()
   planes: Plane[] = []
   waypoints: Record<string, Waypoint> = {}
-  atsRoutes: AtsRoute[] = []
+  // atsRoutes: AtsRoute[] = []
 
   findPlaneByCallsign(callsign: string): Plane | undefined {
     return this.planes.find(plane => {
@@ -26,9 +27,15 @@ export class Context {
     return undefined
   }
 
-  findRunwayByName(icao: string, name: string) {
+  findRunwayByName(icao: string, name: string): Runway | undefined {
     return this.scenario.runways.find(rwy => {
       return rwy.icao == icao && rwy.label1 == name
+    })
+  }
+
+  findAtsRoute(name: string, name2?: string): AtsRoute | undefined {
+    return this.scenario.atsRoutes.find(route => {
+      return name == route.name && (!name2 || name2 == route.name2)
     })
   }
 }

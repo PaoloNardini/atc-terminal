@@ -21,6 +21,7 @@ export const PlaneActions = [
   'R',
   'RIGHT',
   'TO',
+  'PROC',
 ] // Allowed single letter plane actions commands
 
 export const PlaneActionsFormat: Record<string, string> = {
@@ -35,6 +36,7 @@ export const PlaneActionsFormat: Record<string, string> = {
   R: '(R) ?([0-9]{1,3})',
   RIGHT: '(R) ?([0-9]{1,3})',
   TO: '(TO) ?([A-Z0-9]{1,6})',
+  PROC: '(PROC) ?([A-Z0-9]{1,10})',
 }
 
 export type Input = {
@@ -340,6 +342,16 @@ const parseTalkCommand = async (
                 debug(`[parseTalkCommand] Go to ${waypoint?.label}`)
                 plane.goToFix(waypoint)
 
+                break
+              case 'PROC':
+                // Follow procedure
+                const atsRoute = input.context.findAtsRoute(parameter)
+                if (!atsRoute) {
+                  debug(`[parseTalkCommand] INVALID PROCEDURE: ${parameter}`)
+                  return
+                }
+                debug(`[parseTalkCommand] Follow procedure ${atsRoute.name}`)
+                plane.followProcedure(atsRoute)
                 break
 
               default:

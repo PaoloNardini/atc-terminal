@@ -4,6 +4,7 @@ import * as constants from '../constants'
 import * as geomath from '../../../src/helpers/geomath'
 import { Waypoint } from './Waypoint'
 import { LatLon } from '../../helpers/latlon'
+import { AtsRoute } from './AtsRoute'
 
 export class Plane {
   // Identification
@@ -146,7 +147,12 @@ export class Plane {
     }
   }
 
-  
+  followProcedure = (atsRoute: AtsRoute) => {
+      // TODO
+      void atsRoute
+  } 
+
+
 }
 
 /**

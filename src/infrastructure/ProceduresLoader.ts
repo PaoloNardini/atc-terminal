@@ -18,7 +18,7 @@ export const makeProceduresGateway = (context: Context): ProceduresGateway => {
     async loadProceduresByAirport(icao: string) {
       const procedures = await loadAirportProcedures(context, icao)
       debug(`Procedures loaded: ${util.inspect(procedures, false, 5)}`)
-      context.atsRoutes.concat(procedures)
+      context.scenario.atsRoutes = context.scenario.atsRoutes.concat(procedures)
       return procedures
     },
   }

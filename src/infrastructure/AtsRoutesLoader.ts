@@ -32,9 +32,9 @@ const loadAtsRoutes = async (
   debug(
     `Load Ats Routes between ${minCoordinates.latitude}/${minCoordinates.longitude} and ${maxCoordinates.latitude}/${maxCoordinates.longitude}`
   )
-  context.atsRoutes = []
+  context.scenario.atsRoutes = []
   if (!!!minCoordinates || !!!maxCoordinates) {
-    return context.atsRoutes
+    return context.scenario.atsRoutes
   }
   const data = fs.readFileSync(
     path.join(__dirname, '../../data/1712/ATS.txt'),
@@ -53,7 +53,7 @@ const loadAtsRoutes = async (
         mode = 0
         if (atsRoute != undefined && valid == true) {
           // Save last current route before change
-          context.atsRoutes.push(atsRoute)
+          context.scenario.atsRoutes.push(atsRoute)
           var steps = atsRoute.getLegs()
           for (var s = 0; s < steps.length; s++) {
             const step = steps[s]
@@ -101,5 +101,5 @@ const loadAtsRoutes = async (
       }
     }
   }
-  return context.atsRoutes
+  return context.scenario.atsRoutes
 }
