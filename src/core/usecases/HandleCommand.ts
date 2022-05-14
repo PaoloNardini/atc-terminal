@@ -332,6 +332,14 @@ const parseTalkCommand = async (
               case 'TO':
                 // Go To Fix
                 debug(`[parseTalkCommand] Go To Fix ${parameter}`)
+                const waypoint = input.context.findWaypointByName(parameter)
+                if (!waypoint) {
+                  debug(`[parseTalkCommand] INVALID FIX: ${parameter}`)
+                  return
+                }
+                debug(`[parseTalkCommand] Go to ${waypoint?.label}`)
+                plane.goToFix(waypoint)
+
                 break
 
               default:

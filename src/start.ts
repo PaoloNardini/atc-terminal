@@ -144,7 +144,7 @@ export const main = () => {
       context,
       useCases,
     })
-  }, 5000) // 1500
+  }, 2000) // 1500
 }
 
 main()
