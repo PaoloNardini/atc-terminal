@@ -145,6 +145,8 @@ export class Plane {
       this.turnToHeading(origin.finalBearingTo(dest), undefined)
     }
   }
+
+  
 }
 
 /**

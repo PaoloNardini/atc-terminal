@@ -25,4 +25,10 @@ export class Context {
     }
     return undefined
   }
+
+  findRunwayByName(icao: string, name: string) {
+    return this.scenario.runways.find(rwy => {
+      return rwy.icao == icao && rwy.label1 == name
+    })
+  }
 }

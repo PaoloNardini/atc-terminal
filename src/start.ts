@@ -11,6 +11,7 @@ import { makeScenarioGateway } from './infrastructure/Scenario'
 import { makeNavaidsGateway } from './infrastructure/NavaidsLoader'
 import { Context } from './core/entities/Context'
 import { makeAtsRoutesGateway } from './infrastructure/AtsRoutesLoader'
+import { makeProceduresGateway } from './infrastructure/ProceduresLoader'
 const debug = D('app:start')
 
 let isShuttingDown: boolean = false
@@ -67,6 +68,7 @@ export const main = () => {
   const scenarioGateway = makeScenarioGateway(context)
   const navaidsGateway = makeNavaidsGateway(context)
   const atsRoutesGateway = makeAtsRoutesGateway(context)
+  const proceduresGateway = makeProceduresGateway(context)
 
   debug(`Initialize use-cases...`)
   const useCases = initializeUseCases({
@@ -74,6 +76,7 @@ export const main = () => {
     scenarioGateway,
     navaidsGateway,
     atsRoutesGateway,
+    proceduresGateway,
   })
   debug(`Initialize use-cases: ok`)
 
