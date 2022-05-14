@@ -88,7 +88,7 @@ export class Plane {
 
 
     /**
-     * COMMANDS MANAGEMENT
+     * LOW LEVEL NAVIGATION MANAGEMENT
      */
 
     turnToHeading = (newHeading: number, turnDirection: string | undefined): void => {
@@ -265,3 +265,4 @@ export const planeEventLevelReached = (plane: Plane) => {
     // TODO
     void plane    
 }
+

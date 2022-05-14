@@ -104,7 +104,7 @@ export const main = () => {
 
     // Attach usecase handleCommand as socket message handler
     transportGateway.attachHandler(SocketMsgType.MSG_TALK, async (msgType, payload) => {
-      debug(`HANDLER: RECEIVED MSG`);
+      debug(`HANDLER: RECEIVED TALK MSG`);
       ({context } = await useCases.handleCommand({ 
         msgType, 
         msgPayload: payload,
@@ -113,7 +113,7 @@ export const main = () => {
       }))
     })
     transportGateway.attachHandler(SocketMsgType.MSG_GENERAL, async (msgType, payload) => {
-      debug(`HANDLER: RECEIVED MSG`);
+      debug(`HANDLER: RECEIVED GENERAL MSG`);
       ({context } = await useCases.handleCommand({ 
         msgType, 
         msgPayload: payload,
