@@ -8,44 +8,72 @@ import * as config from '../../config'
 const debug = D('app:core:usecases:HandleCommand')
 
 export const useCaseName = 'handle-command'
-export const LetterActions = ['H','S','F','L','R']
+
+export const PlaneActions = [
+  'H',
+  'HDG',
+  'S',
+  'SPD',
+  'F',
+  'FL',
+  'L',
+  'LEFT',
+  'R',
+  'RIGHT',
+  'TO',
+] // Allowed single letter plane actions commands
+
+export const PlaneActionsFormat: Record<string, string> = {
+  H: '(H) ?([0-9]{1,3})',
+  HDG: '(HDG) ?([0-9]{1,3})',
+  S: '(S) ?([0-9]{3})',
+  SPD: '(SPD) ?([0-9]{3})',
+  F: '(F) ?([0-9]{2,3})',
+  FL: '(FL) ?([0-9]{2,3})',
+  L: '(L) ?([0-9]{1,3})',
+  LEFT: '(LEFT) ?([0-9]{1,3})',
+  R: '(R) ?([0-9]{1,3})',
+  RIGHT: '(R) ?([0-9]{1,3})',
+  TO: '(TO) ?([A-Z0-9]{1,6})',
+}
 
 export type Input = {
-  msgType: SocketMsgType,
-  msgPayload: any,  
-  context: Context,
-  useCases: UseCases,
+  msgType: SocketMsgType
+  msgPayload: any
+  context: Context
+  useCases: UseCases
 }
 
 export type Output = {
   context: Context
 }
 
-export const createUseCase = ({}: Deps ) => async (
+export const createUseCase = ({}: Deps) => async (
   input: Input
 ): Promise<Output> => {
+  let context = input.context
 
-    let context = input.context
+  debug(
+    `HandleCommand: msg: ${input.msgType}: ${util.inspect(input.msgPayload)}`
+  )
 
-    debug(`HandleCommand: msg: ${input.msgType}: ${util.inspect(input.msgPayload)}`)
+  input.useCases.dispatch({
+    msgType: input.msgType,
+    payload: 'Message received',
+    context,
+  })
 
-    input.useCases.dispatch({ 
-        msgType: input.msgType, 
-        payload: 'Message received', 
-        context
-    })
-
-    // Main message filter based on message type
-    switch (input.msgType) {
-        case SocketMsgType.MSG_GENERAL:
-          switch (input.msgPayload) {
-              case 'INIT':
-                  // Client has been reloaded....
-                  // ... clear everything
-                  context.planes = []
-                  context.waypoints = {}
-                  break;
-/*
+  // Main message filter based on message type
+  switch (input.msgType) {
+    case SocketMsgType.MSG_GENERAL:
+      switch (input.msgPayload) {
+        case 'INIT':
+          // Client has been reloaded....
+          // ... clear everything
+          context.planes = []
+          context.waypoints = {}
+          break
+        /*
              case 'LOADSCENARIO':
               case 'LS':
                 const output = await input.useCases.loadScenario({
@@ -63,63 +91,65 @@ export const createUseCase = ({}: Deps ) => async (
                 context = output2.context
                 break;
 */
-              default:
-                // TODO
-                break;
-            }
-            break;
-        case SocketMsgType.MSG_TALK:
-            parseTalkCommand(input.msgPayload, input)
-            break;
         default:
-            // TODO
-            break;
-              
-    }
+          // TODO
+          break
+      }
+      break
+    case SocketMsgType.MSG_TALK:
+      parseTalkCommand(input.msgPayload, input)
+      break
+    default:
+      // TODO
+      break
+  }
 
-    return { context }
-
+  return { context }
 }
 
 export type HandleCommand = ReturnType<typeof createUseCase>
 
-
 // Parse simulation control commands
-const parseSimulationCommand = async (command: string, input: Input): Promise<void> => {
-  if (command.substring(0,1) == config.PARAMS.talk_general_prefix) {
+const parseSimulationCommand = async (
+  command: string,
+  input: Input
+): Promise<void> => {
+  if (command.substring(0, 1) == config.PARAMS.talk_general_prefix) {
     command = command.substring(1)
-    debug('[parseSimulationCommand]:' + command);
+    debug('[parseSimulationCommand]:' + command)
     switch (command) {
-    case 'LOADSCENARIO':
-    case 'LS':
-      const output = await input.useCases.loadScenario({
-          context: input.context, 
-          useCases: input.useCases
-      })
-      input.context = output.context
-      break;
-    case 'ADDPLANE':
-    case 'P+':
-      const output2 = await input.useCases.testPlanes({
-        context: input.context,
-        useCases: input.useCases
-      })
-      input.context = output2.context
-      break;
+      case 'LOADSCENARIO':
+      case 'LS':
+        const output = await input.useCases.loadScenario({
+          context: input.context,
+          useCases: input.useCases,
+        })
+        input.context = output.context
+        break
+      case 'ADDPLANE':
+      case 'P+':
+        const output2 = await input.useCases.testPlanes({
+          context: input.context,
+          useCases: input.useCases,
+        })
+        input.context = output2.context
+        break
     }
   }
 }
 
-
-const parseTalkCommand = async (command: string, input: Input): Promise<void> => {
-    // remove any multiple spaces
-    debug('[parseTalkCommand]:' + command);
-    let v = 0
-    while (command.includes('  ') && v++ < 100) {
-        command = command.replace('  ',' ')
-    }
-  debug('[parseTalkCommand]:' + command);
-  var words = command.split(' ');
+const parseTalkCommand = async (
+  command: string,
+  input: Input
+): Promise<void> => {
+  // remove any multiple spaces
+  debug('[parseTalkCommand]:' + command)
+  let v = 0
+  while (command.includes('  ') && v++ < 100) {
+    command = command.replace('  ', ' ')
+  }
+  debug('[parseTalkCommand]:' + command)
+  var words = command.split(' ')
   /*
   var planeID = 0;
   var fix = -1;
@@ -128,175 +158,198 @@ const parseTalkCommand = async (command: string, input: Input): Promise<void> =>
   var delay_min;
   var delay_max;
   */
-  var callsign: string  = ''
+  var callsign: string = ''
   var msg2atc = false
   var msg2twr = false
   // var msgType = TalkMessageType.MSG_TO_PLANE
 
   if (words.length > 0) {
-      // speakPhrase(words[0]);
-      if (words[0].substring(0,1) == config.PARAMS.talk_general_prefix) {
-        await parseSimulationCommand(command, input)
+    // speakPhrase(words[0]);
+    if (words[0].substring(0, 1) == config.PARAMS.talk_general_prefix) {
+      await parseSimulationCommand(command, input)
+      return
+    }
+    callsign = words[0].toUpperCase()
+    const { msgType, plane } = decodeMessageType(callsign, input.context)
+    if (!msgType) {
+      debug(`[parseTalkCommand] BAD MESSAGE OR PLANE NOT FOUND: ${callsign}`)
+      return
+    }
+    if (msgType == TalkMessageType.MSG_TO_ATC) {
+      msg2atc = true
+      callsign = nextWord(words)
+    }
+    if (msgType == TalkMessageType.MSG_TO_TWR) {
+      msg2twr = true
+      callsign = nextWord(words)
+    }
+    if (msgType == TalkMessageType.MSG_TO_PLANE && plane) {
+      void msgType && msg2twr && msg2atc
+      debug(`[parseTalkCommand] Found Plane: ${plane.completeCallsign}`)
+      if (words.length == 0) {
+        debug(`MISSING PLANE COMMAND`)
         return
       }
-      callsign = words[0].toUpperCase();
-      const { msgType, plane} = decodeMessageType(callsign, input.context)
-      if (!msgType) {
-        debug(`[parseTalkCommand] BAD MESSAGE OR PLANE NOT FOUND: ${callsign}`);
-        return;
-    }
-      if (msgType == TalkMessageType.MSG_TO_ATC) {
-          msg2atc = true;
-          callsign = nextWord(words)
-      }
-      if (msgType == TalkMessageType.MSG_TO_TWR) {
-          msg2twr = true;
-          callsign = nextWord(words)
-      }
-      if (msgType == TalkMessageType.MSG_TO_PLANE && plane) {
-        void msgType && msg2twr && msg2atc
-        debug(`[parseTalkCommand] Found Plane: ${plane.completeCallsign}`);
-        const { action: letterAction , parameter: param} = decodePlaneShortAction(words)
-        if (!LetterActions.includes(letterAction)) {
-            debug(`BAD PLANE ACTION ${letterAction}`)
+      let maxCommands = 0
+      // Handle consecutive plane commands
+      while (words.length > 0 && maxCommands++ < 50) {
+        // Decode a single plane action command
+        const { action, parameter } = decodePlaneShortAction(words)
+        if (action == '') {
+          // No plane command
+          return
+        }
+        if (!PlaneActions.includes(action)) {
+          debug(`BAD PLANE ACTION ${action}`)
+          return
         }
         /*
-        let planeAction = nextWord(words)
-        let letterAction = planeAction.substring(0,1)
-        let param = planeAction.substring(1)
-        if (planeAction == letterAction) {
-            words.shift()
-            planeAction = ''
-            param = words[0]
-        }
-        */
-    
-        debug(`[parseTalkCommand] Command: ${letterAction} - ${param}`);
-    
+            let planeAction = nextWord(words)
+            let letterAction = planeAction.substring(0,1)
+            let param = planeAction.substring(1)
+            if (planeAction == letterAction) {
+                words.shift()
+                planeAction = ''
+                param = words[0]
+            }
+            */
+
+        debug(`[parseTalkCommand] Command: ${action} - ${parameter}`)
+
         switch ('') {
-
-            default:
+          default:
             // Check for single letter action
-            switch(letterAction) {
-                
-                case 'H':
+            switch (action) {
+              case 'H':
+              case 'HDG':
                 // Set Heading
-                plane.turnToHeading(parseInt(param), undefined)
+                plane.turnToHeading(parseInt(parameter), undefined)
                 /*
-                words.shift();
-                var newHeading = words[0];
-                words.shift();
+                    words.shift();
+                    var newHeading = words[0];
+                    words.shift();
 
-                msg += 'set heading ' + newHeading + ' ';
-                delay_min = 2000;
-                delay_max = 5000;
-                if (planes[planeID].hasStatus(STATUS_MISSED_APPROACH)) {
-                    delay_min = 1000;
-                    delay_max = 3000;
-                }
-                setTimeout(function() {
-                    console.log('New heading ' + newHeading);
-                    planes[planeID].clearRoute();
-                    planes[planeID].setHeading(newHeading, '');
-                }, delay_min + (Math.random() * delay_max));
-                */
-                break;
-                case 'L':
-                case 'R':
-                // Set Heading with turn indication
-                plane.turnToHeading(parseInt(param), letterAction)
-                /*
-                words.shift();
-                var newHeading = words[0];
-                words.shift();
-                msg += 'turn to heading ' + newHeading + ' ';
-                speak += 'H' + letter + ' ' + newHeading + ' ';
-                delay_min = 2000;
-                delay_max = 5000;
-                if (planes[planeID].hasStatus(STATUS_MISSED_APPROACH)) {
-                    delay_min = 1000;
-                    delay_max = 3000;
-                }
-                setTimeout(function() {
-                    console.log('New heading ' + newHeading);
-                    planes[planeID].clearRoute();
-                    planes[planeID].setHeading(newHeading, letter);
-                }, delay_min + (Math.random() * delay_max));
-                */
-                break;
-            case 'S':
-                // Set Speed
-                plane.setNewSpeed(parseInt(param))
-                /*
-                words.shift();
-                var newSpeed = words[0];
-                words.shift();
-                msg += 'set speed to ' + newSpeed + ' knots ';
-                delay_min = 8000;
-                delay_max = 10000;
-                if (planes[planeID].hasStatus(STATUS_MISSED_APPROACH)) {
-                    delay_min = 4000;
+                    msg += 'set heading ' + newHeading + ' ';
+                    delay_min = 2000;
                     delay_max = 5000;
-                }
-                setTimeout(function() {
-                    console.log('New speed ' + newSpeed);
-                    planes[planeID].setSpeed(parseFloat(newSpeed));
-                },delay_min + (Math.random() * delay_max));
-                */
-                break
-            case 'F':
-                // Set Level
-                plane.setNewFL(parseInt(param))
-                /*
-                var newLevel;
-                words.shift();
-                var flight_level = parseInt(words[0]);
-                newLevel = flight_level  * 100;
-                words.shift();
-                if (planes[planeID].fl > newLevel) {
-                    msg += 'descend to FL ' + flight_level + ' ';
-                    speak += 'FL ' + flight_level + ' ';
-                }
-                else if (planes[planeID].fl < newLevel) {
-                    if (planes[planeID].hasStatus(STATUS_CLEARED_TAKEOFF)) {
-                        msg += 'initial climb to FL ' + flight_level + ' ';
-                        speak += ' INITIAL FL ' + flight_level + ' ';
-
+                    if (planes[planeID].hasStatus(STATUS_MISSED_APPROACH)) {
+                        delay_min = 1000;
+                        delay_max = 3000;
                     }
-                    else {
-                        msg += 'climb to FL ' + flight_level + ' ';
+                    setTimeout(function() {
+                        console.log('New heading ' + newHeading);
+                        planes[planeID].clearRoute();
+                        planes[planeID].setHeading(newHeading, '');
+                    }, delay_min + (Math.random() * delay_max));
+                    */
+                break
+              case 'L':
+              case 'R':
+              case 'LEFT':
+              case 'RIGHT':
+                // Set Heading with turn indication
+                plane.turnToHeading(parseInt(parameter), action)
+                /*
+                    words.shift();
+                    var newHeading = words[0];
+                    words.shift();
+                    msg += 'turn to heading ' + newHeading + ' ';
+                    speak += 'H' + letter + ' ' + newHeading + ' ';
+                    delay_min = 2000;
+                    delay_max = 5000;
+                    if (planes[planeID].hasStatus(STATUS_MISSED_APPROACH)) {
+                        delay_min = 1000;
+                        delay_max = 3000;
+                    }
+                    setTimeout(function() {
+                        console.log('New heading ' + newHeading);
+                        planes[planeID].clearRoute();
+                        planes[planeID].setHeading(newHeading, letter);
+                    }, delay_min + (Math.random() * delay_max));
+                    */
+                break
+              case 'S':
+              case 'SPD':
+                // Set Speed
+                plane.setNewSpeed(parseInt(parameter))
+                /*
+                    words.shift();
+                    var newSpeed = words[0];
+                    words.shift();
+                    msg += 'set speed to ' + newSpeed + ' knots ';
+                    delay_min = 8000;
+                    delay_max = 10000;
+                    if (planes[planeID].hasStatus(STATUS_MISSED_APPROACH)) {
+                        delay_min = 4000;
+                        delay_max = 5000;
+                    }
+                    setTimeout(function() {
+                        console.log('New speed ' + newSpeed);
+                        planes[planeID].setSpeed(parseFloat(newSpeed));
+                    },delay_min + (Math.random() * delay_max));
+                    */
+                break
+              case 'F':
+              case 'FL':
+                // Set Level
+                plane.setNewFL(parseInt(parameter))
+                /*
+                    var newLevel;
+                    words.shift();
+                    var flight_level = parseInt(words[0]);
+                    newLevel = flight_level  * 100;
+                    words.shift();
+                    if (planes[planeID].fl > newLevel) {
+                        msg += 'descend to FL ' + flight_level + ' ';
                         speak += 'FL ' + flight_level + ' ';
                     }
-                }
-                else {
-                    msg += 'maintain FL ' + flight_level + ' ';
-                }
-                delay_min = 1000;
-                delay_max = 5000;
-                if (planes[planeID].hasStatus(STATUS_MISSED_APPROACH)) {
+                    else if (planes[planeID].fl < newLevel) {
+                        if (planes[planeID].hasStatus(STATUS_CLEARED_TAKEOFF)) {
+                            msg += 'initial climb to FL ' + flight_level + ' ';
+                            speak += ' INITIAL FL ' + flight_level + ' ';
+
+                        }
+                        else {
+                            msg += 'climb to FL ' + flight_level + ' ';
+                            speak += 'FL ' + flight_level + ' ';
+                        }
+                    }
+                    else {
+                        msg += 'maintain FL ' + flight_level + ' ';
+                    }
                     delay_min = 1000;
-                    delay_max = 3000;
-                }
-                setTimeout(function() {
-                    console.log('New level ' + newLevel);
-                    planes[planeID].setLevel(newLevel);
-                }, delay_min + (Math.random() * delay_max));
-                */
+                    delay_max = 5000;
+                    if (planes[planeID].hasStatus(STATUS_MISSED_APPROACH)) {
+                        delay_min = 1000;
+                        delay_max = 3000;
+                    }
+                    setTimeout(function() {
+                        console.log('New level ' + newLevel);
+                        planes[planeID].setLevel(newLevel);
+                    }, delay_min + (Math.random() * delay_max));
+                    */
                 break
-            default:
-                debug(`[parseTalkCommand] INVALID PLANE ACTION:: ${letterAction}`);
-                break;
+              case 'TO':
+                // Go To Fix
+                debug(`[parseTalkCommand] Go To Fix ${parameter}`)
+                break
+
+              default:
+                debug(`[parseTalkCommand] INVALID PLANE ACTION:: ${action}`)
+                break
             }
         }
-        input.useCases.dispatch({
-            context: input.context,
-            msgType: SocketMsgType.MSG_PLANES, payload: {
-            type: 'UPDATE_PLANE',
-            plane: plane
-            }
-        })
       }
+      input.useCases.dispatch({
+        context: input.context,
+        msgType: SocketMsgType.MSG_PLANES,
+        payload: {
+          type: 'UPDATE_PLANE',
+          plane: plane,
+        },
+      })
     }
+  }
   /*
   msg = planes[planeID].completeCallsign + ' ';
   speak = planes[planeID].completeCallsign + ' ';
@@ -662,55 +715,80 @@ console.log('Exit GA and resume Approach phase');
 }
 
 const nextWord = (words: string[]): string => {
-    words.shift();
-    if (words.length > 0) {
-        return words[0].toUpperCase()
-    }
-    return ''
+  words.shift()
+  if (words.length > 0) {
+    return words[0].toUpperCase()
+  }
+  return ''
 }
 
-const decodeMessageType = (callsign: string, context: Context): {
-    msgType: TalkMessageType | undefined,
-    plane: Plane | undefined
+/**
+ * Decode the message type from the callsign
+ * @param callsign
+ * @param context
+ * @returns TalkMessageType
+ */
+const decodeMessageType = (
+  callsign: string,
+  context: Context
+): {
+  msgType: TalkMessageType | undefined
+  plane: Plane | undefined
 } => {
-    debug(`[decodeMessageType] callsign: ${callsign}`);
-    let msgType = undefined
-    let plane: Plane | undefined = undefined
-    if (callsign == 'ATC') {
-        msgType = TalkMessageType.MSG_TO_ATC;
-    }
-    if (callsign == 'TWR') {
-        msgType = TalkMessageType.MSG_TO_TWR;
-    }
-    plane = context.findPlaneByCallsign(callsign);
-    if (!plane) {
-        // TODO
-        // sendMessage('BAD PLANE CALLSIGN', MSG_ERROR);
-        debug(`[decodeMessageType] NOT FOUND Plane: ${callsign}`);
-    }
-    else {
-        msgType = TalkMessageType.MSG_TO_PLANE;
-    }
-    return {
-        msgType,
-        plane
-    }
+  debug(`[decodeMessageType] callsign: ${callsign}`)
+  let msgType = undefined
+  let plane: Plane | undefined = undefined
+  if (callsign == 'ATC') {
+    msgType = TalkMessageType.MSG_TO_ATC
+  }
+  if (callsign == 'TWR') {
+    msgType = TalkMessageType.MSG_TO_TWR
+  }
+  plane = context.findPlaneByCallsign(callsign)
+  if (!plane) {
+    // TODO
+    // sendMessage('BAD PLANE CALLSIGN', MSG_ERROR);
+    debug(`[decodeMessageType] NOT FOUND Plane: ${callsign}`)
+  } else {
+    msgType = TalkMessageType.MSG_TO_PLANE
+  }
+  return {
+    msgType,
+    plane,
+  }
 }
 
-const decodePlaneShortAction = (words: string[]): {
-    action: string,
-    parameter: string
+/**
+ * Decode a short plane command with format "H150" or "H 150"
+ * @param words
+ * @returns {action, parameter}
+ */
+const decodePlaneShortAction = (
+  words: string[]
+): {
+  action: string
+  parameter: string
 } => {
-    // Format: H150 or H 150
-    let planeAction = nextWord(words)
-    if (planeAction.length == 1) {
-        planeAction += nextWord(words)
-    }
-    const matches = planeAction.match('([A-Z]) ?([0-9]{1,4})')
-    if (matches && matches.length > 2) {
+  let planeAction = nextWord(words)
+  if (PlaneActions.includes(planeAction) || planeAction.length == 1) {
+    // Parameter is separated by a space.. add next word
+    planeAction += ' ' + nextWord(words)
+  }
+  debug(`[decodePlaneShortAction] planeAction:${planeAction}`)
+  const parsed = planeAction.match('([A-Z]{1,5}).*')
+  if (parsed && parsed.length > 0) {
+    const command = parsed[1]
+    const format = PlaneActionsFormat[command]
+    debug(`[decodePlaneShortAction] command:${command} format:${format}`)
+    if (format) {
+      // const matches = planeAction.match('([A-Z]{1,3}) ?([0-9]{1,4})')
+      const matches = planeAction.match(format)
+      if (matches && matches.length > 2) {
         const action = matches[1]
         const parameter = matches[2]
-        return {action, parameter}
+        return { action, parameter }
+      }
     }
-    return {action: '', parameter: ''}
+  }
+  return { action: '', parameter: '' }
 }
