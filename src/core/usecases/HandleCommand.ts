@@ -1,5 +1,11 @@
 import { UseCases } from '..'
-import { SocketMsgType, Context, TalkMessageType, Plane } from '../entities'
+import {
+  SocketMsgType,
+  Context,
+  TalkMessageType,
+  Plane,
+  planeInterceptRadial,
+} from '../entities'
 import { Deps } from '../gateways'
 import util from 'util'
 import D from 'debug'
@@ -22,6 +28,7 @@ export const PlaneActions = [
   'RIGHT',
   'TO',
   'PROC',
+  'RAD',
 ] // Allowed single letter plane actions commands
 
 export const PlaneActionsFormat: Record<string, string> = {
@@ -37,6 +44,7 @@ export const PlaneActionsFormat: Record<string, string> = {
   RIGHT: '(R) ?([0-9]{1,3})',
   TO: '(TO) ?([A-Z0-9]{1,6})',
   PROC: '(PROC) ?([A-Z0-9]{1,10})',
+  RAD: '(RAD) ([0-9]{1,3}) ([T][O]|[F][R][O][M]) ([A-Z0-9]{1,10})',
 }
 
 export type Input = {
@@ -196,7 +204,7 @@ const parseTalkCommand = async (
       // Handle consecutive plane commands
       while (words.length > 0 && maxCommands++ < 50) {
         // Decode a single plane action command
-        const { action, parameter } = decodePlaneShortAction(words)
+        const { action, parameters } = decodePlaneShortAction(words)
         if (action == '') {
           // No plane command
           return
@@ -216,7 +224,7 @@ const parseTalkCommand = async (
             }
             */
 
-        debug(`[parseTalkCommand] Command: ${action} - ${parameter}`)
+        debug(`[parseTalkCommand] Command: ${action} - ${parameters}`)
 
         switch ('') {
           default:
@@ -225,7 +233,7 @@ const parseTalkCommand = async (
               case 'H':
               case 'HDG':
                 // Set Heading
-                plane.turnToHeading(parseInt(parameter), undefined)
+                plane.turnToHeading(parseInt(parameters[0]), undefined)
                 /*
                     words.shift();
                     var newHeading = words[0];
@@ -250,7 +258,7 @@ const parseTalkCommand = async (
               case 'LEFT':
               case 'RIGHT':
                 // Set Heading with turn indication
-                plane.turnToHeading(parseInt(parameter), action)
+                plane.turnToHeading(parseInt(parameters[0]), action)
                 /*
                     words.shift();
                     var newHeading = words[0];
@@ -273,7 +281,7 @@ const parseTalkCommand = async (
               case 'S':
               case 'SPD':
                 // Set Speed
-                plane.setNewSpeed(parseInt(parameter))
+                plane.setNewSpeed(parseInt(parameters[0]))
                 /*
                     words.shift();
                     var newSpeed = words[0];
@@ -294,7 +302,7 @@ const parseTalkCommand = async (
               case 'F':
               case 'FL':
                 // Set Level
-                plane.setNewFL(parseInt(parameter))
+                plane.setNewFL(parseInt(parameters[0]))
                 /*
                     var newLevel;
                     words.shift();
@@ -333,10 +341,10 @@ const parseTalkCommand = async (
                 break
               case 'TO':
                 // Go To Fix
-                debug(`[parseTalkCommand] Go To Fix ${parameter}`)
-                const waypoint = input.context.findWaypointByName(parameter)
+                debug(`[parseTalkCommand] Go To Fix ${parameters[0]}`)
+                const waypoint = input.context.findWaypointByName(parameters[0])
                 if (!waypoint) {
-                  debug(`[parseTalkCommand] INVALID FIX: ${parameter}`)
+                  debug(`[parseTalkCommand] INVALID FIX: ${parameters[0]}`)
                   return
                 }
                 debug(`[parseTalkCommand] Go to ${waypoint?.label}`)
@@ -345,13 +353,36 @@ const parseTalkCommand = async (
                 break
               case 'PROC':
                 // Follow procedure
-                const atsRoute = input.context.findAtsRoute(parameter)
+                const atsRoute = input.context.findAtsRoute(parameters[0])
                 if (!atsRoute) {
-                  debug(`[parseTalkCommand] INVALID PROCEDURE: ${parameter}`)
+                  debug(
+                    `[parseTalkCommand] INVALID PROCEDURE: ${parameters[0]}`
+                  )
                   return
                 }
                 debug(`[parseTalkCommand] Follow procedure ${atsRoute.name}`)
                 plane.followProcedure(atsRoute)
+                break
+              case 'RAD':
+                //Intercept radial
+                const radial: number = parseInt(parameters[0])
+                const inbound: boolean = parameters[1] == 'TO'
+                const radialWaypoint = input.context.findWaypointByName(
+                  parameters[2]
+                )
+                debug(
+                  `[parseTalkCommand] RAD ${radial} ${inbound} ${parameters[2]}`
+                )
+                if (!radialWaypoint) {
+                  debug(
+                    `[parseTalkCommand] INVALID RADIAL FIX: ${parameters[2]}`
+                  )
+                  return
+                }
+                debug(
+                  `[parseTalkCommand] Intercept radial ${radial} ${inbound} ${radialWaypoint?.label}`
+                )
+                planeInterceptRadial(plane, radialWaypoint, radial, inbound)
                 break
 
               default:
@@ -787,7 +818,7 @@ const decodePlaneShortAction = (
   words: string[]
 ): {
   action: string
-  parameter: string
+  parameters: string[]
 } => {
   let planeAction = nextWord(words)
   if (PlaneActions.includes(planeAction) || planeAction.length == 1) {
@@ -801,14 +832,19 @@ const decodePlaneShortAction = (
     const format = PlaneActionsFormat[command]
     debug(`[decodePlaneShortAction] command:${command} format:${format}`)
     if (format) {
-      // const matches = planeAction.match('([A-Z]{1,3}) ?([0-9]{1,4})')
+      // count additional parameters needed
+      var p = format.split('(').length - 1
+      while (p > 2) {
+        planeAction += ' ' + nextWord(words)
+        p--
+      }
       const matches = planeAction.match(format)
       if (matches && matches.length > 2) {
         const action = matches[1]
-        const parameter = matches[2]
-        return { action, parameter }
+        const parameters = matches.slice(2)
+        return { action, parameters }
       }
     }
   }
-  return { action: '', parameter: '' }
+  return { action: '', parameters: [] }
 }

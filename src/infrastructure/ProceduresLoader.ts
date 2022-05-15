@@ -6,7 +6,7 @@ import { Coordinate } from '../core/valueObjects'
 import { addWaypoint, findWaypoint } from './NavaidsLoader'
 import * as constants from '../core/constants'
 // import * as geomath from '../helpers/geomath'
-import util from 'util'
+// import util from 'util'
 import D from 'debug'
 // import { LatLon } from '../helpers/latlon'
 
@@ -17,7 +17,7 @@ export const makeProceduresGateway = (context: Context): ProceduresGateway => {
   return {
     async loadProceduresByAirport(icao: string) {
       const procedures = await loadAirportProcedures(context, icao)
-      debug(`Procedures loaded: ${util.inspect(procedures, false, 5)}`)
+      // debug(`Procedures loaded: ${util.inspect(procedures, false, 5)}`)
       context.scenario.atsRoutes = context.scenario.atsRoutes.concat(procedures)
       return procedures
     },

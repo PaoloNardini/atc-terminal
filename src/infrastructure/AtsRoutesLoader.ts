@@ -5,9 +5,10 @@ import { AtsRoutesGateway } from '../core/gateways'
 import { Coordinate } from '../core/valueObjects'
 import { addWaypoint, findWaypoint } from './NavaidsLoader'
 // import * as geomath from '../helpers/geomath'
-import util from 'util'
+// import util from 'util'
 import D from 'debug'
 const debug = D('app:src:infrastructure:atsRoutesLoader')
+
 
 export const makeAtsRoutesGateway = (context: Context): AtsRoutesGateway => {
   void context
@@ -18,7 +19,7 @@ export const makeAtsRoutesGateway = (context: Context): AtsRoutesGateway => {
         minCoordinates,
         maxCoordinates
       )
-      debug(`AtsRoutes loaded: ${util.inspect(atsRoutes, false, 5)}`)
+      // debug(`AtsRoutes loaded: ${util.inspect(atsRoutes, false, 5)}`)
       return atsRoutes
     },
   }

@@ -334,6 +334,16 @@ export const planeMove = (plane: Plane, elapsedSeconds: number): void => {
   // ADJUST HEADING TO NEXT FIX (if any)
   plane.adjustHeadingToNextFix()
 
+  if (plane.intercepting) {
+    // Plane is intercepting a radial
+    planeInterceptRadial(
+      plane,
+      plane.navaid2intercept,
+      plane.radial2intercept,
+      plane.radialInbound
+    )
+  }
+
   // TURN
   if (plane.turn != 0) {
     // Compute new heading
@@ -786,30 +796,34 @@ export const planeAdvance2NextStep = (plane: Plane, context: Context) => {
 
 export const planeInterceptRadial = (
   plane: Plane,
-  waypoint: Waypoint,
-  radial: number,
+  waypoint?: Waypoint,
+  radial?: number,
   inbound?: boolean
 ) => {
   if (plane.intercepting == false) {
     // Enter intercepting mode
     plane.intercepting = true // Intercepting a radial
-    plane.radial2intercept = radial // Radial to intercept
+    plane.radial2intercept = radial || 0 // Radial to intercept
     plane.radialInbound = inbound // true to follow radial inbound / false for outbound
     plane.interceptPoint = undefined
     plane.interceptProcedure = undefined
     plane.navaid2intercept = waypoint
   }
 
+  if (!plane.navaid2intercept) {
+    return
+  }
+
   var current_distance = geomath.distanceToCenter(
     plane.latitude,
     plane.longitude,
-    waypoint.latitude,
-    waypoint.longitude
+    plane.navaid2intercept.latitude,
+    plane.navaid2intercept.longitude
   )
   // Check current radial
   var inverse_radial = geomath.inverseBearing(plane.radial2intercept)
   var origin = new LatLon(plane.latitude, plane.longitude)
-  var dest = new LatLon(waypoint.latitude, waypoint.longitude)
+  var dest = new LatLon(plane.navaid2intercept.latitude, plane.navaid2intercept.longitude)
   var current_radial = Math.floor(
     geomath.inverseBearing(origin.finalBearingTo(dest))
   )
