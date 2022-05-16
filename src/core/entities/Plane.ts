@@ -6,6 +6,16 @@ import { Waypoint } from './Waypoint'
 import { LatLon } from '../../helpers/latlon'
 import { AtsRoute, Step } from './AtsRoute'
 
+export interface Intercept {
+  // Radial intercept data
+  intercepting: boolean
+  radial: number
+  navaid?: Waypoint // Navaid to intercept radial
+  inbound?: boolean // true to follow radial inbound / false for outbound
+  interceptPoint?: LatLon // LatLon coordinates of radial intercept point
+  interceptProcedure?: string // Type of intercept procedure: STRAIGHT / TURN
+}
+
 export class Plane {
   // Identification
   label: string = ''
@@ -57,12 +67,14 @@ export class Plane {
   next_fix_longitude?: number
 
   // Radial intercept data
-  intercepting: boolean = false // Intercepting a radial
-  radial2intercept: number = -1 // Radial to intercept
-  navaid2intercept?: Waypoint // Navaid to intercept radial
-  radialInbound?: boolean // true to follow radial inbound / false for outbound
-  interceptPoint?: LatLon // LatLon coordinates of radial intercept point
-  interceptProcedure?: string // Type of intercept procedure: STRAIGHT / TURN
+  intercept: Intercept = {
+    intercepting: false, // Intercepting a radial
+    radial: -1, // Radial to intercept
+    navaid: undefined,
+    inbound: false, // true to follow radial inbound / false for outbound
+    interceptPoint: undefined, // LatLon coordinates of radial intercept point
+    interceptProcedure: undefined // Type of intercept procedure: STRAIGHT / TURN
+  }
 
   // Holding Pattern data
   holding: boolean = false
@@ -334,13 +346,13 @@ export const planeMove = (plane: Plane, elapsedSeconds: number): void => {
   // ADJUST HEADING TO NEXT FIX (if any)
   plane.adjustHeadingToNextFix()
 
-  if (plane.intercepting) {
+  if (plane.intercept.intercepting) {
     // Plane is intercepting a radial
     planeInterceptRadial(
       plane,
-      plane.navaid2intercept,
-      plane.radial2intercept,
-      plane.radialInbound
+      plane.intercept.navaid,
+      plane.intercept.radial,
+      plane.intercept.inbound
     )
   }
 
@@ -800,91 +812,91 @@ export const planeInterceptRadial = (
   radial?: number,
   inbound?: boolean
 ) => {
-  if (plane.intercepting == false) {
+  if (plane.intercept.intercepting == false) {
     // Enter intercepting mode
-    plane.intercepting = true // Intercepting a radial
-    plane.radial2intercept = radial || 0 // Radial to intercept
-    plane.radialInbound = inbound // true to follow radial inbound / false for outbound
-    plane.interceptPoint = undefined
-    plane.interceptProcedure = undefined
-    plane.navaid2intercept = waypoint
+    plane.intercept.intercepting = true // Intercepting a radial
+    plane.intercept.radial = radial || 0 // Radial to intercept
+    plane.intercept.inbound = inbound // true to follow radial inbound / false for outbound
+    plane.intercept.interceptPoint = undefined
+    plane.intercept.interceptProcedure = undefined
+    plane.intercept.navaid = waypoint
   }
 
-  if (!plane.navaid2intercept) {
+  if (!plane.intercept.navaid) {
     return
   }
 
   var current_distance = geomath.distanceToCenter(
     plane.latitude,
     plane.longitude,
-    plane.navaid2intercept.latitude,
-    plane.navaid2intercept.longitude
+    plane.intercept.navaid.latitude,
+    plane.intercept.navaid.longitude
   )
   // Check current radial
-  var inverse_radial = geomath.inverseBearing(plane.radial2intercept)
+  var inverse_radial = geomath.inverseBearing(plane.intercept.radial)
   var origin = new LatLon(plane.latitude, plane.longitude)
-  var dest = new LatLon(plane.navaid2intercept.latitude, plane.navaid2intercept.longitude)
+  var dest = new LatLon(plane.intercept.navaid.latitude, plane.intercept.navaid.longitude)
   var current_radial = Math.floor(
     geomath.inverseBearing(origin.finalBearingTo(dest))
   )
   // var heading_to_fix = origin.bearingTo(dest)
   var turn_direction = 'L' // left
-  var diff_radial = Math.round(plane.radial2intercept - current_radial)
+  var diff_radial = Math.round(plane.intercept.radial - current_radial)
   var angle = 0
   var distance_intercept_point = 0
   // var destination_point
   var new_heading
   var intercept_angle
 
-  if (plane.radialInbound == undefined) {
+  if (plane.intercept.inbound == undefined) {
     // Check angle between current heading and radial to intercept
-    angle = plane.heading - plane.radial2intercept
+    angle = plane.heading - plane.intercept.radial
     console.log('angle=' + angle)
     if (angle > 180 || angle < -180) {
-      plane.radialInbound = true
+      plane.intercept.inbound = true
     } else {
-      plane.radialInbound = false
+      plane.intercept.inbound = false
     }
   }
 
   if (diff_radial < 0 || Math.abs(diff_radial) >= 180) {
-    diff_radial = current_radial - plane.radial2intercept
+    diff_radial = current_radial - plane.intercept.radial
     turn_direction = 'R' // right
   }
 
-  if (Math.floor(Math.abs(current_radial - plane.radial2intercept)) < 2) {
+  if (Math.floor(Math.abs(current_radial - plane.intercept.radial)) < 2) {
     if (
-      plane.radialInbound == true &&
+      plane.intercept.inbound == true &&
       Math.floor(Math.abs(plane.heading - inverse_radial)) < 4
     ) {
       console.log('RADIAL INBOUND OK')
       plane.turnToHeading(inverse_radial, undefined)
       // End of intercepting manouver
-      plane.intercepting = false
+      plane.intercept.intercepting = false
       // this.hideRoute() // TEST
       return true
     }
     if (
-      plane.radialInbound == false &&
-      Math.floor(Math.abs(plane.heading - plane.radial2intercept)) < 4
+      plane.intercept.inbound == false &&
+      Math.floor(Math.abs(plane.heading - plane.intercept.radial)) < 4
     ) {
       console.log('RADIAL OUTBOUND OK')
-      plane.turnToHeading(plane.radial2intercept, undefined)
+      plane.turnToHeading(plane.intercept.radial, undefined)
       // End of intercepting manouver
-      plane.intercepting = false
+      plane.intercept.intercepting = false
       // this.hideRoute() // TEST
       return true
     }
   }
 
-  if (plane.radialInbound == true && plane.interceptPoint != undefined) {
+  if (plane.intercept.inbound == true && plane.intercept.interceptPoint != undefined) {
     distance_intercept_point = geomath.distanceToCenter(
       plane.latitude,
       plane.longitude,
-      plane.interceptPoint.lat,
-      plane.interceptPoint.lon
+      plane.intercept.interceptPoint.lat,
+      plane.intercept.interceptPoint.lon
     )
-    new_heading = origin.finalBearingTo(plane.interceptPoint)
+    new_heading = origin.finalBearingTo(plane.intercept.interceptPoint)
     // Inbound to intercept point ... OK
     intercept_angle = Math.floor(new_heading - inverse_radial)
     if (intercept_angle < 0) {
@@ -896,60 +908,60 @@ export const planeInterceptRadial = (
         ' intercept angle = ' +
         intercept_angle +
         ' MODE = ' +
-        plane.interceptProcedure
+        plane.intercept.interceptProcedure
     )
     if (
-      plane.interceptProcedure == undefined &&
+      plane.intercept.interceptProcedure == undefined &&
       Math.abs(new_heading - plane.heading) < 45
     ) {
       if (intercept_angle >= 90 && intercept_angle <= 270) {
-        plane.interceptProcedure = constants.INTERCEPT_MODE_PROCEDURE
+        plane.intercept.interceptProcedure = constants.INTERCEPT_MODE_PROCEDURE
       } else {
-        plane.interceptProcedure = constants.INTERCEPT_MODE_STRAIGHT
+        plane.intercept.interceptProcedure = constants.INTERCEPT_MODE_STRAIGHT
       }
     }
     if (
-      plane.interceptProcedure == constants.INTERCEPT_MODE_PROCEDURE &&
+      plane.intercept.interceptProcedure == constants.INTERCEPT_MODE_PROCEDURE &&
       distance_intercept_point < (plane.speed / 3600) * 10
     ) {
       // Start outbound leg
-      plane.interceptProcedure = constants.INTERCEPT_MODE_OUTBOUND_LEG
+      plane.intercept.interceptProcedure = constants.INTERCEPT_MODE_OUTBOUND_LEG
       console.log('Plane ' + plane.completeCallsign + ' begin OUTBOUND LEG')
       return
     }
-    if (plane.interceptProcedure == constants.INTERCEPT_MODE_OUTBOUND_LEG) {
+    if (plane.intercept.interceptProcedure == constants.INTERCEPT_MODE_OUTBOUND_LEG) {
       if (distance_intercept_point > (plane.speed / 3600) * 60) {
         // Begin procedure turn
         console.log('Plane ' + plane.completeCallsign + ' begin PROCEDURE TURN')
         if (intercept_angle > 180) {
           plane.goToCoords(
-            plane.interceptPoint.lat,
-            plane.interceptPoint.lon,
+            plane.intercept.interceptPoint.lat,
+            plane.intercept.interceptPoint.lon,
             'L'
           )
         } else {
           plane.goToCoords(
-            plane.interceptPoint.lat,
-            plane.interceptPoint.lon,
+            plane.intercept.interceptPoint.lat,
+            plane.intercept.interceptPoint.lon,
             'R'
           )
         }
-        plane.interceptProcedure = constants.INTERCEPT_MODE_STRAIGHT
+        plane.intercept.interceptProcedure = constants.INTERCEPT_MODE_STRAIGHT
       }
       return
     }
   }
 
   if (
-    Math.abs(current_radial - plane.radial2intercept) <
+    Math.abs(current_radial - plane.intercept.radial) <
     5 / (current_distance / 10)
   ) {
-    if (plane.radialInbound == true) {
+    if (plane.intercept.inbound == true) {
       console.log(
         '====== inbound - current_radial=' +
           current_radial +
           ' radial=' +
-          plane.radial2intercept +
+          plane.intercept.radial +
           ' diff=' +
           diff_radial +
           ' turn=' +
@@ -961,7 +973,7 @@ export const planeInterceptRadial = (
         '====== outbound - current_radial=' +
           current_radial +
           ' radial=' +
-          plane.radial2intercept +
+          plane.intercept.radial +
           ' diff=' +
           diff_radial +
           ' turn=' +
@@ -980,7 +992,7 @@ export const planeInterceptRadial = (
       ' - current radial=' +
       current_radial +
       ' radial=' +
-      plane.radial2intercept +
+      plane.intercept.radial +
       ' heading=' +
       plane.heading
   )
@@ -991,9 +1003,9 @@ export const planeInterceptRadial = (
     // this.hideRoute() // TEST
   }
 
-  if (plane.interceptPoint == undefined) {
+  if (plane.intercept.interceptPoint == undefined) {
     // Calculate a 45° intercept route
-    if (plane.radialInbound == true) {
+    if (plane.intercept.inbound == true) {
       if (plane.hasStatus(constants.STATUS_FINAL)) {
         // Intercept final path as soon as possible
         distance_intercept_point = current_distance
@@ -1011,18 +1023,18 @@ export const planeInterceptRadial = (
       }
     }
     console.log('intercept in ' + distance_intercept_point + ' miles')
-    plane.interceptPoint = geomath.coordsFromCoarseDistance(
-      plane.navaid2intercept?.latitude || 0,
-      plane.navaid2intercept?.longitude || 0,
-      plane.radial2intercept,
+    plane.intercept.interceptPoint = geomath.coordsFromCoarseDistance(
+      plane.intercept.navaid?.latitude || 0,
+      plane.intercept.navaid?.longitude || 0,
+      plane.intercept.radial,
       distance_intercept_point
     )
   } else {
     distance_intercept_point = geomath.distanceToCenter(
       plane.latitude,
       plane.longitude,
-      plane.interceptPoint.lat,
-      plane.interceptPoint.lon
+      plane.intercept.interceptPoint.lat,
+      plane.intercept.interceptPoint.lon
     )
     if (distance_intercept_point < 3) {
       console.log(
@@ -1037,36 +1049,36 @@ export const planeInterceptRadial = (
       // Less than 20 seconds to intercept point...
       var new_distance
       // move intercept point ahead to smooth interception
-      if (plane.radialInbound == true) {
+      if (plane.intercept.inbound == true) {
         if (plane.hasStatus(constants.STATUS_FINAL)) {
           new_distance = distance_intercept_point / 2
         } else {
           new_distance = distance_intercept_point / 4
         }
-        plane.interceptPoint = geomath.coordsFromCoarseDistance(
-          plane.interceptPoint.lat,
-          plane.interceptPoint.lon,
+        plane.intercept.interceptPoint = geomath.coordsFromCoarseDistance(
+          plane.intercept.interceptPoint.lat,
+          plane.intercept.interceptPoint.lon,
           inverse_radial,
           new_distance
         )
       } else {
         console.log(
           'move intercept point far radial=' +
-            plane.radial2intercept +
+            plane.intercept.radial +
             ' distance=' +
             distance_intercept_point / 4
         )
-        plane.interceptPoint = geomath.coordsFromCoarseDistance(
-          plane.interceptPoint.lat,
-          plane.interceptPoint.lon,
-          plane.radial2intercept,
+        plane.intercept.interceptPoint = geomath.coordsFromCoarseDistance(
+          plane.intercept.interceptPoint.lat,
+          plane.intercept.interceptPoint.lon,
+          plane.intercept.radial,
           distance_intercept_point / 4
         )
       }
     }
   }
 
-  new_heading = origin.finalBearingTo(plane.interceptPoint)
+  new_heading = origin.finalBearingTo(plane.intercept.interceptPoint)
   /*
   if (this.radialInbound == true) {
       intercept_angle = Math.floor(Math.abs(new_heading - inverse_radial));
@@ -1083,24 +1095,24 @@ export const planeInterceptRadial = (
   console.log('(2) intercept angle = ' + intercept_angle)
   if (intercept_angle > 45 && intercept_angle < 315) {
     if (
-      plane.radialInbound == false &&
+      plane.intercept.inbound == false &&
       current_distance > distance_intercept_point
     ) {
       // Move intercept point a bit far
-      plane.interceptPoint = geomath.coordsFromCoarseDistance(
-        plane.interceptPoint.lat,
-        plane.interceptPoint.lon,
-        plane.radial2intercept,
+      plane.intercept.interceptPoint = geomath.coordsFromCoarseDistance(
+        plane.intercept.interceptPoint.lat,
+        plane.intercept.interceptPoint.lon,
+        plane.intercept.radial,
         distance_intercept_point / 4
       )
     } else if (
-      plane.radialInbound == true &&
+      plane.intercept.inbound == true &&
       plane.hasStatus(constants.STATUS_FINAL)
     ) {
       // Move intercept point a bit close
-      plane.interceptPoint = geomath.coordsFromCoarseDistance(
-        plane.interceptPoint.lat,
-        plane.interceptPoint.lon,
+      plane.intercept.interceptPoint = geomath.coordsFromCoarseDistance(
+        plane.intercept.interceptPoint.lat,
+        plane.intercept.interceptPoint.lon,
         inverse_radial,
         distance_intercept_point / 4
       )
@@ -1118,6 +1130,6 @@ export const planeInterceptRadial = (
   this.videotracks[v].setScreenPosition();
   mainContainer.addChild(this.videotracks[v].gDraw);
   */
-  plane.goToCoords(plane.interceptPoint.lat, plane.interceptPoint.lon)
+  plane.goToCoords(plane.intercept.interceptPoint.lat, plane.intercept.interceptPoint.lon)
   return false
 }

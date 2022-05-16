@@ -382,6 +382,8 @@ const parseTalkCommand = async (
                 debug(
                   `[parseTalkCommand] Intercept radial ${radial} ${inbound} ${radialWaypoint?.label}`
                 )
+                // CLEAR ANY PREVIOUS INTERCEPT COMMAND
+                plane.intercept.intercepting = false
                 planeInterceptRadial(plane, radialWaypoint, radial, inbound)
                 break
 
