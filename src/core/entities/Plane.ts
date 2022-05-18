@@ -16,6 +16,17 @@ export interface Intercept {
   interceptProcedure?: string // Type of intercept procedure: STRAIGHT / TURN
 }
 
+export interface Holding {
+  holding: boolean
+  holding_identifier?: string // holding fix name
+  navaid?: Waypoint // holding fix object;
+  holding_radial?: number // inbound radial
+  holding_leg_distance?: number // leg distance in miles
+  holding_turn_direction?: string // turn direction 'L' or 'R'
+  holding_points: LatLon[] // 4 holding points
+  holding_point_next?: number // next point in holding pattern
+}
+
 export class Plane {
   // Identification
   label: string = ''
@@ -62,7 +73,7 @@ export class Plane {
   fix_next?: number // OLD
   fix_step?: number // OLD
   step_current: number = -1 // NEW
-  runway?: Runway // Landing only
+  runway?: Runway // Assigned runway Landing only
   next_fix_latitude?: number
   next_fix_longitude?: number
 
@@ -73,19 +84,14 @@ export class Plane {
     navaid: undefined,
     inbound: false, // true to follow radial inbound / false for outbound
     interceptPoint: undefined, // LatLon coordinates of radial intercept point
-    interceptProcedure: undefined // Type of intercept procedure: STRAIGHT / TURN
+    interceptProcedure: undefined, // Type of intercept procedure: STRAIGHT / TURN
   }
 
   // Holding Pattern data
-  holding: boolean = false
-  holding_identifier?: string // holding fix name
-  holding_fix?: string // holding fix object;
-  holding_radial?: number // inbound radial
-  holding_leg_distance?: number // leg distance in miles
-  holding_turn_direction?: number // turn direction 1 = left 2 = right
-  holding_points?: string[] // 4 holding points
-  holding_point_next?: string // next point in holding pattern
-  // o_holding = undefined;                 // Holding graphical object
+  holding: Holding = {
+    holding: false,
+    holding_points: [],
+  }
 
   // Slot data
   slot?: Slot
@@ -835,7 +841,10 @@ export const planeInterceptRadial = (
   // Check current radial
   var inverse_radial = geomath.inverseBearing(plane.intercept.radial)
   var origin = new LatLon(plane.latitude, plane.longitude)
-  var dest = new LatLon(plane.intercept.navaid.latitude, plane.intercept.navaid.longitude)
+  var dest = new LatLon(
+    plane.intercept.navaid.latitude,
+    plane.intercept.navaid.longitude
+  )
   var current_radial = Math.floor(
     geomath.inverseBearing(origin.finalBearingTo(dest))
   )
@@ -889,7 +898,10 @@ export const planeInterceptRadial = (
     }
   }
 
-  if (plane.intercept.inbound == true && plane.intercept.interceptPoint != undefined) {
+  if (
+    plane.intercept.inbound == true &&
+    plane.intercept.interceptPoint != undefined
+  ) {
     distance_intercept_point = geomath.distanceToCenter(
       plane.latitude,
       plane.longitude,
@@ -921,7 +933,8 @@ export const planeInterceptRadial = (
       }
     }
     if (
-      plane.intercept.interceptProcedure == constants.INTERCEPT_MODE_PROCEDURE &&
+      plane.intercept.interceptProcedure ==
+        constants.INTERCEPT_MODE_PROCEDURE &&
       distance_intercept_point < (plane.speed / 3600) * 10
     ) {
       // Start outbound leg
@@ -929,7 +942,10 @@ export const planeInterceptRadial = (
       console.log('Plane ' + plane.completeCallsign + ' begin OUTBOUND LEG')
       return
     }
-    if (plane.intercept.interceptProcedure == constants.INTERCEPT_MODE_OUTBOUND_LEG) {
+    if (
+      plane.intercept.interceptProcedure ==
+      constants.INTERCEPT_MODE_OUTBOUND_LEG
+    ) {
       if (distance_intercept_point > (plane.speed / 3600) * 60) {
         // Begin procedure turn
         console.log('Plane ' + plane.completeCallsign + ' begin PROCEDURE TURN')
@@ -999,7 +1015,7 @@ export const planeInterceptRadial = (
 
   // Check angle distance from radial to intercept
 
-  if (plane.holding == false) {
+  if (plane.holding.holding == false) {
     // this.hideRoute() // TEST
   }
 
@@ -1130,6 +1146,98 @@ export const planeInterceptRadial = (
   this.videotracks[v].setScreenPosition();
   mainContainer.addChild(this.videotracks[v].gDraw);
   */
-  plane.goToCoords(plane.intercept.interceptPoint.lat, plane.intercept.interceptPoint.lon)
+  plane.goToCoords(
+    plane.intercept.interceptPoint.lat,
+    plane.intercept.interceptPoint.lon
+  )
   return false
+}
+
+export const planeHoldingPattern = (
+  plane: Plane,
+  fix: Waypoint,
+  inbound_radial: number,
+  leg_distance: number,
+  turn_direction: string
+): void => {
+  if (plane.holding.holding == false) {
+    plane.holding.holding = true
+    plane.holding.navaid = fix
+    /*
+    if (plane.holding_o_fix == undefined) {
+      plane.holding = false
+      return false
+    }
+    */
+    plane.holding.holding_identifier = fix.name
+    plane.holding.holding_radial = inbound_radial
+    plane.holding.holding_leg_distance = leg_distance
+    plane.holding.holding_turn_direction = turn_direction
+
+    // Compute 4 points of holding
+    var radial_perpendicular
+    if (plane.holding.holding_turn_direction == 'R') {
+      radial_perpendicular = inbound_radial - 90
+      if (radial_perpendicular < 0) {
+        radial_perpendicular = 360 + radial_perpendicular
+      }
+    } else {
+      radial_perpendicular = (inbound_radial + 90) % 360
+    }
+    console.log(
+      plane.completeCallsign +
+        ' HM radial=' +
+        inbound_radial +
+        '  perpend.=' +
+        radial_perpendicular
+    )
+    var hp1 = new LatLon(
+      plane.holding.navaid.latitude,
+      plane.holding.navaid.longitude
+    )
+    var hp2 = geomath.coordsFromCoarseDistance(
+      hp1.lat,
+      hp1.lon,
+      radial_perpendicular,
+      leg_distance / 2
+    )
+    var hp3 = geomath.coordsFromCoarseDistance(
+      hp2.lat,
+      hp2.lon,
+      inbound_radial,
+      leg_distance
+    )
+    var hp4 = geomath.coordsFromCoarseDistance(
+      hp1.lat,
+      hp1.lon,
+      inbound_radial,
+      leg_distance
+    )
+    plane.holding.holding_points[0] = hp1
+    plane.holding.holding_points[1] = hp2
+    plane.holding.holding_points[2] = hp3
+    plane.holding.holding_points[3] = hp4
+    if (
+      plane.intercept.interceptProcedure == constants.INTERCEPT_MODE_STRAIGHT
+    ) {
+      plane.holding.holding_point_next = 0 // Next point is fix
+    } else {
+      plane.holding.holding_point_next = 2 // Next point is opposite point
+    }
+
+    // TODO
+    /*
+    if (plane.o_holding != undefined) {
+      mainContainer.removeChild(plane.o_holding)
+    }
+    plane.o_holding = new Holding()
+    plane.o_holding.setPattern(
+      identifier,
+      inbound_radial,
+      leg_distance,
+      turn_direction
+    )
+    mainContainer.addChild(plane.o_holding)
+    */
+  }
 }
