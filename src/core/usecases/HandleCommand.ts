@@ -5,6 +5,7 @@ import {
   TalkMessageType,
   Plane,
   planeInterceptRadial,
+  planeHoldingPattern,
 } from '../entities'
 import { Deps } from '../gateways'
 import util from 'util'
@@ -29,6 +30,7 @@ export const PlaneActions = [
   'TO',
   'PROC',
   'RAD',
+  'HOLD',
 ] // Allowed single letter plane actions commands
 
 export const PlaneActionsFormat: Record<string, string> = {
@@ -45,6 +47,7 @@ export const PlaneActionsFormat: Record<string, string> = {
   TO: '(TO) ?([A-Z0-9]{1,6})',
   PROC: '(PROC) ?([A-Z0-9]{1,10})',
   RAD: '(RAD) ([0-9]{1,3}) ([T][O]|[F][R][O][M]) ([A-Z0-9]{1,10})',
+  HOLD: '(HOLD) ([A-Z0-9]{1,10}) ([0-9]{1,3})',
 }
 
 export type Input = {
@@ -385,6 +388,23 @@ const parseTalkCommand = async (
                 // CLEAR ANY PREVIOUS INTERCEPT COMMAND
                 plane.intercept.intercepting = false
                 planeInterceptRadial(plane, radialWaypoint, radial, inbound)
+                break
+
+              case 'HOLD':
+                // Hold a fix
+                debug(`[parseTalkCommand] Hold Fix ${parameters[0]}`)
+                const holdingFix = input.context.findWaypointByName(
+                  parameters[0]
+                )
+                if (!holdingFix) {
+                  debug(`[parseTalkCommand] INVALID FIX: ${parameters[0]}`)
+                  return
+                }
+                const holdingRadial: number = parseInt(parameters[1])
+                debug(
+                  `[parseTalkCommand] HOLD Fix ${holdingFix.name} - inbound radia l${holdingRadial}`
+                )
+                planeHoldingPattern(plane, holdingFix, holdingRadial, 10, 'R')
                 break
 
               default:
