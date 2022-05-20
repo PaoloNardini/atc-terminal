@@ -7,11 +7,11 @@ import D from 'debug'
 import { createNewScreen, Screen } from './gateways/screen'
 import { createNewSocket } from './infrastructure/socket'
 import { SocketMsgType } from './core/entities'
-import { makeScenarioGateway } from './infrastructure/Scenario'
-import { makeNavaidsGateway } from './infrastructure/NavaidsLoader'
+import { makeScenarioGateway } from './infrastructure/navdata/plainTextGateway/Scenario'
+import { makeNavaidsGateway } from './infrastructure/navdata/plainTextGateway/NavaidsLoader'
 import { Context } from './core/entities/Context'
-import { makeAtsRoutesGateway } from './infrastructure/AtsRoutesLoader'
-import { makeProceduresGateway } from './infrastructure/ProceduresLoader'
+import { makeAtsRoutesGateway } from './infrastructure/navdata/plainTextGateway/AtsRoutesLoader'
+import { makeProceduresGateway } from './infrastructure/navdata/plainTextGateway/ProceduresLoader'
 const debug = D('app:start')
 
 let isShuttingDown: boolean = false

@@ -1,14 +1,19 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { AtsRoute, Context, RouteType, Step, StepType } from '../core/entities'
-import { AtsRoutesGateway } from '../core/gateways'
-import { Coordinate } from '../core/valueObjects'
+import {
+  AtsRoute,
+  Context,
+  RouteType,
+  Step,
+  StepType,
+} from '../../../core/entities'
+import { AtsRoutesGateway } from '../../../core/gateways'
+import { Coordinate } from '../../../core/valueObjects'
 import { addWaypoint, findWaypoint } from './NavaidsLoader'
 // import * as geomath from '../helpers/geomath'
 // import util from 'util'
 import D from 'debug'
 const debug = D('app:src:infrastructure:atsRoutesLoader')
-
 
 export const makeAtsRoutesGateway = (context: Context): AtsRoutesGateway => {
   void context
@@ -38,7 +43,7 @@ const loadAtsRoutes = async (
     return context.scenario.atsRoutes
   }
   const data = fs.readFileSync(
-    path.join(__dirname, '../../data/1712/ATS.txt'),
+    path.join(__dirname, '../../../../data/1712/ATS.txt'),
     'utf8'
   )
   if (data) {

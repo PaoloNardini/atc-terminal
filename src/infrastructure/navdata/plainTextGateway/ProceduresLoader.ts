@@ -1,14 +1,14 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { AtsRoute, Context, RouteType, Step, StepType } from '../core/entities'
-import { ProceduresGateway } from '../core/gateways'
-import { Coordinate } from '../core/valueObjects'
+import { AtsRoute, Context, RouteType, Step, StepType } from '../../../core/entities'
+import { ProceduresGateway } from '../../../core/gateways'
+import { Coordinate } from '../../../core/valueObjects'
 import { addWaypoint, findWaypoint } from './NavaidsLoader'
-import * as constants from '../core/constants'
-// import * as geomath from '../helpers/geomath'
+import * as constants from '../../../core/constants'
+// import * as geomath from '../../../helpers/geomath'
 // import util from 'util'
 import D from 'debug'
-// import { LatLon } from '../helpers/latlon'
+// import { LatLon } from '../../../helpers/latlon'
 
 const debug = D('app:src:infrastructure:proceduresLoader')
 
@@ -31,7 +31,7 @@ const loadAirportProcedures = async (
   debug(`Load Procedures for airport ${icao}`)
   const procedures: AtsRoute[] = []
   const data = fs.readFileSync(
-    path.join(__dirname, `../../data/1712/PROC/${icao}.txt`),
+    path.join(__dirname, `../../../../data/1712/PROC/${icao}.txt`),
     'utf8'
   )
   if (data) {
