@@ -363,6 +363,11 @@ export class Plane {
 export const planeMove = (plane: Plane, elapsedSeconds: number): void => {
   const planeMachine = createPlaneFsm(plane)
 
+  // console.log(planeMachine.getInitialState())
+
+  planeMachine.resolve('turn.idle')
+  
+
   // Calculate plane 3 axis movements
   if (plane.fl == 0 && plane.speed == 0) {
     // Plane on the ground ... nothing to do

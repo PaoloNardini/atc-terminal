@@ -80,6 +80,7 @@ export function createPlaneFsm(plane: Plane) {
     {
       guards: {
         mustTurnRight: (plane /*, event */) => {
+          console.log(`mustTurnRight`)
           if (Math.abs(plane.heading_target - plane.heading) > 1) {
             if (
               (plane.heading_target > plane.heading &&
@@ -93,23 +94,23 @@ export function createPlaneFsm(plane: Plane) {
           return false
         },
         mustTurnLeft: (plane /*, event */) => {
-            if (Math.abs(plane.heading_target - plane.heading) > 1) {
-              if (
-                (plane.heading_target > plane.heading &&
-                  plane.heading_target - plane.heading < 180) ||
-                (plane.heading > plane.heading_target &&
-                  plane.heading - plane.heading_target > 180)
-              ) {
-                return false
-              }
-              else {
-                return true
-              }
+          console.log(`mustTurnLeft`)
+          if (Math.abs(plane.heading_target - plane.heading) > 1) {
+            if (
+              (plane.heading_target > plane.heading &&
+                plane.heading_target - plane.heading < 180) ||
+              (plane.heading > plane.heading_target &&
+                plane.heading - plane.heading_target > 180)
+            ) {
+              return false
+            } else {
+              return true
             }
-            return false
-          },
+          }
+          return false
         },
-        /*
+      },
+      /*
         actions: {
           turn: () => {},
           climb: () => {},
