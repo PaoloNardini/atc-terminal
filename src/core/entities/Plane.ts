@@ -27,6 +27,21 @@ export interface Holding {
   holding_point_next?: number // next point in holding pattern
 }
 
+export enum PlaneState {
+  STATE_IDLE = 'IDLE',
+  STATE_TURN = 'TURN',
+  STATE_CLIMB = 'CLIMB',
+}
+
+export enum PlaneEventType {
+  EVENT_NONE = 'NONE',
+  EVENT_TURN_LEFT = 'TURN_LEFT',
+  EVENT_TURN_RIGHT = 'TURN_RIGHT',
+  EVENT_TURN_STOP = 'TURN_STOP',
+  EVENT_CLIMB = 'CLIMB',
+  EVENT_DESCENT = 'DESCENT',
+}
+
 export class Plane {
   // Identification
   label: string = ''
@@ -46,6 +61,7 @@ export class Plane {
   transit: boolean = false
   status: string = ''
   atc_phase?: string
+  state?: string // FSM (Finite State Machine)
 
   // coordinate?: Coordinate
   latitude: number = 0
