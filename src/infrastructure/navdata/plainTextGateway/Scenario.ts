@@ -73,9 +73,8 @@ const loadScenario = async (
               (context.parameters.minCoordinates.getLongitude() +
                 context.parameters.maxCoordinates.getLongitude()) /
               2
-            context.scenario.latitudeCenter = context.parameters.latitudeCenter
-            context.scenario.longitudeCenter =
-              context.parameters.longitudeCenter
+            scenario.latitudeCenter = context.parameters.latitudeCenter
+            scenario.longitudeCenter = context.parameters.longitudeCenter
           }
         } else if (mode == 'scenery') {
           // End of scenery

@@ -32,21 +32,28 @@ export const createUseCase = ({
   }
 
   context.scenario = await scenarioGateway.loadScenarioByName('ROME')
-  for (let airport of context.scenario.airports) {
-    if (airport.icao) {
-      airport =
-        (await airportGateway.loadAirportByIcao(airport.icao)) || airport
+
+  // Load airports details
+  for (let x = 0; x < context.scenario.airports.length; x++) {
+    if (context.scenario.airports[x] && context.scenario.airports[x].icao) {
+      context.scenario.airports[x] =
+        (await airportGateway.loadAirportByIcao(
+          context.scenario.airports[x].icao || ''
+        )) || context.scenario.airports[x]
     }
   }
 
+  // THESE FUNCTIONS ADD PROPERTIES DIRECTLY TO GLOBAL OBJECT context.scenario 
   await navaidsGateway.loadWaypointsByCoordinates(
     context.parameters.minCoordinates,
     context.parameters.maxCoordinates
   )
+
   await navaidsGateway.loadNavaidsByCoordinates(
     context.parameters.minCoordinates,
     context.parameters.maxCoordinates
   )
+
   await atsRoutesGateway.loadAtsRoutesByCoordinates(
     context.parameters.minCoordinates,
     context.parameters.maxCoordinates

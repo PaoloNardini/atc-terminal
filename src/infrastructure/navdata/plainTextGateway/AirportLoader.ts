@@ -61,7 +61,7 @@ const loadAirport = async (
             const latitude = parseFloat(words[3])
             const longitude = parseFloat(words[4])
             airport.coordinate = new Coordinate(latitude, longitude)
-            context.scenario.airports?.push(airport)
+            // context.scenario.airports?.push(airport)
             mode = 'A'
           }
         } else {
