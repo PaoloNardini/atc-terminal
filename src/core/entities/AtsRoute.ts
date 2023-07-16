@@ -60,7 +60,7 @@ export class Step {
   heading?: number
   distance?: number
   navaid_id?: string
-  turn_direction?: number
+  turn_direction?: string
   track_bearing?: number
   track_distance?: number
   altitude_constraint?: number
@@ -72,4 +72,5 @@ export class Step {
   overfly?: number
   leg_distance?: number
   change_flight_status?: string
+  inbound?: boolean
 }

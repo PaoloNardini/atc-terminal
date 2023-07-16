@@ -244,7 +244,7 @@ const loadAirportProcedures = async (
               parseFloat(words[2]),
               parseFloat(words[3])
             )
-            step.turn_direction = parseInt(words[4])
+            step.turn_direction = parseInt(words[4])  == 0 ? 'R' : 'L'
             step.navaid_id = words[5]
             step.track_bearing = parseInt(words[6])
             step.track_distance = parseFloat(words[7])
@@ -263,7 +263,7 @@ const loadAirportProcedures = async (
           case 'VA':
             // VA - Heading to an Altitude
             // VA,0,308.0,2,600,0,0,0,0,0,0
-            step.turn_direction = parseInt(words[1])
+            step.turn_direction = parseInt(words[1]) == 0 ? 'R' : 'L'
             step.heading = parseInt(words[2])
             step.altitude_constraint = parseInt(words[3])
             step.altitude_1 = parseInt(words[4])
@@ -277,7 +277,7 @@ const loadAirportProcedures = async (
               parseFloat(words[2]),
               parseFloat(words[3])
             )
-            step.turn_direction = parseInt(words[4])
+            step.turn_direction = parseInt(words[4])  == 0 ? 'R' : 'L'
             step.navaid_id = words[5]
             step.track_bearing = parseInt(words[6])
             step.track_distance = parseFloat(words[7])
@@ -295,7 +295,7 @@ const loadAirportProcedures = async (
               parseFloat(words[2]),
               parseFloat(words[3])
             )
-            step.turn_direction = parseInt(words[4])
+            step.turn_direction = parseInt(words[4])  == 0 ? 'R' : 'L'
             step.navaid_id = words[5]
             step.track_bearing = parseInt(words[6])
             step.track_distance = parseFloat(words[7])
@@ -365,7 +365,7 @@ const loadAirportProcedures = async (
               parseFloat(words[2]),
               parseFloat(words[3])
             )
-            step.turn_direction = parseInt(words[4])
+            step.turn_direction = parseInt(words[4])  == 0 ? 'R' : 'L'
             step.heading = parseInt(words[8])
             step.leg_distance = parseFloat(words[9])
             step.altitude_constraint = parseInt(words[10])
@@ -378,7 +378,7 @@ const loadAirportProcedures = async (
           case 'VI':
             // VI - Heading to an Intercept
             // VI,2, ,0.0,238.0,0,0,0,1,200,0,0,0
-            step.turn_direction = parseInt(words[1])
+            step.turn_direction = parseInt(words[1]) == 0 ? 'R' : 'L'
             step.heading = parseInt(words[4])
             step.altitude_constraint = parseInt(words[8])
             step.altitude_1 = parseInt(words[9])

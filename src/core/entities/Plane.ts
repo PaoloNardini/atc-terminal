@@ -4,7 +4,7 @@ import * as constants from '../constants'
 import * as geomath from '../../../src/helpers/geomath'
 import { Waypoint } from './Waypoint'
 import { LatLon } from '../../helpers/latlon'
-import { AtsRoute, Step } from './AtsRoute'
+import { AtsRoute, Step, StepType } from './AtsRoute'
 
 export interface Intercept {
   // Radial intercept data
@@ -509,51 +509,53 @@ export const planeEventLevelReached = (plane: Plane) => {
   void plane
 }
 
-export const planeAdvance2NextStep = (plane: Plane, context: Context) => {
+export const planeAdvance2NextStep = (plane: Plane, context: Context): void => {
   void plane, context
-  /*    
-    var step
-    if (this.step_current != -1) {
-      step = this.steps[this.step_current]
-      if (step.change_flight_status != '') {
-        if (this.hasStatus(constants.STATUS_MISSED_APPROACH)) {
-          // Ignore any status change
-        } else {
-          this.addStatus(step.change_flight_status)
-        }
+
+  var step
+  if (plane.step_current != -1) {
+    step = plane.steps[plane.step_current]
+    if (step.change_flight_status != '') {
+      if (plane.hasStatus(constants.STATUS_MISSED_APPROACH)) {
+        // Ignore any status change
+      } else {
+        //  TODO plane.addStatus(step.change_flight_status)
       }
     }
-    if (this.steps.length > this.step_current + 1) {
-      this.step_current++
-  
-      //if (this.holding == true) {
-      //  this.holding = false
-      //  this.holding_points = []
-      //  if (this.o_holding != undefined) {
-      //    mainContainer.removeChild(this.o_holding)
-      //  }
-      //}
-      step = this.steps[this.step_current]
-      var wp_id
-      var o_wp
-      var latitude
-      var longitude
-      var estimate
-      var altitude_constraint = step.altitude_constraint
-      // Execute Next Step
-      console.log(
-        'Plane ' +
-          this.completeCallsign +
-          ' next step ' +
-          step.type +
-          ' (' +
-          step.identifier +
-          ')'
-      )
+  }
+  if (plane.steps.length > plane.step_current + 1) {
+    plane.step_current++
+
+    //if (this.holding == true) {
+    //  this.holding = false
+    //  this.holding_points = []
+    //  if (this.o_holding != undefined) {
+    //    mainContainer.removeChild(this.o_holding)
+    //  }
+    //}
+    step = plane.steps[plane.step_current]
+    var wp_id
+    // var o_wp
+    // var latitude
+    // var longitude
+    // var estimate
+    // var altitude_constraint = step.altitude_constraint
+    // Execute Next Step
+    console.log(
+      'Plane ' +
+        plane.completeCallsign +
+        ' next step ' +
+        step.type +
+        ' (' +
+        step.identifier +
+        ')'
+    )
+    // TODO
+    /*
       if (
-        !this.hasStatus(constants.STATUS_MISSED_APPROACH) &&
+        !plane.hasStatus(constants.STATUS_MISSED_APPROACH) &&
         step.identifier != '' &&
-        step.identifier == this.o_route.mapFix
+        step.identifier == plane.o_route.mapFix
       ) {
         // Next step is MAP fix ...
         // Replace with runway threshold
@@ -577,50 +579,63 @@ export const planeAdvance2NextStep = (plane: Plane, context: Context) => {
           this.addStatus(constants.STATUS_FINAL)
         }
       }
-      switch (step.type) {
-        case 'IF':
-        case 'TF':
-          wp_id = step.identifier
-          latitude = step.coordinate?.getLatitude()
-          longitude = step.coordinate?.getLongitude()
-          this.intercepting = false // Clear any previous radial interception
-          o_wp = findWaypoint(wp_id, latitude, longitude)
-          estimate = this.goToFix(o_wp)
-          // this.checkFixAltitudeConstraint(step.altitude_constraint, step.altitude_1, step.altitude_2, estimate);
-          this.checkAltitudeConstraint()
-          break
-        case 'CF':
-        case 'LAND':
-          // CF - Course to a Fix
-          wp_id = step.identifier
-          latitude = step.latitude
-          longitude = step.longitude
-          this.intercepting = false // Clear any previous radial interception
-          if (this.hasStatus(constants.STATUS_FINAL)) {
-            var o_runway = findRunway(this.airp_dest, this.o_route.runway)
-            if (o_runway != undefined && o_runway.heading == step.heading) {
-              // Intercept final path
-              this.interceptRadial(
-                this.o_route.runway,
-                Math.inverseBearing(o_runway.heading),
-                true
-              )
-              break
-            }
-          }
-//                if (step.navaid_id != undefined && step.track_bearing != undefined) {
-//                    // Intercept a radial
-//                }
-          estimate = this.goToCoords(
-            step.latitude,
-            step.longitude,
-            step.turn_direction,
-            step.heading
+      */
+    switch (step.type) {
+      case 'IF':
+      case 'TF':
+        wp_id = step.identifier
+        // latitude = step.coordinate?.getLatitude()
+        // longitude = step.coordinate?.getLongitude()
+        plane.intercept.intercepting = false // Clear any previous radial interception
+        const waypoint = context.findWaypointByName(wp_id)
+        if (waypoint) {
+          // estimate = plane.goToFix(waypoint)
+        }
+        // this.checkFixAltitudeConstraint(step.altitude_constraint, step.altitude_1, step.altitude_2, estimate);
+        // TODO plane.checkAltitudeConstraint()
+        break
+      case 'CF':
+        // case 'LAND':
+        // CF - Course to a Fix
+        wp_id = step.identifier
+        // latitude = step.coordinate?.latitude
+        // longitude = step.coordinate?.longitude
+        plane.intercept.intercepting = false // Clear any previous radial interception
+        if (plane.hasStatus(constants.STATUS_FINAL)) {
+          var o_runway = context.findRunwayByName(
+            plane.airp_dest,
+            plane.runway?.icao
           )
-          // this.checkFixAltitudeConstraint(step.altitude_constraint, step.altitude_1, step.altitude_2, estimate);
-          this.checkAltitudeConstraint()
-          break
-        case 'DF':
+          if (o_runway != undefined && o_runway.heading == step.heading) {
+            // Intercept final path
+            const wp_runway = context.findWaypointByName(
+              plane.runway?.icao || ''
+            )
+            planeInterceptRadial(
+              plane,
+              wp_runway,
+              geomath.inverseBearing(plane.runway?.heading?.degrees || 0),
+              true
+            )
+            break
+          }
+        }
+        //                if (step.navaid_id != undefined && step.track_bearing != undefined) {
+        //                    // Intercept a radial
+        //                }
+        /*
+        estimate = plane.goToCoords(
+          step.coordinate?.latitude || 0,
+          step.coordinate?.longitude || 0,
+          step.turn_direction
+        )
+        */
+        // this.checkFixAltitudeConstraint(step.altitude_constraint, step.altitude_1, step.altitude_2, estimate);
+        // TODO plane.checkAltitudeConstraint()
+        break
+      // TODO
+      /*
+          case 'DF':
           // Direct to a fix
           wp_id = step.identifier
           latitude = step.latitude
@@ -756,60 +771,61 @@ export const planeAdvance2NextStep = (plane: Plane, context: Context) => {
             step.turn_direction
           )
           break
-        default:
-          console.log('Step ' + step.type + ' not handled')
-          this.advance2NextStep()
-      }
-    } else {
-      // No further instruction - Maintain holding to last fix
-      var o_route = new Route()
-      var last_step = undefined
-      for (var s = this.step_current; s >= 0; s--) {
-        last_step = this.steps[s]
-        if (last_step.type == 'FD' && last_step.inbound == false) {
-          // Is following a radial outbound ... continue!
+*/
+
+      default:
+        console.log('Step ' + step.type + ' not handled')
+        return planeAdvance2NextStep(plane, context)
+    }
+  } else {
+    // No further instruction - Maintain holding to last fix
+    // TODO var o_route = new Route()
+    var last_step = undefined
+    for (var s = plane.step_current; s >= 0; s--) {
+      last_step = plane.steps[s]
+      if (last_step.type == 'FD' && last_step.inbound == false) {
+        // Is following a radial outbound ... continue!
+        console.log(
+          'Plane.advance2NextStep: ' +
+            plane.completeCallsign +
+            ' - Continue following outbound route'
+        )
+      } else {
+        // TODO - if phase = DEPARTURE DON'T HOLD
+        if (
+          plane.hasStatus(constants.STATUS_ARRIVAL) &&
+          last_step.identifier != undefined &&
+          last_step.identifier != ''
+        ) {
           console.log(
             'Plane.advance2NextStep: ' +
-              this.completeCallsign +
-              ' - Continue following outbound route'
+              plane.completeCallsign +
+              ' - NO FURTHER INSTRUCTIONS - MAINTAIN HOLDING ON ' +
+              last_step.identifier
           )
-        } else {
-          // TODO - if phase = DEPARTURE DON'T HOLD
-          if (
-            this.hasStatus(constants.STATUS_ARRIVAL) &&
-            last_step.identifier != undefined &&
-            last_step.identifier != ''
-          ) {
-            console.log(
-              'Plane.advance2NextStep: ' +
-                this.completeCallsign +
-                ' - NO FURTHER INSTRUCTIONS - MAINTAIN HOLDING ON ' +
-                last_step.identifier
-            )
-            o_step = new Step()
-            o_step.type = 'HM'
-            o_step.identifier = last_step.identifier
-            o_step.latitude = last_step.latitude
-            o_step.longitude = last_step.longitude
-            o_step.heading = this.heading
-            o_step.leg_distance = 5
-            o_step.turn_direction = 1
-            o_step.speed_constraint = 1
-            o_step.speed_1 = 250
-            o_route.addLeg(o_step)
-            this.assignRoute(o_route)
-            this.setSpeed(250)
-            return
-          }
+          const o_step = new Step()
+          o_step.type = StepType.HM
+          o_step.identifier = last_step.identifier
+          o_step.coordinate?.setLatitude(last_step.coordinate?.latitude || 0)
+          o_step.coordinate?.setLongitude(last_step.coordinate?.longitude || 0)
+          o_step.heading = plane.heading
+          o_step.leg_distance = 5
+          o_step.turn_direction = 'R'
+          o_step.speed_constraint = 1
+          o_step.speed_1 = 250
+          // o_route.addLeg(o_step)
+          // plane.assignRoute(o_route)
+          plane.setNewSpeed(250)
+          return
         }
       }
-      // TODO RADIO - NEXT FIX?
-      // continue present heading
-      console.log(
-        'Plane.advance2NextStep: ' + this.completeCallsign + ' - END OF ROUTE'
-      )
     }
-    */
+    // TODO RADIO - NEXT FIX?
+    // continue present heading
+    console.log(
+      'Plane.advance2NextStep: ' + plane.completeCallsign + ' - END OF ROUTE'
+    )
+  }
 }
 
 export const planeInterceptRadial = (

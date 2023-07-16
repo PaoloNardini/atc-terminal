@@ -43,7 +43,7 @@ export const createUseCase = ({
     }
   }
 
-  // THESE FUNCTIONS ADD PROPERTIES DIRECTLY TO GLOBAL OBJECT context.scenario 
+  // THESE FUNCTIONS ADD PROPERTIES DIRECTLY TO GLOBAL OBJECT context.scenario
   await navaidsGateway.loadWaypointsByCoordinates(
     context.parameters.minCoordinates,
     context.parameters.maxCoordinates
@@ -81,7 +81,7 @@ export const createUseCase = ({
     payload: {
       type: 'SCENARIO',
       scenario: context.scenario,
-      waypoints: context.scenario.waypoints,
+      // waypoints: context.scenario.waypoints,
     },
   })
 

@@ -27,7 +27,7 @@ export class Context {
     return undefined
   }
 
-  findRunwayByName(icao: string, name: string): Runway | undefined {
+  findRunwayByName(icao?: string, name?: string): Runway | undefined {
     return this.scenario.runways.find(rwy => {
       return rwy.icao == icao && rwy.label1 == name
     })
