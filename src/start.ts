@@ -12,6 +12,7 @@ import { makeNavaidsGateway } from './infrastructure/navdata/plainTextGateway/Na
 import { Context } from './core/entities/Context'
 import { makeAtsRoutesGateway } from './infrastructure/navdata/plainTextGateway/AtsRoutesLoader'
 import { makeProceduresGateway } from './infrastructure/navdata/plainTextGateway/ProceduresLoader'
+import { makeAirportGateway } from './infrastructure/navdata/plainTextGateway/AirportLoader'
 const debug = D('app:start')
 
 let isShuttingDown: boolean = false
@@ -69,6 +70,7 @@ export const main = () => {
   const navaidsGateway = makeNavaidsGateway(context)
   const atsRoutesGateway = makeAtsRoutesGateway(context)
   const proceduresGateway = makeProceduresGateway(context)
+  const airportGateway = makeAirportGateway(context)
 
   debug(`Initialize use-cases...`)
   const useCases = initializeUseCases({
@@ -77,6 +79,7 @@ export const main = () => {
     navaidsGateway,
     atsRoutesGateway,
     proceduresGateway,
+    airportGateway,
   })
   debug(`Initialize use-cases: ok`)
 

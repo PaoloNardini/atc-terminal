@@ -11,7 +11,7 @@ export class Context {
   scenario: Scenario = new Scenario()
   parameters: Parameters = new Parameters()
   planes: Plane[] = []
-  waypoints: Record<string, Waypoint> = {}
+  // waypoints: Record<string, Waypoint> = {}
   // atsRoutes: AtsRoute[] = []
 
   findPlaneByCallsign(callsign: string): Plane | undefined {
@@ -21,8 +21,8 @@ export class Context {
   }
 
   findWaypointByName(wpName: string): Waypoint | undefined {
-    if (this.waypoints[wpName]) {
-      return this.waypoints[wpName]
+    if (this.scenario.waypoints[wpName]) {
+      return this.scenario.waypoints[wpName]
     }
     return undefined
   }

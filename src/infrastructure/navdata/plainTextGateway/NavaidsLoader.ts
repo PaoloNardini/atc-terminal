@@ -81,7 +81,7 @@ export const findWaypoint = (
   coordinates?: Coordinate
 ): Waypoint | undefined => {
   debug(`findWaypoint ${name}`)
-  const w: Waypoint = context.waypoints[name]
+  const w: Waypoint = context.scenario.waypoints[name]
   if (w) {
     if (coordinates) {
       if (
@@ -109,7 +109,7 @@ export const addWaypoint = (
   w.label = w.name
   w.latitude = coordinate.latitude || 0
   w.longitude = coordinate.longitude || 0
-  context.waypoints[w.name] = w
+  context.scenario.waypoints[w.name] = w
   return w
 }
 

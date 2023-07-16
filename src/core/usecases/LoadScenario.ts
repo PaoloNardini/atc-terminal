@@ -23,6 +23,7 @@ export const createUseCase = ({
   navaidsGateway,
   atsRoutesGateway,
   proceduresGateway,
+  airportGateway,
 }: Deps) => async (input: Input): Promise<Output> => {
   let context: Context = input.context
 
@@ -31,6 +32,13 @@ export const createUseCase = ({
   }
 
   context.scenario = await scenarioGateway.loadScenarioByName('ROME')
+  for (let airport of context.scenario.airports) {
+    if (airport.icao) {
+      airport =
+        (await airportGateway.loadAirportByIcao(airport.icao)) || airport
+    }
+  }
+
   await navaidsGateway.loadWaypointsByCoordinates(
     context.parameters.minCoordinates,
     context.parameters.maxCoordinates
@@ -66,7 +74,7 @@ export const createUseCase = ({
     payload: {
       type: 'SCENARIO',
       scenario: context.scenario,
-      waypoints: context.waypoints,
+      waypoints: context.scenario.waypoints,
     },
   })
 

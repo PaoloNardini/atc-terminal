@@ -84,7 +84,7 @@ export const createUseCase = ({}: Deps) => async (
           // Client has been reloaded....
           // ... clear everything
           context.planes = []
-          context.waypoints = {}
+          context.scenario.waypoints = {}
           break
         /*
              case 'LOADSCENARIO':
