@@ -5,6 +5,7 @@ import * as geomath from '../../../src/helpers/geomath'
 import { Waypoint } from './Waypoint'
 import { LatLon } from '../../helpers/latlon'
 import { AtsRoute, Step, StepType } from './AtsRoute'
+import { createPlaneFsm } from '../fsm/plane'
 
 export interface Intercept {
   // Radial intercept data
@@ -360,11 +361,14 @@ export class Plane {
  */
 
 export const planeMove = (plane: Plane, elapsedSeconds: number): void => {
+  const planeMachine = createPlaneFsm(plane)
+
   // Calculate plane 3 axis movements
   if (plane.fl == 0 && plane.speed == 0) {
     // Plane on the ground ... nothing to do
     return
   }
+
   // ADJUST HEADING TO NEXT FIX (if any)
   plane.adjustHeadingToNextFix()
 
