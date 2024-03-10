@@ -20,8 +20,8 @@ export function createPlaneFsm(plane: Plane) {
                 { target: 'right', cond: 'mustTurnRight' },
               ],
               on: {
-                TURN_LEFT: { target: 'left' },
-                TURN_RIGHT: { target: 'right' },
+                TURN_LEFT: { target: 'left', cond: 'mustTurnLeft' },
+                TURN_RIGHT: { target: 'right', cond: 'mustTurnRight' },
               },
             },
             left: {
@@ -57,6 +57,27 @@ export function createPlaneFsm(plane: Plane) {
             },
           },
         },
+        speed: {
+          initial: 'idle',
+          states: {
+            idle: {
+              on: {
+                FASTER: { target: 'faster' },
+                SLOWER: { target: 'slower' },
+              },
+            },
+            faster: {
+              on: {
+                SPEED_OK: { target: 'idle' },
+              },
+            },
+            slower: {
+              on: {
+                SPEED_OK: { target: 'idle' },
+              },
+            },
+          },
+        },
 
         /*  
           [PlaneState.STATE_TURN]: {
@@ -80,7 +101,7 @@ export function createPlaneFsm(plane: Plane) {
     {
       guards: {
         mustTurnRight: (plane /*, event */) => {
-          console.log(`mustTurnRight`)
+          // console.log(`mustTurnRight`)
           if (Math.abs(plane.heading_target - plane.heading) > 1) {
             if (
               (plane.heading_target > plane.heading &&
@@ -88,13 +109,14 @@ export function createPlaneFsm(plane: Plane) {
               (plane.heading > plane.heading_target &&
                 plane.heading - plane.heading_target > 180)
             ) {
+              console.log(`mustTurnRight return true`)
               return true
             }
+            console.log(`mustTurnRight return false`)
           }
           return false
         },
         mustTurnLeft: (plane /*, event */) => {
-          console.log(`mustTurnLeft`)
           if (Math.abs(plane.heading_target - plane.heading) > 1) {
             if (
               (plane.heading_target > plane.heading &&
@@ -102,8 +124,10 @@ export function createPlaneFsm(plane: Plane) {
               (plane.heading > plane.heading_target &&
                 plane.heading - plane.heading_target > 180)
             ) {
+              console.log(`mustTurnLeft return false`)
               return false
             } else {
+              console.log(`mustTurnLeft return true`)
               return true
             }
           }
