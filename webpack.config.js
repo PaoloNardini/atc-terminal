@@ -38,7 +38,7 @@ const compilerBundle = {
   target: 'web',
   entry: {
     //css
-    'main': './resources/scss/main.scss',
+    main: './resources/scss/main.scss',
 
     //js
     main: './resources/js/main.ts',
@@ -64,11 +64,18 @@ const compilerBundle = {
             },
           },
           { loader: 'sass-loader', options: { sourceMap: true } },
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: ['@babel/preset-env'],
+              plugins: ['@babel/plugin-proposal-nullish-coalescing-operator'],
+            },
+          },
         ],
       },
       {
         test: /\.ts$/,
-        exclude: ["/node_modules/"],
+        exclude: ['/node_modules/'],
         loader: 'ts-loader',
         options: {
           configFile: 'tsconfig-webpack.json',
@@ -92,11 +99,11 @@ const compilerBundle = {
         {
           from: 'node_modules/socket.io/client-dist/socket.io.min.js',
           to: './',
-        },    
+        },
         {
           from: 'node_modules/createjs/builds/1.0.0/createjs.min.js',
           to: './',
-        },    
+        },
       ],
     }),
   ],

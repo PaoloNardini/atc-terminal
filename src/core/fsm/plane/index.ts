@@ -3,11 +3,10 @@ import { Plane } from '../../entities'
 // import { Plane, PlaneState, PlaneEventType } from '../../entities'
 
 export function createPlaneFsm(plane: Plane) {
-  return createMachine<Plane>(
+  return createMachine(
     {
       id: 'plane',
       type: 'parallel',
-      predictableActionArguments: true,
       context: plane,
       initial: plane.state,
       states: {
@@ -16,12 +15,12 @@ export function createPlaneFsm(plane: Plane) {
           states: {
             idle: {
               always: [
-                { target: 'left', cond: 'mustTurnLeft' },
-                { target: 'right', cond: 'mustTurnRight' },
+                { target: 'left', guard: 'mustTurnLeft' },
+                { target: 'right', guard: 'mustTurnRight' },
               ],
               on: {
-                TURN_LEFT: { target: 'left', cond: 'mustTurnLeft' },
-                TURN_RIGHT: { target: 'right', cond: 'mustTurnRight' },
+                TURN_LEFT: { target: 'left', guard: 'mustTurnLeft' },
+                TURN_RIGHT: { target: 'right', guard: 'mustTurnRight' },
               },
             },
             left: {
@@ -100,7 +99,8 @@ export function createPlaneFsm(plane: Plane) {
     },
     {
       guards: {
-        mustTurnRight: (plane /*, event */) => {
+        mustTurnRight: ({ context }) => {
+          const plane = context
           // console.log(`mustTurnRight`)
           if (Math.abs(plane.heading_target - plane.heading) > 1) {
             if (
@@ -116,7 +116,8 @@ export function createPlaneFsm(plane: Plane) {
           }
           return false
         },
-        mustTurnLeft: (plane /*, event */) => {
+        mustTurnLeft: ({ context }) => {
+          const plane = context
           if (Math.abs(plane.heading_target - plane.heading) > 1) {
             if (
               (plane.heading_target > plane.heading &&
