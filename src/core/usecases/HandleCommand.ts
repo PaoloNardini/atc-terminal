@@ -197,7 +197,9 @@ const parseTalkCommand = async (
       callsign = nextWord(words)
     }
     if (msgType == TalkMessageType.MSG_TO_PLANE && plane) {
-      void msgType && msg2twr && msg2atc
+      // Suppress unused variable warnings
+      ;[msgType, msg2twr, msg2atc]
+
       debug(`[parseTalkCommand] Found Plane: ${plane.completeCallsign}`)
       if (words.length == 0) {
         debug(`MISSING PLANE COMMAND`)

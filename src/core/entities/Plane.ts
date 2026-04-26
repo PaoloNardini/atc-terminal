@@ -5,8 +5,8 @@ import * as geomath from '../../../src/helpers/geomath'
 import { Waypoint } from './Waypoint'
 import { LatLon } from '../../helpers/latlon'
 import { AtsRoute, Step, StepType } from './AtsRoute'
-import { createPlaneFsm } from '../fsm/plane'
-import { interpret } from 'xstate'
+import { createPlaneFsm } from '../fsm/old_plane'
+import { createActor } from 'xstate'
 
 export interface Intercept {
   // Radial intercept data
@@ -366,10 +366,10 @@ export const planeMove = (plane: Plane, elapsedSeconds: number): void => {
 
   // console.log(planeMachine.getInitialState())
 
-  const service = interpret(planeMachine)
+  const actor = createActor(planeMachine)
 
   // planeMachine.resolve({ turn: 'idle' })
-  service.start()
+  actor.start()
 
   // service.send({ })
 

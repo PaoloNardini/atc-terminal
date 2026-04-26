@@ -1,147 +1,239 @@
-import { createMachine } from 'xstate'
-import { Plane } from '../../entities'
-// import { Plane, PlaneState, PlaneEventType } from '../../entities'
+import { setup } from "xstate";
 
-export function createPlaneFsm(plane: Plane) {
-  return createMachine(
-    {
-      id: 'plane',
-      type: 'parallel',
-      context: plane,
-      initial: plane.state,
-      states: {
-        turn: {
-          initial: 'idle',
-          states: {
-            idle: {
-              always: [
-                { target: 'left', guard: 'mustTurnLeft' },
-                { target: 'right', guard: 'mustTurnRight' },
-              ],
-              on: {
-                TURN_LEFT: { target: 'left', guard: 'mustTurnLeft' },
-                TURN_RIGHT: { target: 'right', guard: 'mustTurnRight' },
-              },
-            },
-            left: {
-              on: {
-                TURN_STOP: { target: 'idle' },
-              },
-            },
-            right: {
-              on: {
-                TURN_STOP: { target: 'idle' },
-              },
-            },
-          },
+export const machine = setup({
+  types: {
+    context: {} as {},
+    events: {} as
+      | { type: "Taxi" }
+      | { type: "Climb" }
+      | { type: "Start" }
+      | { type: "On-Air" }
+      | { type: "Descent" }
+      | { type: "ROD Set" }
+      | { type: "ROC  Set" }
+      | { type: "ATC Copied" }
+      | { type: "Waypoint Set" }
+      | { type: "CalcUlate ROC" }
+      | { type: "Calculate ROD" }
+      | { type: "Holding Point" }
+      | { type: "Start Descent" }
+      | { type: "Maintaining FL" }
+      | { type: "Waypoint Reached" }
+      | { type: "Next waypoint set" }
+      | { type: "No more waypoints" }
+      | { type: "Cleared to Take-off" }
+      | { type: "Ready for ATC Clearence" }
+      | { type: "Reached descent target FL" }
+      | { type: "Contact Tower for Take Off" }
+      | { type: "Reached climbing target FL" },
+  },
+  actions: {
+    EngineStarted: function () {
+      // Add your action code here
+      // ...
+    },
+  },
+}).createMachine({
+  context: {},
+  id: "Airplane",
+  initial: "Idle",
+  states: {
+    Idle: {
+      on: {
+        Start: {
+          target: "On Ground",
         },
-        climb: {
-          initial: 'idle',
-          states: {
-            idle: {
-              on: {
-                CLIMB: { target: 'climb' },
-                DESCENT: { target: 'descent' },
-              },
-            },
-            climb: {
-              on: {
-                CLIMB_STOP: { target: 'idle' },
-              },
-            },
-            descent: {
-              on: {
-                CLIMB_STOP: { target: 'idle' },
-              },
-            },
-          },
-        },
-        speed: {
-          initial: 'idle',
-          states: {
-            idle: {
-              on: {
-                FASTER: { target: 'faster' },
-                SLOWER: { target: 'slower' },
-              },
-            },
-            faster: {
-              on: {
-                SPEED_OK: { target: 'idle' },
-              },
-            },
-            slower: {
-              on: {
-                SPEED_OK: { target: 'idle' },
-              },
-            },
-          },
-        },
-
-        /*  
-          [PlaneState.STATE_TURN]: {
-            initial: 'OFF',
-            on: {
-              [PlaneEventType.EVENT_TURN_LEFT]: { actions: ['turn','left'] },
-              [PlaneEventType.EVENT_TURN_RIGHT]: { actions: ['turn','right'] },
-              [PlaneEventType.EVENT_TURN_STOP]: { actions: ['turn', 'off'] },
-            },
-          },
-          [PlaneState.STATE_CLIMB]: {
-                initial: 'OFF',
-                on: {
-                    [PlaneEventType.EVENT_CLIMB]: { actions: ['climb'] },
-                    [PlaneEventType.EVENT_DESCENT]: { actions: ['descent'] },
-                  },
-                },
-          */
       },
     },
-    {
-      guards: {
-        mustTurnRight: ({ context }) => {
-          const plane = context
-          // console.log(`mustTurnRight`)
-          if (Math.abs(plane.heading_target - plane.heading) > 1) {
-            if (
-              (plane.heading_target > plane.heading &&
-                plane.heading_target - plane.heading < 180) ||
-              (plane.heading > plane.heading_target &&
-                plane.heading - plane.heading_target > 180)
-            ) {
-              console.log(`mustTurnRight return true`)
-              return true
-            }
-            console.log(`mustTurnRight return false`)
-          }
-          return false
+    "On Ground": {
+      initial: "EngineStarting",
+      states: {
+        EngineStarting: {
+          on: {
+            "Ready for ATC Clearence": {
+              target: "Waiting ATC Clearence",
+            },
+          },
+          exit: "EngineStarted",
         },
-        mustTurnLeft: ({ context }) => {
-          const plane = context
-          if (Math.abs(plane.heading_target - plane.heading) > 1) {
-            if (
-              (plane.heading_target > plane.heading &&
-                plane.heading_target - plane.heading < 180) ||
-              (plane.heading > plane.heading_target &&
-                plane.heading - plane.heading_target > 180)
-            ) {
-              console.log(`mustTurnLeft return false`)
-              return false
-            } else {
-              console.log(`mustTurnLeft return true`)
-              return true
-            }
-          }
-          return false
+        "Waiting ATC Clearence": {
+          on: {
+            "ATC Copied": {
+              target: "Ready For Taxing",
+            },
+          },
+        },
+        "Ready For Taxing": {
+          on: {
+            Taxi: {
+              target: "Taxing",
+            },
+          },
+        },
+        Taxing: {
+          on: {
+            "Holding Point": {
+              target: "Waiting at holding point",
+            },
+          },
+        },
+        "Waiting at holding point": {
+          on: {
+            "Contact Tower for Take Off": {
+              target: "FREQ TWR",
+            },
+          },
+        },
+        "FREQ TWR": {
+          on: {
+            "Cleared to Take-off": {
+              target: "#Airplane.Departure",
+            },
+          },
         },
       },
-      /*
-        actions: {
-          turn: () => {},
-          climb: () => {},
-          descent: () => {},
+    },
+    Departure: {
+      initial: "Take-Off",
+      states: {
+        "Take-Off": {
+          initial: "Take-off",
+          states: {
+            "Take-off": {
+              on: {
+                "On-Air": {
+                  target: "#Airplane.In flight",
+                },
+              },
+            },
+          },
         },
-        */
-    }
-  )
-}
+      },
+    },
+    "In flight": {
+      type: "parallel",
+      states: {
+        Flying: {
+          initial: "Rest",
+          states: {
+            Rest: {
+              on: {
+                Climb: {
+                  target: "Set climb target FL",
+                },
+                "Reached climbing target FL": {
+                  target: "Set ROC = 0",
+                },
+                Descent: {
+                  target: "Set descent target FL",
+                },
+                "Reached descent target FL": {
+                  target: "Set ROD = 0",
+                },
+              },
+              description: "Maintain current state until an event occurs",
+            },
+            "Set climb target FL": {
+              on: {
+                "CalcUlate ROC": {
+                  target: "Set ROC",
+                },
+              },
+            },
+            "Set ROC = 0": {
+              on: {
+                "Maintaining FL": {
+                  target: "Rest",
+                },
+              },
+            },
+            "Set descent target FL": {
+              on: {
+                "Calculate ROD": {
+                  target: "Set ROD",
+                },
+              },
+            },
+            "Set ROD = 0": {
+              on: {
+                "Maintaining FL": {
+                  target: "Rest",
+                },
+              },
+            },
+            "Set ROC": {
+              on: {
+                "ROC  Set": {
+                  target: "Rest",
+                },
+              },
+            },
+            "Set ROD": {
+              on: {
+                "ROD Set": {
+                  target: "Rest",
+                },
+              },
+            },
+          },
+        },
+        "Flight Routing": {
+          initial: "SID",
+          states: {
+            SID: {
+              initial: "Set First Waypoint",
+              states: {
+                "Set First Waypoint": {
+                  on: {
+                    "Waypoint Set": {
+                      target: "Flying",
+                    },
+                  },
+                },
+                Flying: {
+                  on: {
+                    "Waypoint Reached": {
+                      target: "Get Next Waypoint",
+                    },
+                  },
+                },
+                "Get Next Waypoint": {
+                  on: {
+                    "No more waypoints": {
+                      target: "#Airplane.In flight.Flight Routing.EnRoute",
+                    },
+                    "Next waypoint set": {
+                      target: "Flying",
+                    },
+                  },
+                },
+              },
+            },
+            EnRoute: {
+              initial: "Enroute Flying",
+              on: {
+                "Start Descent": {
+                  target: "Arrival",
+                },
+              },
+              states: {
+                "Enroute Flying": {},
+              },
+            },
+            Arrival: {
+              initial: "Landing",
+              states: {
+                Landing: {
+                  initial: "New state 1",
+                  states: {
+                    "New state 1": {},
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+});

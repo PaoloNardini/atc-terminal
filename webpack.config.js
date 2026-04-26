@@ -1,7 +1,7 @@
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const ManifestPlugin = require('webpack-manifest-plugin')
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
 
@@ -45,7 +45,7 @@ const compilerBundle = {
   },
   output: {
     path: path.join(__dirname, './public/'),
-    filename: '[name].[hash].js',
+    filename: '[name].[contenthash].js',
   },
   module: {
     rules: [
@@ -85,10 +85,13 @@ const compilerBundle = {
   },
   resolve: {
     extensions: ['.ts', '.js'],
+    fallback: {
+      "util": require.resolve("util/")
+    }
   },
   plugins: [
     new MiniCssExtractPlugin({ filename: '[name].[contenthash].css' }),
-    new ManifestPlugin({ fileName: 'manifest.json' }),
+    new WebpackManifestPlugin({ fileName: 'manifest.json' }),
     new CleanWebpackPlugin({
       // Clear all previous assets but don't delete the following:
       cleanOnceBeforeBuildPatterns: ['**/*', '!*dummy*'],
