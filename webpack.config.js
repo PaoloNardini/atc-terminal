@@ -1,4 +1,5 @@
 const path = require('path')
+const webpack = require('webpack')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
@@ -90,6 +91,9 @@ const compilerBundle = {
     }
   },
   plugins: [
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
     new MiniCssExtractPlugin({ filename: '[name].[contenthash].css' }),
     new WebpackManifestPlugin({ fileName: 'manifest.json' }),
     new CleanWebpackPlugin({
