@@ -5,8 +5,9 @@ import * as geomath from '../../../src/helpers/geomath'
 import { Waypoint } from './Waypoint'
 import { LatLon } from '../../helpers/latlon'
 import { AtsRoute, Step, StepType } from './AtsRoute'
-import { createPlaneFsm } from '../fsm/old_plane'
+// import { createPlaneFsm } from '../fsm/old_plane'
 import { createActor } from 'xstate'
+import { machine } from '../fsm/plane/index'
 
 export interface Intercept {
   // Radial intercept data
@@ -117,7 +118,12 @@ export class Plane {
   // Internal
   // recurse: boolean
 
-  constructor() {}
+  actor: any = null
+
+  constructor() {
+    this.actor = createActor(machine).start()
+    console.log('actor created: ' + this.actor.getSnapshot().value)
+  }
 
   setCoordinate(coordinate: Coordinate) {
     this.latitude = coordinate.getLatitude()
@@ -176,10 +182,13 @@ export class Plane {
     }
     switch (status) {
       case constants.STATUS_CLEARED_TAKEOFF:
-        setTimeout(function() {
-          that.removeStatus(constants.STATUS_CLEARED_TAKEOFF)
-          that.addStatus(constants.STATUS_TAKEOFF)
-        }, 10000 + Math.random() * 15000)
+        setTimeout(
+          function () {
+            that.removeStatus(constants.STATUS_CLEARED_TAKEOFF)
+            that.addStatus(constants.STATUS_TAKEOFF)
+          },
+          10000 + Math.random() * 15000
+        )
         break
       case constants.STATUS_TAKEOFF:
         this.climb = 0
@@ -193,11 +202,14 @@ export class Plane {
         }
         */
         // this.advance2NextStep()
-        setTimeout(function() {
-          that.removeStatus(constants.STATUS_RADIO_CONTACT_TWR)
-          that.addStatus(constants.STATUS_RADIO_CONTACT_YOU)
-          // that.setAtcPhase(PLANE_ATC_ACTIVE)
-        }, 20000 + Math.random() * 20000)
+        setTimeout(
+          function () {
+            that.removeStatus(constants.STATUS_RADIO_CONTACT_TWR)
+            that.addStatus(constants.STATUS_RADIO_CONTACT_YOU)
+            // that.setAtcPhase(PLANE_ATC_ACTIVE)
+          },
+          20000 + Math.random() * 20000
+        )
         break
       case constants.STATUS_RADIO_CONTACT_YOU:
         this.removeStatus(constants.STATUS_RADIO_CONTACT_ATC)
@@ -362,14 +374,11 @@ export class Plane {
  */
 
 export const planeMove = (plane: Plane, elapsedSeconds: number): void => {
-  const planeMachine = createPlaneFsm(plane)
-
+  // const planeMachine = createPlaneFsm(plane)
   // console.log(planeMachine.getInitialState())
-
-  const actor = createActor(planeMachine)
-
+  // const actor = createActor(planeMachine)
   // planeMachine.resolve({ turn: 'idle' })
-  actor.start()
+  // actor.start()
 
   // service.send({ })
 
@@ -540,7 +549,7 @@ export const planeEventLevelReached = (plane: Plane) => {
 }
 
 export const planeAdvance2NextStep = (plane: Plane, context: Context): void => {
-  void plane, context
+  ;(void plane, context)
 
   var step
   if (plane.step_current != -1) {
