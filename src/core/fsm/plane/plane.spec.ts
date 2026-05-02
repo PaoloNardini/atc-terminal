@@ -2,186 +2,184 @@ import { createActor } from "xstate";
 import { machine } from "./index";
 
 describe("Airplane FSM", () => {
-  it("should initialize in Idle state", () => {
+  it("should initialize in parallel Rest states with default context", () => {
     const actor = createActor(machine).start();
-    expect(actor.getSnapshot().value).toBe("Idle");
-  });
+    const snapshot = actor.getSnapshot();
 
-  it("should transition through On Ground phases", () => {
-    const actor = createActor(machine).start();
-
-    // Start -> On Ground.EngineStarting
-    actor.send({ type: "Start" });
-    expect(actor.getSnapshot().value).toEqual({ "On Ground": "EngineStarting" });
-
-    // Ready for ATC Clearence -> Waiting ATC Clearence
-    actor.send({ type: "Ready for ATC Clearence" });
-    expect(actor.getSnapshot().value).toEqual({
-      "On Ground": "Waiting ATC Clearence",
+    expect(snapshot.value).toEqual({
+      Vertical: "Rest",
+      Horizontal: "Rest",
     });
 
-    // ATC Copied -> Ready For Taxing
-    actor.send({ type: "ATC Copied" });
-    expect(actor.getSnapshot().value).toEqual({
-      "On Ground": "Ready For Taxing",
-    });
-
-    // Taxi -> Taxing
-    actor.send({ type: "Taxi" });
-    expect(actor.getSnapshot().value).toEqual({ "On Ground": "Taxing" });
-
-    // Holding Point -> Waiting at holding point
-    actor.send({ type: "Holding Point" });
-    expect(actor.getSnapshot().value).toEqual({
-      "On Ground": "Waiting at holding point",
-    });
-
-    // Contact Tower for Take Off -> FREQ TWR
-    actor.send({ type: "Contact Tower for Take Off" });
-    expect(actor.getSnapshot().value).toEqual({ "On Ground": "FREQ TWR" });
-  });
-
-  it("should transition to Departure and Flight", () => {
-    const actor = createActor(machine).start();
-    actor.send({ type: "Start" });
-    actor.send({ type: "Ready for ATC Clearence" });
-    actor.send({ type: "ATC Copied" });
-    actor.send({ type: "Taxi" });
-    actor.send({ type: "Holding Point" });
-    actor.send({ type: "Contact Tower for Take Off" });
-
-    // Cleared to Take-off -> Departure.Take-Off.Take-off
-    actor.send({ type: "Cleared to Take-off" });
-    expect(actor.getSnapshot().value).toEqual({
-      Departure: { "Take-Off": "Take-off" },
-    });
-
-    // On-Air -> Flight (parallel states)
-    actor.send({ type: "On-Air" });
-    expect(actor.getSnapshot().value).toEqual({
-      Flight: {
-        Flying: { Vertical: "Rest", Horizontal: "Rest" },
-        "Flight Routing": { SID: "Set First Waypoint" },
-      },
+    expect(snapshot.context).toEqual({
+      FL: 0,
+      HDG: 0,
+      ROC: 0,
+      ROT: 0,
     });
   });
 
-  it("should handle Flight parallel states: Flying", () => {
-    const actor = createActor(machine).start();
-    // Fast-forward to Flight
-    actor.send({ type: "Start" });
-    actor.send({ type: "Ready for ATC Clearence" });
-    actor.send({ type: "ATC Copied" });
-    actor.send({ type: "Taxi" });
-    actor.send({ type: "Holding Point" });
-    actor.send({ type: "Contact Tower for Take Off" });
-    actor.send({ type: "Cleared to Take-off" });
-    actor.send({ type: "On-Air" });
+  describe("Vertical Flow", () => {
+    it("should allow Climbing if ROC > 0 and TARGET_FL > current FL", () => {
+      const actor = createActor(machine, {
+        state: machine.resolveState({
+          value: { Vertical: "Rest", Horizontal: "Rest" },
+          context: { FL: 100, HDG: 0, ROC: 0, ROT: 0 },
+        }),
+      }).start();
 
-    // Test Vertical transitions
-    actor.send({ type: "Climb" });
-    expect(actor.getSnapshot().value).toEqual({
-      Flight: {
-        Flying: { Vertical: "Climbing", Horizontal: "Rest" },
-        "Flight Routing": { SID: "Set First Waypoint" },
-      },
+      actor.send({ type: "Climb", ROC: 1500, TARGET_FL: 300 });
+      
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.value).toEqual({ Vertical: "Climbing", Horizontal: "Rest" });
+      expect(snapshot.context.ROC).toBe(1500);
     });
 
-    actor.send({ type: "Level-up" });
-    expect(actor.getSnapshot().value).toEqual({
-      Flight: {
-        Flying: { Vertical: "Rest", Horizontal: "Rest" },
-        "Flight Routing": { SID: "Set First Waypoint" },
-      },
+    it("should reject Climbing if ROC <= 0", () => {
+      const actor = createActor(machine, {
+        state: machine.resolveState({
+          value: { Vertical: "Rest", Horizontal: "Rest" },
+          context: { FL: 100, HDG: 0, ROC: 0, ROT: 0 },
+        }),
+      }).start();
+
+      actor.send({ type: "Climb", ROC: -500, TARGET_FL: 300 });
+      
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest" });
+      expect(snapshot.context.ROC).toBe(0);
     });
 
-    actor.send({ type: "Descent" });
-    expect(actor.getSnapshot().value).toEqual({
-      Flight: {
-        Flying: { Vertical: "Descending", Horizontal: "Rest" },
-        "Flight Routing": { SID: "Set First Waypoint" },
-      },
+    it("should reject Climbing if TARGET_FL <= current FL", () => {
+      const actor = createActor(machine, {
+        state: machine.resolveState({
+          value: { Vertical: "Rest", Horizontal: "Rest" },
+          context: { FL: 300, HDG: 0, ROC: 0, ROT: 0 },
+        }),
+      }).start();
+
+      actor.send({ type: "Climb", ROC: 1500, TARGET_FL: 100 });
+      
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest" });
+      expect(snapshot.context.ROC).toBe(0);
     });
 
-    actor.send({ type: "Level-down" });
-    expect(actor.getSnapshot().value).toEqual({
-      Flight: {
-        Flying: { Vertical: "Rest", Horizontal: "Rest" },
-        "Flight Routing": { SID: "Set First Waypoint" },
-      },
+    it("should transition to Rest and set ROC to 0 on Level from Climbing", () => {
+      const actor = createActor(machine, {
+        state: machine.resolveState({
+          value: { Vertical: "Climbing", Horizontal: "Rest" },
+          context: { FL: 100, HDG: 0, ROC: 1500, ROT: 0 },
+        }),
+      }).start();
+
+      actor.send({ type: "Level" });
+      
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest" });
+      expect(snapshot.context.ROC).toBe(0);
     });
 
-    // Test Horizontal transitions
-    actor.send({ type: "Turn" });
-    expect(actor.getSnapshot().value).toEqual({
-      Flight: {
-        Flying: { Vertical: "Rest", Horizontal: "Turning" },
-        "Flight Routing": { SID: "Set First Waypoint" },
-      },
+    it("should allow Descending if ROC < 0 and TARGET_FL < current FL", () => {
+      const actor = createActor(machine, {
+        state: machine.resolveState({
+          value: { Vertical: "Rest", Horizontal: "Rest" },
+          context: { FL: 300, HDG: 0, ROC: 0, ROT: 0 },
+        }),
+      }).start();
+
+      actor.send({ type: "Descent", ROC: -1000, TARGET_FL: 100 });
+      
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.value).toEqual({ Vertical: "Descending", Horizontal: "Rest" });
+      expect(snapshot.context.ROC).toBe(-1000);
     });
 
-    actor.send({ type: "Stop Turn" });
-    expect(actor.getSnapshot().value).toEqual({
-      Flight: {
-        Flying: { Vertical: "Rest", Horizontal: "Rest" },
-        "Flight Routing": { SID: "Set First Waypoint" },
-      },
+    it("should transition to Rest and set ROC to 0 on Level from Descending", () => {
+      const actor = createActor(machine, {
+        state: machine.resolveState({
+          value: { Vertical: "Descending", Horizontal: "Rest" },
+          context: { FL: 300, HDG: 0, ROC: -1000, ROT: 0 },
+        }),
+      }).start();
+
+      actor.send({ type: "Level" });
+      
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest" });
+      expect(snapshot.context.ROC).toBe(0);
     });
   });
 
-  it("should handle Flight parallel states: Flight Routing", () => {
-    const actor = createActor(machine).start();
-    // Fast-forward to Flight
-    actor.send({ type: "Start" });
-    actor.send({ type: "Ready for ATC Clearence" });
-    actor.send({ type: "ATC Copied" });
-    actor.send({ type: "Taxi" });
-    actor.send({ type: "Holding Point" });
-    actor.send({ type: "Contact Tower for Take Off" });
-    actor.send({ type: "Cleared to Take-off" });
-    actor.send({ type: "On-Air" });
+  describe("Horizontal Flow", () => {
+    it("should allow Turn Right if ROT > 0", () => {
+      const actor = createActor(machine).start();
 
-    // Test Flight Routing state transitions
-    actor.send({ type: "Waypoint Set" });
-    expect(actor.getSnapshot().value).toEqual({
-      Flight: {
-        Flying: { Vertical: "Rest", Horizontal: "Rest" },
-        "Flight Routing": { SID: "Flying" },
-      },
+      actor.send({ type: "Turn Right", ROT: 3, TARGET_HDG: 90 });
+      
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Turning Right" });
+      expect(snapshot.context.ROT).toBe(3);
     });
 
-    actor.send({ type: "Waypoint Reached" });
-    expect(actor.getSnapshot().value).toEqual({
-      Flight: {
-        Flying: { Vertical: "Rest", Horizontal: "Rest" },
-        "Flight Routing": { SID: "Get Next Waypoint" },
-      },
+    it("should reject Turn Right if ROT <= 0", () => {
+      const actor = createActor(machine).start();
+
+      actor.send({ type: "Turn Right", ROT: -3, TARGET_HDG: 90 });
+      
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest" });
+      expect(snapshot.context.ROT).toBe(0);
     });
 
-    actor.send({ type: "Next waypoint set" });
-    expect(actor.getSnapshot().value).toEqual({
-      Flight: {
-        Flying: { Vertical: "Rest", Horizontal: "Rest" },
-        "Flight Routing": { SID: "Flying" },
-      },
+    it("should allow Turn Left if ROT < 0", () => {
+      const actor = createActor(machine).start();
+
+      actor.send({ type: "Turn Left", ROT: -3, TARGET_HDG: 270 });
+      
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Turning Left" });
+      expect(snapshot.context.ROT).toBe(-3);
     });
 
-    actor.send({ type: "Waypoint Reached" });
-    actor.send({ type: "No more waypoints" });
-    expect(actor.getSnapshot().value).toEqual({
-      Flight: {
-        Flying: { Vertical: "Rest", Horizontal: "Rest" },
-        "Flight Routing": { EnRoute: "Enroute Flying" },
-      },
+    it("should reject Turn Left if ROT >= 0", () => {
+      const actor = createActor(machine).start();
+
+      actor.send({ type: "Turn Left", ROT: 3, TARGET_HDG: 270 });
+      
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest" });
+      expect(snapshot.context.ROT).toBe(0);
     });
 
-    actor.send({ type: "Start Descent" });
-    expect(actor.getSnapshot().value).toEqual({
-      Flight: {
-        Flying: { Vertical: "Rest", Horizontal: "Rest" },
-        "Flight Routing": { Arrival: { Landing: "New state 1" } },
-      },
+    it("should transition to Rest and set ROT to 0 on Stop Turn from Turning Right", () => {
+      const actor = createActor(machine, {
+        state: machine.resolveState({
+          value: { Vertical: "Rest", Horizontal: "Turning Right" },
+          context: { FL: 0, HDG: 0, ROC: 0, ROT: 3 },
+        }),
+      }).start();
+
+      actor.send({ type: "Stop Turn" });
+      
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest" });
+      expect(snapshot.context.ROT).toBe(0);
+    });
+
+    it("should transition to Rest and set ROT to 0 on Stop Turn from Turning Left", () => {
+      const actor = createActor(machine, {
+        state: machine.resolveState({
+          value: { Vertical: "Rest", Horizontal: "Turning Left" },
+          context: { FL: 0, HDG: 0, ROC: 0, ROT: -3 },
+        }),
+      }).start();
+
+      actor.send({ type: "Stop Turn" });
+      
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest" });
+      expect(snapshot.context.ROT).toBe(0);
     });
   });
 });
-

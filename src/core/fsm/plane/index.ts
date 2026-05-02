@@ -1,268 +1,150 @@
-import { setup } from "xstate";
+import { setup, assign } from "xstate";
+
+export interface AirplaneContext {
+  FL: number; // 0...420
+  HDG: number; // 0...359
+  ROC: number; // feet/minute
+  ROT: number; // degrees/minute
+}
+
+export type AirplaneEvents =
+  | { type: "Climb"; ROC: number; TARGET_FL: number }
+  | { type: "Descent"; ROC: number; TARGET_FL: number }
+  | { type: "Turn Right"; ROT: number; TARGET_HDG: number }
+  | { type: "Turn Left"; ROT: number; TARGET_HDG: number }
+  | { type: "Level" }
+  | { type: "Stop Turn" };
 
 export const machine = setup({
   types: {
-    context: {} as {},
-    events: {} as
-      | { type: "Taxi" }
-      | { type: "Climb" }
-      | { type: "Start" }
-      | { type: "On-Air" }
-      | { type: "Descent" }
-      | { type: "ATC Copied" }
-      | { type: "Waypoint Set" }
-      | { type: "Holding Point" }
-      | { type: "Start Descent" }
-      | { type: "Waypoint Reached" }
-      | { type: "Next waypoint set" }
-      | { type: "No more waypoints" }
-      | { type: "Cleared to Take-off" }
-      | { type: "Ready for ATC Clearence" }
-      | { type: "Contact Tower for Take Off" }
-      | { type: "Level-up" }
-      | { type: "Level-down" }
-      | { type: "Turn" }
-      | { type: "Stop Turn" },
+    context: {} as AirplaneContext,
+    events: {} as AirplaneEvents,
   },
   actions: {
-    EngineStarted: function () {
-      // Add your action code here
+    startClimb: assign({
+      ROC: ({ event }) => {
+        if (event.type === "Climb") return event.ROC;
+        return 0;
+      },
+    }),
+    startDescent: assign({
+      ROC: ({ event }) => {
+        if (event.type === "Descent") return event.ROC;
+        return 0;
+      },
+    }),
+    levelOff: assign({
+      ROC: 0,
+    }),
+    startTurnRight: assign({
+      ROT: ({ event }) => {
+        if (event.type === "Turn Right") return event.ROT;
+        return 0;
+      },
+    }),
+    startTurnLeft: assign({
+      ROT: ({ event }) => {
+        if (event.type === "Turn Left") return event.ROT;
+        return 0;
+      },
+    }),
+    stopTurn: assign({
+      ROT: 0,
+    }),
+  },
+  guards: {
+    isValidClimb: ({ context, event }) => {
+      if (event.type !== "Climb") return false;
+      return event.ROC > 0 && event.TARGET_FL > context.FL;
     },
-    "set ROD": function (_, _params: { ROD: string | number; TARGET_FL?: string }) {
-      // Add your action code here
+    isValidDescent: ({ context, event }) => {
+      if (event.type !== "Descent") return false;
+      return event.ROC < 0 && event.TARGET_FL < context.FL;
     },
-    "set ROC": function (_, _params: { ROC: string | number; TARGET_FL?: string }) {
-      // Add your action code here
+    isValidTurnRight: ({ event }) => {
+      if (event.type !== "Turn Right") return false;
+      return event.ROT > 0;
     },
-    "set ROT": function (_, _params: { ROT: string | number; TARGET_HDG?: string }) {
-      // Add your action code here
+    isValidTurnLeft: ({ event }) => {
+      if (event.type !== "Turn Left") return false;
+      return event.ROT < 0;
     },
   },
 }).createMachine({
-  context: {},
   id: "Airplane",
-  initial: "Idle",
+  type: "parallel",
+  context: {
+    FL: 0,
+    HDG: 0,
+    ROC: 0,
+    ROT: 0,
+  },
   states: {
-    Idle: {
-      on: {
-        Start: {
-          target: "On Ground",
-        },
-      },
-    },
-    "On Ground": {
-      initial: "EngineStarting",
+    Vertical: {
+      initial: "Rest",
       states: {
-        EngineStarting: {
+        Rest: {
           on: {
-            "Ready for ATC Clearence": {
-              target: "Waiting ATC Clearence",
+            Climb: {
+              target: "Climbing",
+              guard: "isValidClimb",
+              actions: "startClimb",
             },
-          },
-          exit: "EngineStarted",
-        },
-        "Waiting ATC Clearence": {
-          on: {
-            "ATC Copied": {
-              target: "Ready For Taxing",
-            },
-          },
-        },
-        "Ready For Taxing": {
-          on: {
-            Taxi: {
-              target: "Taxing",
+            Descent: {
+              target: "Descending",
+              guard: "isValidDescent",
+              actions: "startDescent",
             },
           },
         },
-        Taxing: {
+        Climbing: {
           on: {
-            "Holding Point": {
-              target: "Waiting at holding point",
+            Level: {
+              target: "Rest",
+              actions: "levelOff",
             },
           },
         },
-        "Waiting at holding point": {
+        Descending: {
           on: {
-            "Contact Tower for Take Off": {
-              target: "FREQ TWR",
-            },
-          },
-        },
-        "FREQ TWR": {
-          on: {
-            "Cleared to Take-off": {
-              target: "#Airplane.Departure",
+            Level: {
+              target: "Rest",
+              actions: "levelOff",
             },
           },
         },
       },
     },
-    Departure: {
-      initial: "Take-Off",
+    Horizontal: {
+      initial: "Rest",
       states: {
-        "Take-Off": {
-          initial: "Take-off",
-          states: {
-            "Take-off": {
-              on: {
-                "On-Air": {
-                  target: "#Airplane.Flight",
-                },
-              },
+        Rest: {
+          on: {
+            "Turn Right": {
+              target: "Turning Right",
+              guard: "isValidTurnRight",
+              actions: "startTurnRight",
+            },
+            "Turn Left": {
+              target: "Turning Left",
+              guard: "isValidTurnLeft",
+              actions: "startTurnLeft",
             },
           },
         },
-      },
-    },
-    Flight: {
-      type: "parallel",
-      states: {
-        Flying: {
-          type: "parallel",
-          states: {
-            Vertical: {
-              initial: "Rest",
-              states: {
-                Rest: {
-                  on: {
-                    Descent: {
-                      target: "Descending",
-                      actions: {
-                        type: "set ROD",
-                        params: {
-                          ROD: "",
-                          TARGET_FL: "",
-                        },
-                      },
-                    },
-                    Climb: {
-                      target: "Climbing",
-                      actions: {
-                        type: "set ROC",
-                        params: {
-                          ROC: "",
-                          TARGET_FL: "",
-                        },
-                      },
-                    },
-                  },
-                },
-                Descending: {
-                  on: {
-                    "Level-down": {
-                      target: "Rest",
-                      actions: {
-                        type: "set ROD",
-                        params: {
-                          ROD: 0,
-                        },
-                      },
-                    },
-                  },
-                },
-                Climbing: {
-                  on: {
-                    "Level-up": {
-                      target: "Rest",
-                      actions: {
-                        type: "set ROC",
-                        params: {
-                          ROC: 0,
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            Horizontal: {
-              initial: "Rest",
-              states: {
-                Rest: {
-                  on: {
-                    Turn: {
-                      target: "Turning",
-                      actions: {
-                        type: "set ROT",
-                        params: {
-                          ROT: "",
-                          TARGET_HDG: "",
-                        },
-                      },
-                    },
-                  },
-                },
-                Turning: {
-                  on: {
-                    "Stop Turn": {
-                      target: "Rest",
-                      actions: {
-                        type: "set ROT",
-                        params: {
-                          ROT: 0,
-                        },
-                      },
-                    },
-                  },
-                },
-              },
+        "Turning Right": {
+          on: {
+            "Stop Turn": {
+              target: "Rest",
+              actions: "stopTurn",
             },
           },
         },
-        "Flight Routing": {
-          initial: "SID",
-          states: {
-            SID: {
-              initial: "Set First Waypoint",
-              states: {
-                "Set First Waypoint": {
-                  on: {
-                    "Waypoint Set": {
-                      target: "Flying",
-                    },
-                  },
-                },
-                Flying: {
-                  on: {
-                    "Waypoint Reached": {
-                      target: "Get Next Waypoint",
-                    },
-                  },
-                },
-                "Get Next Waypoint": {
-                  on: {
-                    "No more waypoints": {
-                      target: "#Airplane.Flight.Flight Routing.EnRoute",
-                    },
-                    "Next waypoint set": {
-                      target: "Flying",
-                    },
-                  },
-                },
-              },
-            },
-            EnRoute: {
-              initial: "Enroute Flying",
-              on: {
-                "Start Descent": {
-                  target: "Arrival",
-                },
-              },
-              states: {
-                "Enroute Flying": {},
-              },
-            },
-            Arrival: {
-              initial: "Landing",
-              states: {
-                Landing: {
-                  initial: "New state 1",
-                  states: {
-                    "New state 1": {},
-                  },
-                },
-              },
+        "Turning Left": {
+          on: {
+            "Stop Turn": {
+              target: "Rest",
+              actions: "stopTurn",
             },
           },
         },
