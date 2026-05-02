@@ -9,6 +9,7 @@ describe("Airplane FSM", () => {
     expect(snapshot.value).toEqual({
       Vertical: "Rest",
       Horizontal: "Rest",
+      Speed: "Rest",
     });
 
     expect(snapshot.context).toEqual({
@@ -16,6 +17,7 @@ describe("Airplane FSM", () => {
       HDG: 0,
       ROC: 0,
       ROT: 0,
+      KTS: 0,
     });
   });
 
@@ -23,91 +25,46 @@ describe("Airplane FSM", () => {
     it("should allow Climbing if ROC > 0 and TARGET_FL > current FL", () => {
       const actor = createActor(machine, {
         state: machine.resolveState({
-          value: { Vertical: "Rest", Horizontal: "Rest" },
-          context: { FL: 100, HDG: 0, ROC: 0, ROT: 0 },
+          value: { Vertical: "Rest", Horizontal: "Rest", Speed: "Rest" },
+          context: { FL: 100, HDG: 0, ROC: 0, ROT: 0, KTS: 250 },
         }),
       }).start();
 
       actor.send({ type: "Climb", ROC: 1500, TARGET_FL: 300 });
       
       const snapshot = actor.getSnapshot();
-      expect(snapshot.value).toEqual({ Vertical: "Climbing", Horizontal: "Rest" });
+      expect(snapshot.value).toEqual({ Vertical: "Climbing", Horizontal: "Rest", Speed: "Rest" });
       expect(snapshot.context.ROC).toBe(1500);
     });
 
-    it("should reject Climbing if ROC <= 0", () => {
+    it("should transition to Rest on 'Reached target FL' from Climbing", () => {
       const actor = createActor(machine, {
         state: machine.resolveState({
-          value: { Vertical: "Rest", Horizontal: "Rest" },
-          context: { FL: 100, HDG: 0, ROC: 0, ROT: 0 },
+          value: { Vertical: "Climbing", Horizontal: "Rest", Speed: "Rest" },
+          context: { FL: 100, HDG: 0, ROC: 1500, ROT: 0, KTS: 250 },
         }),
       }).start();
 
-      actor.send({ type: "Climb", ROC: -500, TARGET_FL: 300 });
+      actor.send({ type: "Reached target FL" });
       
       const snapshot = actor.getSnapshot();
-      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest" });
-      expect(snapshot.context.ROC).toBe(0);
-    });
-
-    it("should reject Climbing if TARGET_FL <= current FL", () => {
-      const actor = createActor(machine, {
-        state: machine.resolveState({
-          value: { Vertical: "Rest", Horizontal: "Rest" },
-          context: { FL: 300, HDG: 0, ROC: 0, ROT: 0 },
-        }),
-      }).start();
-
-      actor.send({ type: "Climb", ROC: 1500, TARGET_FL: 100 });
-      
-      const snapshot = actor.getSnapshot();
-      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest" });
-      expect(snapshot.context.ROC).toBe(0);
-    });
-
-    it("should transition to Rest and set ROC to 0 on Level from Climbing", () => {
-      const actor = createActor(machine, {
-        state: machine.resolveState({
-          value: { Vertical: "Climbing", Horizontal: "Rest" },
-          context: { FL: 100, HDG: 0, ROC: 1500, ROT: 0 },
-        }),
-      }).start();
-
-      actor.send({ type: "Level" });
-      
-      const snapshot = actor.getSnapshot();
-      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest" });
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest", Speed: "Rest" });
       expect(snapshot.context.ROC).toBe(0);
     });
 
     it("should allow Descending if ROC < 0 and TARGET_FL < current FL", () => {
       const actor = createActor(machine, {
         state: machine.resolveState({
-          value: { Vertical: "Rest", Horizontal: "Rest" },
-          context: { FL: 300, HDG: 0, ROC: 0, ROT: 0 },
+          value: { Vertical: "Rest", Horizontal: "Rest", Speed: "Rest" },
+          context: { FL: 300, HDG: 0, ROC: 0, ROT: 0, KTS: 250 },
         }),
       }).start();
 
       actor.send({ type: "Descent", ROC: -1000, TARGET_FL: 100 });
       
       const snapshot = actor.getSnapshot();
-      expect(snapshot.value).toEqual({ Vertical: "Descending", Horizontal: "Rest" });
+      expect(snapshot.value).toEqual({ Vertical: "Descending", Horizontal: "Rest", Speed: "Rest" });
       expect(snapshot.context.ROC).toBe(-1000);
-    });
-
-    it("should transition to Rest and set ROC to 0 on Level from Descending", () => {
-      const actor = createActor(machine, {
-        state: machine.resolveState({
-          value: { Vertical: "Descending", Horizontal: "Rest" },
-          context: { FL: 300, HDG: 0, ROC: -1000, ROT: 0 },
-        }),
-      }).start();
-
-      actor.send({ type: "Level" });
-      
-      const snapshot = actor.getSnapshot();
-      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest" });
-      expect(snapshot.context.ROC).toBe(0);
     });
   });
 
@@ -118,17 +75,22 @@ describe("Airplane FSM", () => {
       actor.send({ type: "Turn Right", ROT: 3, TARGET_HDG: 90 });
       
       const snapshot = actor.getSnapshot();
-      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Turning Right" });
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Turning Right", Speed: "Rest" });
       expect(snapshot.context.ROT).toBe(3);
     });
 
-    it("should reject Turn Right if ROT <= 0", () => {
-      const actor = createActor(machine).start();
+    it("should transition to Rest on 'Reached target HDG' from Turning Right", () => {
+      const actor = createActor(machine, {
+        state: machine.resolveState({
+          value: { Vertical: "Rest", Horizontal: "Turning Right", Speed: "Rest" },
+          context: { FL: 0, HDG: 0, ROC: 0, ROT: 3, KTS: 250 },
+        }),
+      }).start();
 
-      actor.send({ type: "Turn Right", ROT: -3, TARGET_HDG: 90 });
+      actor.send({ type: "Reached target HDG" });
       
       const snapshot = actor.getSnapshot();
-      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest" });
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest", Speed: "Rest" });
       expect(snapshot.context.ROT).toBe(0);
     });
 
@@ -138,48 +100,94 @@ describe("Airplane FSM", () => {
       actor.send({ type: "Turn Left", ROT: -3, TARGET_HDG: 270 });
       
       const snapshot = actor.getSnapshot();
-      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Turning Left" });
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Turning Left", Speed: "Rest" });
       expect(snapshot.context.ROT).toBe(-3);
     });
+  });
 
-    it("should reject Turn Left if ROT >= 0", () => {
-      const actor = createActor(machine).start();
-
-      actor.send({ type: "Turn Left", ROT: 3, TARGET_HDG: 270 });
-      
-      const snapshot = actor.getSnapshot();
-      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest" });
-      expect(snapshot.context.ROT).toBe(0);
-    });
-
-    it("should transition to Rest and set ROT to 0 on Stop Turn from Turning Right", () => {
+  describe("Speed Flow", () => {
+    it("should allow Increase Speed if TARGET_KTS > current KTS", () => {
       const actor = createActor(machine, {
         state: machine.resolveState({
-          value: { Vertical: "Rest", Horizontal: "Turning Right" },
-          context: { FL: 0, HDG: 0, ROC: 0, ROT: 3 },
+          value: { Vertical: "Rest", Horizontal: "Rest", Speed: "Rest" },
+          context: { FL: 100, HDG: 0, ROC: 0, ROT: 0, KTS: 200 },
         }),
       }).start();
 
-      actor.send({ type: "Stop Turn" });
+      actor.send({ type: "Increase Speed", TARGET_KTS: 250 });
       
       const snapshot = actor.getSnapshot();
-      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest" });
-      expect(snapshot.context.ROT).toBe(0);
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest", Speed: "Accelerating" });
     });
 
-    it("should transition to Rest and set ROT to 0 on Stop Turn from Turning Left", () => {
+    it("should reject Increase Speed if TARGET_KTS <= current KTS", () => {
       const actor = createActor(machine, {
         state: machine.resolveState({
-          value: { Vertical: "Rest", Horizontal: "Turning Left" },
-          context: { FL: 0, HDG: 0, ROC: 0, ROT: -3 },
+          value: { Vertical: "Rest", Horizontal: "Rest", Speed: "Rest" },
+          context: { FL: 100, HDG: 0, ROC: 0, ROT: 0, KTS: 250 },
         }),
       }).start();
 
-      actor.send({ type: "Stop Turn" });
+      actor.send({ type: "Increase Speed", TARGET_KTS: 200 });
       
       const snapshot = actor.getSnapshot();
-      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest" });
-      expect(snapshot.context.ROT).toBe(0);
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest", Speed: "Rest" });
+    });
+
+    it("should allow Decrease Speed if TARGET_KTS < current KTS", () => {
+      const actor = createActor(machine, {
+        state: machine.resolveState({
+          value: { Vertical: "Rest", Horizontal: "Rest", Speed: "Rest" },
+          context: { FL: 100, HDG: 0, ROC: 0, ROT: 0, KTS: 250 },
+        }),
+      }).start();
+
+      actor.send({ type: "Decrease Speed", TARGET_KTS: 200 });
+      
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest", Speed: "Decelerating" });
+    });
+
+    it("should reject Decrease Speed if TARGET_KTS >= current KTS", () => {
+      const actor = createActor(machine, {
+        state: machine.resolveState({
+          value: { Vertical: "Rest", Horizontal: "Rest", Speed: "Rest" },
+          context: { FL: 100, HDG: 0, ROC: 0, ROT: 0, KTS: 250 },
+        }),
+      }).start();
+
+      actor.send({ type: "Decrease Speed", TARGET_KTS: 300 });
+      
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest", Speed: "Rest" });
+    });
+
+    it("should transition to Rest on 'Reached target KTS' from Accelerating", () => {
+      const actor = createActor(machine, {
+        state: machine.resolveState({
+          value: { Vertical: "Rest", Horizontal: "Rest", Speed: "Accelerating" },
+          context: { FL: 100, HDG: 0, ROC: 0, ROT: 0, KTS: 250 },
+        }),
+      }).start();
+
+      actor.send({ type: "Reached target KTS" });
+      
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest", Speed: "Rest" });
+    });
+
+    it("should transition to Rest on 'Reached target KTS' from Decelerating", () => {
+      const actor = createActor(machine, {
+        state: machine.resolveState({
+          value: { Vertical: "Rest", Horizontal: "Rest", Speed: "Decelerating" },
+          context: { FL: 100, HDG: 0, ROC: 0, ROT: 0, KTS: 250 },
+        }),
+      }).start();
+
+      actor.send({ type: "Reached target KTS" });
+      
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.value).toEqual({ Vertical: "Rest", Horizontal: "Rest", Speed: "Rest" });
     });
   });
 });

@@ -5,6 +5,7 @@ export interface AirplaneContext {
   HDG: number; // 0...359
   ROC: number; // feet/minute
   ROT: number; // degrees/minute
+  KTS: number; // 0...999
 }
 
 export type AirplaneEvents =
@@ -13,7 +14,12 @@ export type AirplaneEvents =
   | { type: "Turn Right"; ROT: number; TARGET_HDG: number }
   | { type: "Turn Left"; ROT: number; TARGET_HDG: number }
   | { type: "Level" }
-  | { type: "Stop Turn" };
+  | { type: "Stop Turn" }
+  | { type: "Increase Speed"; TARGET_KTS: number }
+  | { type: "Decrease Speed"; TARGET_KTS: number }
+  | { type: "Reached target FL" }
+  | { type: "Reached target HDG" }
+  | { type: "Reached target KTS" };
 
 export const machine = setup({
   types: {
@@ -69,6 +75,14 @@ export const machine = setup({
       if (event.type !== "Turn Left") return false;
       return event.ROT < 0;
     },
+    isValidIncreaseSpeed: ({ context, event }) => {
+      if (event.type !== "Increase Speed") return false;
+      return event.TARGET_KTS > context.KTS;
+    },
+    isValidDecreaseSpeed: ({ context, event }) => {
+      if (event.type !== "Decrease Speed") return false;
+      return event.TARGET_KTS < context.KTS;
+    },
   },
 }).createMachine({
   id: "Airplane",
@@ -78,6 +92,7 @@ export const machine = setup({
     HDG: 0,
     ROC: 0,
     ROT: 0,
+    KTS: 0,
   },
   states: {
     Vertical: {
@@ -103,11 +118,19 @@ export const machine = setup({
               target: "Rest",
               actions: "levelOff",
             },
+            "Reached target FL": {
+              target: "Rest",
+              actions: "levelOff",
+            },
           },
         },
         Descending: {
           on: {
             Level: {
+              target: "Rest",
+              actions: "levelOff",
+            },
+            "Reached target FL": {
               target: "Rest",
               actions: "levelOff",
             },
@@ -138,6 +161,10 @@ export const machine = setup({
               target: "Rest",
               actions: "stopTurn",
             },
+            "Reached target HDG": {
+              target: "Rest",
+              actions: "stopTurn",
+            },
           },
         },
         "Turning Left": {
@@ -145,6 +172,41 @@ export const machine = setup({
             "Stop Turn": {
               target: "Rest",
               actions: "stopTurn",
+            },
+            "Reached target HDG": {
+              target: "Rest",
+              actions: "stopTurn",
+            },
+          },
+        },
+      },
+    },
+    Speed: {
+      initial: "Rest",
+      states: {
+        Rest: {
+          on: {
+            "Increase Speed": {
+              target: "Accelerating",
+              guard: "isValidIncreaseSpeed",
+            },
+            "Decrease Speed": {
+              target: "Decelerating",
+              guard: "isValidDecreaseSpeed",
+            },
+          },
+        },
+        Accelerating: {
+          on: {
+            "Reached target KTS": {
+              target: "Rest",
+            },
+          },
+        },
+        Decelerating: {
+          on: {
+            "Reached target KTS": {
+              target: "Rest",
             },
           },
         },
