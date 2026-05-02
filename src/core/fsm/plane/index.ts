@@ -6,6 +6,23 @@ export interface AirplaneContext {
   ROC: number; // feet/minute
   ROT: number; // degrees/minute
   KTS: number; // 0...999
+  GROUND: boolean;
+  PHASE:
+    | "Rest"
+    | "Taxi"
+    | "Hold"
+    | "Take-Off-Run"
+    | "Take-Off"
+    | "SID"
+    | "Cruise"
+    | "STAR"
+    | "App"
+    | "Final"
+    | "Landing"
+    | "Landed";
+  V2: number;
+  MAS: number;
+  isDeparting: boolean;
 }
 
 export type AirplaneEvents =
@@ -19,7 +36,20 @@ export type AirplaneEvents =
   | { type: "Decrease Speed"; TARGET_KTS: number }
   | { type: "Reached target FL" }
   | { type: "Reached target HDG" }
-  | { type: "Reached target KTS" };
+  | { type: "Reached target KTS" }
+  | { type: "Clear to Taxi" }
+  | { type: "Hold position" }
+  | { type: "Clear to Take-Off"; TARGET_KTS: number }
+  | { type: "Taking-Off"; TARGET_FL: number }
+  | { type: "Follow SID" }
+  | { type: "Enroute" }
+  | { type: "Start descent" }
+  | { type: "Start approach" }
+  | { type: "Estabilish on Final" }
+  | { type: "Landing" }
+  | { type: "Landed" }
+  | { type: "Taxi to Park" }
+  | { type: "Park" };
 
 export const machine = setup({
   types: {
@@ -57,6 +87,20 @@ export const machine = setup({
     stopTurn: assign({
       ROT: 0,
     }),
+    setPhaseRest: assign({ PHASE: "Rest" }),
+    setPhaseTaxi: assign({ PHASE: "Taxi" }),
+    setPhaseHold: assign({ PHASE: "Hold" }),
+    setPhaseTakeOffRun: assign({ PHASE: "Take-Off-Run" }),
+    setPhaseTakeOff: assign({ PHASE: "Take-Off" }),
+    setPhaseSID: assign({ PHASE: "SID" }),
+    setPhaseCruise: assign({ PHASE: "Cruise" }),
+    setPhaseSTAR: assign({ PHASE: "STAR" }),
+    setPhaseApp: assign({ PHASE: "App" }),
+    setPhaseFinal: assign({ PHASE: "Final" }),
+    setPhaseLanding: assign({ PHASE: "Landing" }),
+    setPhaseLanded: assign({ PHASE: "Landed" }),
+    setDeparting: assign({ isDeparting: true }),
+    setInbound: assign({ isDeparting: false }),
   },
   guards: {
     isValidClimb: ({ context, event }) => {
@@ -83,6 +127,27 @@ export const machine = setup({
       if (event.type !== "Decrease Speed") return false;
       return event.TARGET_KTS < context.KTS;
     },
+    canTaxi: ({ context }) => context.GROUND && context.FL === 0 && context.ROC === 0 && context.KTS < 20,
+    canHold: ({ context }) => context.GROUND && context.FL === 0 && context.ROC === 0 && context.KTS === 0,
+    canTakeOffRun: ({ context, event }) => {
+      if (event.type !== "Clear to Take-Off") return false;
+      return context.GROUND && context.FL === 0 && event.TARGET_KTS === context.V2;
+    },
+    canTakeOff: ({ context, event }) => {
+      if (event.type !== "Taking-Off") return false;
+      return !context.GROUND && context.ROC > 0 && context.KTS === context.V2 && event.TARGET_FL > 10;
+    },
+    canFollowSID: ({ context }) => !context.GROUND && context.FL > 0 && context.KTS > context.V2,
+    canEnroute: ({ context }) => !context.GROUND && context.FL > 0 && context.KTS > context.V2,
+    canStartDescent: ({ context }) => !context.GROUND && context.FL > 0 && context.KTS > 0 && context.KTS > context.MAS,
+    canStartApp: ({ context }) => !context.GROUND && context.FL > 0 && context.KTS > context.MAS,
+    canFinal: ({ context }) => !context.GROUND && context.FL > 0 && context.KTS > context.MAS,
+    canLanding: ({ context }) => !context.GROUND && context.FL > 0 && context.KTS > context.MAS,
+    canLanded: ({ context }) => context.GROUND && context.FL === 0 && context.KTS < 20,
+    canTaxiToPark: ({ context }) => context.GROUND && context.FL === 0 && context.KTS < 20,
+    canPark: ({ context }) => context.GROUND && context.FL === 0 && context.KTS === 0,
+    isDeparting: ({ context }) => context.isDeparting,
+    isInbound: ({ context }) => !context.isDeparting,
   },
 }).createMachine({
   id: "Airplane",
@@ -93,6 +158,11 @@ export const machine = setup({
     ROC: 0,
     ROT: 0,
     KTS: 0,
+    GROUND: true,
+    PHASE: "Rest",
+    V2: 150,
+    MAS: 120,
+    isDeparting: true,
   },
   states: {
     Vertical: {
@@ -208,6 +278,140 @@ export const machine = setup({
             "Reached target KTS": {
               target: "Rest",
             },
+          },
+        },
+      },
+    },
+    FlightPhase: {
+      initial: "Rest",
+      states: {
+        Rest: {
+          entry: "setPhaseRest",
+          on: {
+            "Clear to Taxi": {
+              target: "Taxi",
+              guard: "canTaxi",
+              actions: "setDeparting",
+            },
+          },
+        },
+        Taxi: {
+          entry: "setPhaseTaxi",
+          on: {
+            "Hold position": {
+              target: "Hold",
+              guard: "canHold",
+            },
+            Park: {
+              target: "Rest",
+              guard: "canPark",
+            },
+          },
+          after: {
+            180000: [
+              { target: "Hold", guard: "isDeparting" },
+              { target: "Rest", guard: "isInbound" },
+            ],
+          },
+        },
+        Hold: {
+          entry: "setPhaseHold",
+          on: {
+            "Clear to Take-Off": {
+              target: "Take-Off-Run",
+              guard: "canTakeOffRun",
+            },
+          },
+          after: {
+            60000: { target: "Take-Off-Run" },
+          },
+        },
+        "Take-Off-Run": {
+          entry: "setPhaseTakeOffRun",
+          on: {
+            "Taking-Off": {
+              target: "Take-Off",
+              guard: "canTakeOff",
+            },
+          },
+          after: {
+            30000: { target: "Take-Off" },
+          },
+        },
+        "Take-Off": {
+          entry: "setPhaseTakeOff",
+          on: {
+            "Follow SID": {
+              target: "SID",
+              guard: "canFollowSID",
+            },
+          },
+        },
+        SID: {
+          entry: "setPhaseSID",
+          on: {
+            Enroute: {
+              target: "Cruise",
+              guard: "canEnroute",
+            },
+          },
+        },
+        Cruise: {
+          entry: "setPhaseCruise",
+          on: {
+            "Start descent": {
+              target: "STAR",
+              guard: "canStartDescent",
+            },
+          },
+        },
+        STAR: {
+          entry: "setPhaseSTAR",
+          on: {
+            "Start approach": {
+              target: "App",
+              guard: "canStartApp",
+            },
+          },
+        },
+        App: {
+          entry: "setPhaseApp",
+          on: {
+            "Estabilish on Final": {
+              target: "Final",
+              guard: "canFinal",
+            },
+          },
+        },
+        Final: {
+          entry: "setPhaseFinal",
+          on: {
+            Landing: {
+              target: "Landing",
+              guard: "canLanding",
+            },
+          },
+        },
+        Landing: {
+          entry: "setPhaseLanding",
+          on: {
+            Landed: {
+              target: "Landed",
+              guard: "canLanded",
+            },
+          },
+        },
+        Landed: {
+          entry: "setPhaseLanded",
+          on: {
+            "Taxi to Park": {
+              target: "Taxi",
+              guard: "canTaxiToPark",
+              actions: "setInbound",
+            },
+          },
+          after: {
+            60000: { target: "Taxi", actions: "setInbound" },
           },
         },
       },
