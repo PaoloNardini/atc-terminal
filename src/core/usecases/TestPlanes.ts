@@ -67,4 +67,4 @@ export const createUseCase = ({ }: Deps) => async (
 
 }
 
-export type LoadScenario = ReturnType<typeof createUseCase>
+export type TestPlanes = ReturnType<typeof createUseCase>

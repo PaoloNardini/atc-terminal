@@ -9,28 +9,33 @@ export const machine = setup({
       | { type: "Start" }
       | { type: "On-Air" }
       | { type: "Descent" }
-      | { type: "ROD Set" }
-      | { type: "ROC  Set" }
       | { type: "ATC Copied" }
       | { type: "Waypoint Set" }
-      | { type: "CalcUlate ROC" }
-      | { type: "Calculate ROD" }
       | { type: "Holding Point" }
       | { type: "Start Descent" }
-      | { type: "Maintaining FL" }
       | { type: "Waypoint Reached" }
       | { type: "Next waypoint set" }
       | { type: "No more waypoints" }
       | { type: "Cleared to Take-off" }
       | { type: "Ready for ATC Clearence" }
-      | { type: "Reached descent target FL" }
       | { type: "Contact Tower for Take Off" }
-      | { type: "Reached climbing target FL" },
+      | { type: "Level-up" }
+      | { type: "Level-down" }
+      | { type: "Turn" }
+      | { type: "Stop Turn" },
   },
   actions: {
     EngineStarted: function () {
       // Add your action code here
-      // ...
+    },
+    "set ROD": function (_, _params: { ROD: string | number; TARGET_FL?: string }) {
+      // Add your action code here
+    },
+    "set ROC": function (_, _params: { ROC: string | number; TARGET_FL?: string }) {
+      // Add your action code here
+    },
+    "set ROT": function (_, _params: { ROT: string | number; TARGET_HDG?: string }) {
+      // Add your action code here
     },
   },
 }).createMachine({
@@ -102,7 +107,7 @@ export const machine = setup({
             "Take-off": {
               on: {
                 "On-Air": {
-                  target: "#Airplane.In flight",
+                  target: "#Airplane.Flight",
                 },
               },
             },
@@ -110,68 +115,96 @@ export const machine = setup({
         },
       },
     },
-    "In flight": {
+    Flight: {
       type: "parallel",
       states: {
         Flying: {
-          initial: "Rest",
+          type: "parallel",
           states: {
-            Rest: {
-              on: {
-                Climb: {
-                  target: "Set climb target FL",
+            Vertical: {
+              initial: "Rest",
+              states: {
+                Rest: {
+                  on: {
+                    Descent: {
+                      target: "Descending",
+                      actions: {
+                        type: "set ROD",
+                        params: {
+                          ROD: "",
+                          TARGET_FL: "",
+                        },
+                      },
+                    },
+                    Climb: {
+                      target: "Climbing",
+                      actions: {
+                        type: "set ROC",
+                        params: {
+                          ROC: "",
+                          TARGET_FL: "",
+                        },
+                      },
+                    },
+                  },
                 },
-                "Reached climbing target FL": {
-                  target: "Set ROC = 0",
+                Descending: {
+                  on: {
+                    "Level-down": {
+                      target: "Rest",
+                      actions: {
+                        type: "set ROD",
+                        params: {
+                          ROD: 0,
+                        },
+                      },
+                    },
+                  },
                 },
-                Descent: {
-                  target: "Set descent target FL",
-                },
-                "Reached descent target FL": {
-                  target: "Set ROD = 0",
+                Climbing: {
+                  on: {
+                    "Level-up": {
+                      target: "Rest",
+                      actions: {
+                        type: "set ROC",
+                        params: {
+                          ROC: 0,
+                        },
+                      },
+                    },
+                  },
                 },
               },
-              description: "Maintain current state until an event occurs",
             },
-            "Set climb target FL": {
-              on: {
-                "CalcUlate ROC": {
-                  target: "Set ROC",
+            Horizontal: {
+              initial: "Rest",
+              states: {
+                Rest: {
+                  on: {
+                    Turn: {
+                      target: "Turning",
+                      actions: {
+                        type: "set ROT",
+                        params: {
+                          ROT: "",
+                          TARGET_HDG: "",
+                        },
+                      },
+                    },
+                  },
                 },
-              },
-            },
-            "Set ROC = 0": {
-              on: {
-                "Maintaining FL": {
-                  target: "Rest",
-                },
-              },
-            },
-            "Set descent target FL": {
-              on: {
-                "Calculate ROD": {
-                  target: "Set ROD",
-                },
-              },
-            },
-            "Set ROD = 0": {
-              on: {
-                "Maintaining FL": {
-                  target: "Rest",
-                },
-              },
-            },
-            "Set ROC": {
-              on: {
-                "ROC  Set": {
-                  target: "Rest",
-                },
-              },
-            },
-            "Set ROD": {
-              on: {
-                "ROD Set": {
-                  target: "Rest",
+                Turning: {
+                  on: {
+                    "Stop Turn": {
+                      target: "Rest",
+                      actions: {
+                        type: "set ROT",
+                        params: {
+                          ROT: 0,
+                        },
+                      },
+                    },
+                  },
                 },
               },
             },
@@ -200,7 +233,7 @@ export const machine = setup({
                 "Get Next Waypoint": {
                   on: {
                     "No more waypoints": {
-                      target: "#Airplane.In flight.Flight Routing.EnRoute",
+                      target: "#Airplane.Flight.Flight Routing.EnRoute",
                     },
                     "Next waypoint set": {
                       target: "Flying",
