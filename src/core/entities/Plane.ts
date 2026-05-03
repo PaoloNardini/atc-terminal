@@ -425,16 +425,12 @@ export class Plane {
  */
 
 export const planeMove = (plane: Plane, elapsedSeconds: number): void => {
-  // const planeMachine = createPlaneFsm(plane)
-  // console.log(planeMachine.getInitialState())
-  // const actor = createActor(planeMachine)
-  // planeMachine.resolve({ turn: 'idle' })
-  // actor.start()
 
-  // service.send({ })
+  const values = plane.actor.getSnapshot().value
 
   // Calculate plane 3 axis movements
-  if (plane.fl == 0 && plane.speed == 0) {
+
+  if (values.GROUND === true) {
     // Plane on the ground ... nothing to do
     return
   }
@@ -453,15 +449,16 @@ export const planeMove = (plane: Plane, elapsedSeconds: number): void => {
   }
 
   // TURN
-  if (plane.turn != 0) {
+  if (values.ROT != 0) {
     // Compute new heading
     if (
-      Math.abs(plane.heading - plane.heading_target) <
-      Math.abs(plane.turn * elapsedSeconds)
+      Math.abs(values.HDG - plane.heading_target) <
+      Math.abs(values.ROT * elapsedSeconds)
     ) {
       // Reached assigned heading
-      plane.turn = 0
-      plane.heading = plane.heading_target
+      plane.actor.send({ type: "Stop Turn"})
+      // plane.turn = 0
+      // plane.heading = plane.heading_target
       planeEventTurnStopped(plane)
     }
     var tmp = plane.heading
