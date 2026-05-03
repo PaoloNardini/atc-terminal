@@ -11,22 +11,21 @@ import { Coordinate } from '../valueObjects'
 export const useCaseName = 'test-planes'
 
 export type Input = {
-  context: Context,
-  useCases: UseCases,
+  context: Context
+  useCases: UseCases
 }
 
 export type Output = {
   context: Context
 }
 
-export const createUseCase = ({ }: Deps) => async (
-  input: Input
-): Promise<Output> => {
-
+export const createUseCase =
+  ({}: Deps) =>
+  async (input: Input): Promise<Output> => {
     let context: Context = input.context
 
     if (input.useCases) {
-        debug(`AddPlane`)
+      debug(`AddPlane`)
     }
 
     /*
@@ -42,29 +41,40 @@ export const createUseCase = ({ }: Deps) => async (
     */
 
     const plane = new Plane()
-    plane.setCoordinate(new Coordinate(context.parameters.latitudeCenter + (Math.random()-0.5), context.parameters.longitudeCenter + (Math.random()-0.5)))
+    plane.setCoordinate(
+      new Coordinate(
+        context.parameters.latitudeCenter + (Math.random() - 0.5),
+        context.parameters.longitudeCenter + (Math.random() - 0.5)
+      )
+    )
     plane.callsign = `PLANE${context.planes.length}`
     plane.completeCallsign = plane.callsign
-    plane.heading = (Math.random() * 360)
-    plane.speed = (Math.random()*300 + 150)
-    plane.fl = (Math.random()*42000+1000)
-    plane.climb = (Math.random()*2000 - 100)
+    plane.heading = Math.random() * 360
+    plane.speed = Math.random() * 300 + 150
+    plane.fl = Math.random() * 42000 + 1000
+    plane.climb = Math.random() * 2000 - 100
+    /*
     if (Math.random() > 0.7) {
-      plane.turn = (Math.random()*2-1)
+    plane.turn = (Math.random()*2-1)
     }
+    */
+    plane.setHeading(90, undefined)
+    plane.setHeading(270, 3)
+    // plane.actor.send({ type: 'Update Heading', HDG: 90 })
+    // plane.actor.send({ type: 'Turn Right', ROT: 3, TARGET_HDG: 270 })
 
     context.planes.push(plane)
 
     input.useCases.dispatch({
       context,
-      msgType: SocketMsgType.MSG_PLANES, payload: {
+      msgType: SocketMsgType.MSG_PLANES,
+      payload: {
         type: 'ADD_PLANE',
-        plane: plane
-      }
+        plane: plane,
+      },
     })
 
     return { context }
-
-}
+  }
 
 export type TestPlanes = ReturnType<typeof createUseCase>

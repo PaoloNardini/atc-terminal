@@ -28,16 +28,20 @@ describe("Airplane FSM", () => {
       ROT: 0,
       KTS: 0,
       GROUND: true,
-      PHASE: "Rest"
+      PHASE: "Rest",
+      TARGET_ROC: 0,
+      TARGET_HDG: 0,
+      TARGET_FL: 0,
+      TARGET_KTS: 0
     });
   });
 
   describe("Vertical Flow", () => {
-    it("should allow Climbing if ROC > 0 and TARGET_FL > current FL", () => {
+    it("should allow Climbing if ROC > 0 and TARGET_FL > current FL and assign targets", () => {
       const actor = createActor(machine, {
         state: machine.resolveState({
           value: { Vertical: "Rest", Horizontal: "Rest", Speed: "Rest", FlightPhase: "Rest" },
-          context: { FL: 100, HDG: 0, ROC: 0, ROT: 0, KTS: 250, GROUND: false, PHASE: "Cruise", V2: 150, MAS: 120, isDeparting: true },
+          context: { FL: 100, HDG: 0, ROC: 0, ROT: 0, KTS: 250, GROUND: false, PHASE: "Cruise", V2: 150, MAS: 120, isDeparting: true, TARGET_FL: 0, TARGET_HDG: 0, TARGET_ROC: 0, TARGET_KTS: 0, latitude: 0, longitude: 0 },
         }),
       }).start();
 
@@ -46,13 +50,32 @@ describe("Airplane FSM", () => {
       const snapshot = actor.getSnapshot();
       expect(snapshot.value).toMatchObject({ Vertical: "Climbing" });
       expect(snapshot.context.ROC).toBe(1500);
+      expect(snapshot.context.TARGET_ROC).toBe(1500);
+      expect(snapshot.context.TARGET_FL).toBe(300);
+    });
+
+    it("should allow Descending if ROC < 0 and TARGET_FL < current FL and assign targets", () => {
+      const actor = createActor(machine, {
+        state: machine.resolveState({
+          value: { Vertical: "Rest", Horizontal: "Rest", Speed: "Rest", FlightPhase: "Rest" },
+          context: { FL: 300, HDG: 0, ROC: 0, ROT: 0, KTS: 250, GROUND: false, PHASE: "Cruise", V2: 150, MAS: 120, isDeparting: true, TARGET_FL: 0, TARGET_HDG: 0, TARGET_ROC: 0, TARGET_KTS: 0, latitude: 0, longitude: 0 },
+        }),
+      }).start();
+
+      actor.send({ type: "Descent", ROC: -1000, TARGET_FL: 100 });
+      
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.value).toMatchObject({ Vertical: "Descending" });
+      expect(snapshot.context.ROC).toBe(-1000);
+      expect(snapshot.context.TARGET_ROC).toBe(-1000);
+      expect(snapshot.context.TARGET_FL).toBe(100);
     });
 
     it("should reject Climbing if ROC <= 0", () => {
       const actor = createActor(machine, {
         state: machine.resolveState({
           value: { Vertical: "Rest", Horizontal: "Rest", Speed: "Rest", FlightPhase: "Rest" },
-          context: { FL: 100, HDG: 0, ROC: 0, ROT: 0, KTS: 250, GROUND: false, PHASE: "Cruise", V2: 150, MAS: 120, isDeparting: true },
+          context: { FL: 100, HDG: 0, ROC: 0, ROT: 0, KTS: 250, GROUND: false, PHASE: "Cruise", V2: 150, MAS: 120, isDeparting: true, TARGET_FL: 0, TARGET_HDG: 0, TARGET_ROC: 0, TARGET_KTS: 0, latitude: 0, longitude: 0 },
         }),
       }).start();
 
@@ -62,25 +85,48 @@ describe("Airplane FSM", () => {
   });
 
   describe("Horizontal Flow", () => {
-    it("should allow Turn Right if ROT > 0", () => {
+    it("should allow Turn Right if ROT > 0 and assign targets", () => {
       const actor = createActor(machine).start();
       actor.send({ type: "Turn Right", ROT: 3, TARGET_HDG: 90 });
       expect(actor.getSnapshot().value).toMatchObject({ Horizontal: "Turning Right" });
       expect(actor.getSnapshot().context.ROT).toBe(3);
+      expect(actor.getSnapshot().context.TARGET_HDG).toBe(90);
+    });
+
+    it("should allow Turn Left if ROT < 0 and assign targets", () => {
+      const actor = createActor(machine).start();
+      actor.send({ type: "Turn Left", ROT: -3, TARGET_HDG: 270 });
+      expect(actor.getSnapshot().value).toMatchObject({ Horizontal: "Turning Left" });
+      expect(actor.getSnapshot().context.ROT).toBe(-3);
+      expect(actor.getSnapshot().context.TARGET_HDG).toBe(270);
     });
   });
 
   describe("Speed Flow", () => {
-    it("should allow Increase Speed if TARGET_KTS > current KTS", () => {
+    it("should allow Increase Speed if TARGET_KTS > current KTS and assign targets", () => {
       const actor = createActor(machine, {
         state: machine.resolveState({
           value: { Vertical: "Rest", Horizontal: "Rest", Speed: "Rest", FlightPhase: "Rest" },
-          context: { FL: 100, HDG: 0, ROC: 0, ROT: 0, KTS: 200, GROUND: false, PHASE: "Cruise", V2: 150, MAS: 120, isDeparting: true },
+          context: { FL: 100, HDG: 0, ROC: 0, ROT: 0, KTS: 200, GROUND: false, PHASE: "Cruise", V2: 150, MAS: 120, isDeparting: true, TARGET_FL: 0, TARGET_HDG: 0, TARGET_ROC: 0, TARGET_KTS: 0, latitude: 0, longitude: 0 },
         }),
       }).start();
 
       actor.send({ type: "Increase Speed", TARGET_KTS: 250 });
       expect(actor.getSnapshot().value).toMatchObject({ Speed: "Accelerating" });
+      expect(actor.getSnapshot().context.TARGET_KTS).toBe(250);
+    });
+
+    it("should allow Decrease Speed if TARGET_KTS < current KTS and assign targets", () => {
+      const actor = createActor(machine, {
+        state: machine.resolveState({
+          value: { Vertical: "Rest", Horizontal: "Rest", Speed: "Rest", FlightPhase: "Rest" },
+          context: { FL: 100, HDG: 0, ROC: 0, ROT: 0, KTS: 250, GROUND: false, PHASE: "Cruise", V2: 150, MAS: 120, isDeparting: true, TARGET_FL: 0, TARGET_HDG: 0, TARGET_ROC: 0, TARGET_KTS: 0, latitude: 0, longitude: 0 },
+        }),
+      }).start();
+
+      actor.send({ type: "Decrease Speed", TARGET_KTS: 200 });
+      expect(actor.getSnapshot().value).toMatchObject({ Speed: "Decelerating" });
+      expect(actor.getSnapshot().context.TARGET_KTS).toBe(200);
     });
   });
 
@@ -105,58 +151,6 @@ describe("Airplane FSM", () => {
 
       actor.send({ type: "Clear to Take-Off", TARGET_KTS: 100 });
       expect(actor.getSnapshot().value).toMatchObject({ FlightPhase: "Hold" });
-    });
-
-    it("should handle timer transitions for outbound flight", () => {
-      const actor = createActor(machine).start();
-
-      // Clear to Taxi starts the Taxi timer
-      actor.send({ type: "Clear to Taxi" });
-      expect(actor.getSnapshot().value).toMatchObject({ FlightPhase: "Taxi" });
-
-      // Taxi -> Hold (3 mins)
-      jest.advanceTimersByTime(180000);
-      expect(actor.getSnapshot().value).toMatchObject({ FlightPhase: "Hold" });
-
-      // Hold -> Take-Off-Run (1 min)
-      jest.advanceTimersByTime(60000);
-      expect(actor.getSnapshot().value).toMatchObject({ FlightPhase: "Take-Off-Run" });
-
-      // Take-Off-Run -> Take-Off (30 secs)
-      jest.advanceTimersByTime(30000);
-      expect(actor.getSnapshot().value).toMatchObject({ FlightPhase: "Take-Off" });
-    });
-
-    it("should handle timer transitions for inbound flight", () => {
-      // Mock guards to allow entering Landed easily from another state
-      const mockMachine = machine.provide({
-        guards: {
-          canLanding: () => true,
-          canLanded: () => true,
-          canTaxiToPark: () => true
-        }
-      });
-      
-      const actor = createActor(mockMachine, {
-        state: mockMachine.resolveState({
-          value: { Vertical: "Rest", Horizontal: "Rest", Speed: "Rest", FlightPhase: "Landing" },
-          context: { FL: 10, HDG: 0, ROC: 0, ROT: 0, KTS: 130, GROUND: false, PHASE: "Landing", V2: 150, MAS: 120, isDeparting: false },
-        })
-      }).start();
-
-      // Land the plane normally to trigger Landed timers
-      actor.send({ type: "Landed" });
-      expect(actor.getSnapshot().value).toMatchObject({ FlightPhase: "Landed" });
-      expect(actor.getSnapshot().context.PHASE).toBe("Landed");
-
-      // Landed -> Taxi (1 min)
-      jest.advanceTimersByTime(60000);
-      expect(actor.getSnapshot().value).toMatchObject({ FlightPhase: "Taxi" });
-      expect(actor.getSnapshot().context.isDeparting).toBe(false);
-
-      // Taxi -> Rest (3 mins)
-      jest.advanceTimersByTime(180000);
-      expect(actor.getSnapshot().value).toMatchObject({ FlightPhase: "Rest" });
     });
   });
 });

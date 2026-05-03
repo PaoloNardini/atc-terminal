@@ -3,10 +3,13 @@ The XSTATE machine must simulate an airplane.
 The airplane context contains the following attributes:
 
 - FL: the current flight level (altitude in thousands feet) (0...420).
-- HDG: the current heading (0...359).
 - ROC: The current Rate of Climb (+- 0...9999) feet/minute.
+- TARGET_FL: The target flight level (altitude in thousands feet) (0...420).
+- HDG: the current heading (0...359).
 - ROT: The rate of turn (+- 0...400) degrees/minute.
+- TARGET_HDG: The target heading (0...359).
 - KTS: The current speed in Knots (0...999).
+- TARGET_KTS: The target speed in Knots (0...999).
 - GROUND: True if the airplane is on the ground, False if airplane is flying.
 - PHASE: one of "Rest", "Taxi", "Hold", "Take-Off-Run", "Take-Off", "SID", "Cruise", "STAR", "App", "Final", "Landing", "Landed".
 - V2: The take-off speed in Knots, a constant value initialized when the airplane is created.

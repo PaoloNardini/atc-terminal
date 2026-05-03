@@ -142,6 +142,10 @@ export class Plane {
           isDeparting: false,
           latitude: 0,
           longitude: 0,
+          TARGET_ROC: 0,
+          TARGET_HDG: 0,
+          TARGET_FL: 0,
+          TARGET_KTS: 0,
         },
       }),
     }).start()
@@ -170,11 +174,33 @@ export class Plane {
   }
 
   getLatLon = (): LatLon => {
-    return new LatLon(this.actor.getSnapshot().context.latitude, this.actor.getSnapshot().context.longitude)
+    return new LatLon(
+      this.actor.getSnapshot().context.latitude,
+      this.actor.getSnapshot().context.longitude
+    )
   }
 
   getHeading = (): number => {
     return this.actor.getSnapshot().context.HDG
+  }
+
+  setHeading = (newHeading: number, ROT: number | undefined): void => {
+    if (ROT) {
+      this.turn = ROT
+      this.heading_target = newHeading
+      if (ROT > 0) {
+        this.actor.send({
+          type: 'Turn Right',
+          ROT: ROT,
+          TARGET_HDG: newHeading,
+        })
+      } else {
+        this.actor.send({ type: 'Turn Left', ROT: ROT, TARGET_HDG: newHeading })
+      }
+    } else {
+      this.heading = newHeading
+      this.actor.send({ type: 'Update Heading', HDG: newHeading })
+    }
   }
 
   getSpeedKts = (): number => {
@@ -425,14 +451,14 @@ export class Plane {
  */
 
 export const planeMove = (plane: Plane, elapsedSeconds: number): void => {
-
-  const values = plane.actor.getSnapshot().value
+  const ctx = plane.actor.getSnapshot().context
+  // console.log(ctx)
 
   // Calculate plane 3 axis movements
 
-  if (values.GROUND === true) {
+  if (ctx.GROUND === true) {
     // Plane on the ground ... nothing to do
-    return
+    // return
   }
 
   // ADJUST HEADING TO NEXT FIX (if any)
@@ -449,28 +475,44 @@ export const planeMove = (plane: Plane, elapsedSeconds: number): void => {
   }
 
   // TURN
-  if (values.ROT != 0) {
+  if (ctx.ROT != 0) {
+    console.log(
+      'Turning (' +
+        ctx.ROT +
+        ') to ' +
+        ctx.TARGET_HDG +
+        ' - current: ' +
+        ctx.HDG
+    )
     // Compute new heading
     if (
-      Math.abs(values.HDG - plane.heading_target) <
-      Math.abs(values.ROT * elapsedSeconds)
+      Math.abs(ctx.HDG - ctx.TARGET_HDG) < Math.abs(ctx.ROT * elapsedSeconds)
     ) {
       // Reached assigned heading
-      plane.actor.send({ type: "Stop Turn"})
+      plane.actor.send({ type: 'Stop Turn', HDG: ctx.TARGET_HDG })
+      plane.setHeading(ctx.TARGET_HDG, 0)
+
       // plane.turn = 0
       // plane.heading = plane.heading_target
+      console.log(
+        'Stop turning - final heading: ' + plane.actor.getSnapshot().context.HDG
+      )
       planeEventTurnStopped(plane)
+    } else {
+      var tmp = ctx.HDG
+      if (ctx.ROT != 0) {
+        tmp = tmp + ctx.ROT * elapsedSeconds
+      }
+      if (tmp < 0) {
+        tmp = 360 + tmp
+      } else if (tmp >= 360) {
+        tmp = tmp - 360
+      }
+      console.log('New heading ' + tmp)
+      plane.setHeading(tmp, undefined)
+      // plane.actor.send({ type: 'Update Heading', HDG: tmp })
+      // plane.heading = tmp
     }
-    var tmp = plane.heading
-    if (plane.turn != 0) {
-      tmp = tmp + plane.turn * elapsedSeconds
-    }
-    if (tmp < 0) {
-      tmp = 360 + tmp
-    } else if (tmp >= 360) {
-      tmp = tmp - 360
-    }
-    plane.heading = tmp
   }
 
   // SPEED
@@ -566,6 +608,8 @@ export const planeMove = (plane: Plane, elapsedSeconds: number): void => {
    */
 
   // COORDINATES
+
+  console.log('Compute new coordinates')
 
   const coord = plane.getCoordinate()
   var latlon = geomath.coordsFromCoarseDistance(
