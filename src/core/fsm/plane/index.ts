@@ -40,6 +40,7 @@ export type AirplaneEvents =
   | { type: 'Stop Turn'; HDG: number }
   | { type: 'Increase Speed'; TARGET_KTS: number }
   | { type: 'Decrease Speed'; TARGET_KTS: number }
+  | { type: 'Maintain Speed'; TARGET_KTS: number }
   | { type: 'Reached target FL' }
   | { type: 'Reached target HDG' }
   | { type: 'Reached target KTS' }
@@ -135,7 +136,8 @@ export const machine = setup({
       TARGET_KTS: ({ event }) => {
         if (
           event.type === 'Increase Speed' ||
-          event.type === 'Decrease Speed'
+          event.type === 'Decrease Speed' ||
+          event.type === 'Maintain Speed'
         ) {
           return event.TARGET_KTS
         }
@@ -381,6 +383,10 @@ export const machine = setup({
             'Decrease Speed': {
               target: 'Decelerating',
               guard: 'isValidDecreaseSpeed',
+              actions: 'setSpeedTarget',
+            },
+            'Maintain Speed': {
+              target: 'Rest',
               actions: 'setSpeedTarget',
             },
           },

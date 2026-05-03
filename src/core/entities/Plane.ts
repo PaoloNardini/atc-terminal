@@ -208,6 +208,13 @@ export class Plane {
     return this.actor.getSnapshot().context.KTS
   }
 
+  setCurrentSpeedKts = (newSpeed: number): void => {
+    this.speed = newSpeed
+    this.speed_target = newSpeed
+    this.actor.send({ type: 'Update Speed', KTS: newSpeed })
+    this.actor.send({ type: 'Maintain Speed', TARGET_KTS: newSpeed })
+  }
+
   setSpeedKts = (newSpeed: number): void => {
     if (newSpeed > this.actor.getSnapshot().context.KTS) {
       this.speed_target = newSpeed
@@ -216,6 +223,11 @@ export class Plane {
       this.speed_target = newSpeed
       this.actor.send({ type: 'Decrease Speed', TARGET_KTS: newSpeed })
     }
+  }
+
+  setCurrentFL = (newLevel: number): void => {
+    this.fl = newLevel
+    this.actor.send({ type: 'Update Altitude', FL: newLevel })
   }
 
   setNewFL = (newLevel: number): void => {
@@ -551,7 +563,7 @@ export const planeMove = (plane: Plane, elapsedSeconds: number): void => {
   }
 
   // ALTITUDE
-  var ratio = (ctx.ROC * elapsedSeconds) / 60
+  const ratio = Math.floor((ctx.ROC / 60) * elapsedSeconds)
   if (ratio != 0) {
     console.log(
       'Plane ' +
@@ -560,6 +572,8 @@ export const planeMove = (plane: Plane, elapsedSeconds: number): void => {
         ctx.FL +
         ' > ' +
         ctx.TARGET_FL +
+        ' ROC = ' +
+        ctx.ROC +
         ' ratio = ' +
         ratio
     )
@@ -580,6 +594,7 @@ export const planeMove = (plane: Plane, elapsedSeconds: number): void => {
     } else {
       plane.fl = ctx.FL + ratio
       plane.actor.send({ type: 'Update Altitude', FL: plane.fl })
+      console.log('New altitude: ' + plane.fl)
       // TODO
       /*
            if (plane.fl < plane.fl_target && ratio <= 0) {
