@@ -52,6 +52,9 @@ export const createUseCase =
     plane.heading = Math.random() * 360
     plane.speed = Math.random() * 300 + 150
     plane.fl = Math.random() * 42000 + 1000
+    plane.actor.send({ type: 'Update Altitude', FL: plane.fl })
+    plane.actor.send({ type: 'Update Speed', KTS: plane.speed })
+    plane.actor.send({ type: 'Update Heading', HDG: plane.heading })
     plane.climb = Math.random() * 2000 - 100
     /*
     if (Math.random() > 0.7) {
@@ -62,6 +65,8 @@ export const createUseCase =
     plane.setHeading(270, 3)
 
     plane.setSpeedKts(plane.speed + 50)
+
+    plane.setNewFL(plane.fl + 5500)
 
     context.planes.push(plane)
 

@@ -78,6 +78,7 @@ export class Plane {
   heading: number = 0
   heading_target: number = -1
   fl: number = 0
+  fl_target: number = -1
   fl_final: number = -1
   fl_initial: number = -1
   fl_cleared: number = -1
@@ -217,6 +218,27 @@ export class Plane {
     }
   }
 
+  setNewFL = (newLevel: number): void => {
+    if (newLevel < 500) {
+      // Convert feet to FL
+      newLevel = newLevel * 100
+    }
+    const currentLevel = this.actor.getSnapshot().context.FL
+
+    if (currentLevel == newLevel) {
+      // TODO
+      return
+    }
+    if (newLevel > currentLevel) {
+      this.climb = constants.PLANE_CLIMB_RATIO
+      this.actor.send({ type: 'Climb', ROC: this.climb, TARGET_FL: newLevel })
+    } else {
+      this.climb = constants.PLANE_DESCENT_RATIO
+      this.actor.send({ type: 'Descent', ROC: this.climb, TARGET_FL: newLevel })
+    }
+    this.fl_target = newLevel
+  }
+
   /**
    * LOW LEVEL NAVIGATION MANAGEMENT
    */
@@ -243,23 +265,6 @@ export class Plane {
 
   setNewSpeed = (newSpeed: number): void => {
     this.speed_target = newSpeed
-  }
-
-  setNewFL = (newLevel: number): void => {
-    if (newLevel < 500) {
-      // Convert feet to FL
-      newLevel = newLevel * 100
-    }
-    if (this.fl == newLevel) {
-      // TODO
-      return
-    }
-    if (newLevel > this.fl) {
-      this.climb = constants.PLANE_CLIMB_RATIO
-    } else {
-      this.climb = -constants.PLANE_CLIMB_RATIO
-    }
-    this.fl_cleared = newLevel
   }
 
   addStatus = (status: string) => {
@@ -406,7 +411,7 @@ export class Plane {
             this.transit = false;
             // this.fl = 0;
             // this.climb = 3000;
-            // this.fl_cleared = 5000;
+            // this.fl_target = 5000;
         }
         else if (o_route.type == 'STAR') {
             this.arrival = true;
@@ -546,39 +551,42 @@ export const planeMove = (plane: Plane, elapsedSeconds: number): void => {
   }
 
   // ALTITUDE
-  var ratio = (plane.climb * elapsedSeconds) / 60
+  var ratio = (ctx.ROC * elapsedSeconds) / 60
   if (ratio != 0) {
-    if (Math.abs(plane.fl - plane.fl_cleared) < Math.abs(ratio)) {
-      console.log(
-        'Plane ' +
-          plane.completeCallsign +
-          ' Level ' +
-          plane.fl +
-          ' > ' +
-          plane.fl_cleared +
-          ' ratio = ' +
-          ratio
-      )
+    console.log(
+      'Plane ' +
+        plane.completeCallsign +
+        ' Level ' +
+        ctx.FL +
+        ' > ' +
+        ctx.TARGET_FL +
+        ' ratio = ' +
+        ratio
+    )
+    if (Math.abs(ctx.FL - ctx.TARGET_FL) < Math.abs(ratio)) {
       // Reached assigned altitude
-      plane.climb = 0
-      plane.fl = plane.fl_cleared
+      plane.actor.send({ type: 'Level' })
+      plane.setNewFL(ctx.TARGET_FL)
+      // plane.climb = 0
+      // plane.fl = plane.fl_target
       console.log(
         '(move 11) Plane ' +
           plane.completeCallsign +
           ' reached assigned altitude ' +
-          plane.fl_cleared +
+          ctx.TARGET_FL +
           ' : new ratio = 0'
       )
       planeEventLevelReached(plane)
     } else {
-      plane.fl = plane.fl + ratio
+      plane.fl = ctx.FL + ratio
+      plane.actor.send({ type: 'Update Altitude', FL: plane.fl })
       // TODO
       /*
-           if (plane.fl < plane.fl_cleared && ratio <= 0) {
-               plane.setLevel(plane.plane.fl_cleared);
+           if (plane.fl < plane.fl_target && ratio <= 0) {
+               plane.setLevel(plane.plane.fl_target);
            }
-           else if (plane.plane.fl > plane.plane.fl_cleared && ratio >= 0) {
-               plane.setLevel(plane.plane.fl_cleared);
+           else if (plane.plane.fl > plane.plane.fl_target && ratio >= 0) {
+               plane.setLevel(plane.plane.fl_target);
            }
            else {
                plane.fl = plane.fl + ratio;
@@ -589,18 +597,18 @@ export const planeMove = (plane: Plane, elapsedSeconds: number): void => {
   // TODO move to AI
   /*
    if (true) { // plane.hasStatus(constants.STATUS_CRUISE)
-       if (plane.climb >= 0 && plane.fl > plane.fl_cleared) {
+       if (plane.climb >= 0 && plane.fl > plane.fl_target) {
            plane.climb = constants.PLANE_DESCENT_RATIO
        }
-       else if (plane.climb <= 0 && plane.fl < plane.fl_cleared) {
+       else if (plane.climb <= 0 && plane.fl < plane.fl_target) {
            plane.climb = constants.PLANE_CLIMB_RATIO;
        }
    }
    else {
-       if (plane.l < plane.fl_cleared && plane.climb > 0) {
+       if (plane.l < plane.fl_target && plane.climb > 0) {
            // Continue climbing / descending accordingly to phase flight
        }
-       if (plane.fl < plane.fl_cleared && plane.climb <= 0) {
+       if (plane.fl < plane.fl_target && plane.climb <= 0) {
            plane.climb = constants.PLANE_CLIMB_RATIO;
        }
    }

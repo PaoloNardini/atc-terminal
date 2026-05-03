@@ -59,6 +59,7 @@ export type AirplaneEvents =
   | { type: 'Update Position'; latitude: number; longitude: number }
   | { type: 'Update Heading'; HDG: number }
   | { type: 'Update Speed'; KTS: number }
+  | { type: 'Update Altitude'; FL: number }
 
 export const machine = setup({
   types: {
@@ -167,6 +168,9 @@ export const machine = setup({
     updateSpeed: assign({
       KTS: ({ event }) => (event.type === 'Update Speed' ? event.KTS : 0),
     }),
+    updateAltitude: assign({
+      FL: ({ event }) => (event.type === 'Update Altitude' ? event.FL : 0),
+    }),
   },
   guards: {
     isValidClimb: ({ context, event }) => {
@@ -272,6 +276,9 @@ export const machine = setup({
     },
     'Update Speed': {
       actions: 'updateSpeed',
+    },
+    'Update Altitude': {
+      actions: 'updateAltitude',
     },
   },
   states: {
