@@ -207,6 +207,16 @@ export class Plane {
     return this.actor.getSnapshot().context.KTS
   }
 
+  setSpeedKts = (newSpeed: number): void => {
+    if (newSpeed > this.actor.getSnapshot().context.KTS) {
+      this.speed_target = newSpeed
+      this.actor.send({ type: 'Increase Speed', TARGET_KTS: newSpeed })
+    } else if (newSpeed < this.actor.getSnapshot().context.KTS) {
+      this.speed_target = newSpeed
+      this.actor.send({ type: 'Decrease Speed', TARGET_KTS: newSpeed })
+    }
+  }
+
   /**
    * LOW LEVEL NAVIGATION MANAGEMENT
    */
@@ -516,32 +526,21 @@ export const planeMove = (plane: Plane, elapsedSeconds: number): void => {
   }
 
   // SPEED
-  if (plane.speed_target > 0) {
-    if (plane.speed_target > plane.speed) {
+  if (ctx.TARGET_KTS != ctx.KTS) {
+    console.log('Current speed ' + ctx.KTS + ' target: ' + ctx.TARGET_KTS)
+    if (ctx.TARGET_KTS > plane.speed) {
       // Increase speed
-      if (false /* plane.hasStatus(constants.STATUS_TAKEOFF) */) {
-        plane.speed = Math.floor(plane.speed + elapsedSeconds * 5)
-      } else {
-        plane.speed = Math.floor(plane.speed + elapsedSeconds * 1.5)
-      }
-      if (
-        plane.speed < 140 /* && !plane.hasStatus(constants.STATUS_LANDED) */
-      ) {
-        plane.speed = 140
-        plane.speed_target = 140
-      }
-    }
-    if (plane.speed_target < plane.speed) {
+      plane.speed = Math.floor(ctx.KTS + elapsedSeconds * 1.5)
+      plane.actor.send({ type: 'Update Speed', KTS: plane.speed })
+    } else if (ctx.TARGET_KTS < plane.speed) {
       // Decrease speed
-      if (false /* plane.hasStatus(constants.STATUS_LANDED) */) {
-        //Brakes!!
-        plane.speed = Math.floor(plane.speed - elapsedSeconds * 10)
-      } else {
-        plane.speed = Math.floor(plane.speed - elapsedSeconds * 2)
-      }
+      plane.speed = Math.floor(plane.speed - elapsedSeconds * 1.5)
+      plane.actor.send({ type: 'Update Speed', KTS: plane.speed })
     }
-    if (Math.abs(plane.speed_target - plane.speed) < 5) {
+    if (Math.abs(ctx.TARGET_KTS - plane.speed) < 5) {
+      console.log('Reached target speed: ' + ctx.TARGET_KTS)
       plane.speed = plane.speed_target
+      plane.actor.send({ type: 'Update Speed', KTS: plane.speed_target })
       planeEventSpeedReached(plane)
     }
   }

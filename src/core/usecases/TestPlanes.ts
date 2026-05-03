@@ -60,8 +60,8 @@ export const createUseCase =
     */
     plane.setHeading(90, undefined)
     plane.setHeading(270, 3)
-    // plane.actor.send({ type: 'Update Heading', HDG: 90 })
-    // plane.actor.send({ type: 'Turn Right', ROT: 3, TARGET_HDG: 270 })
+
+    plane.setSpeedKts(plane.speed + 50)
 
     context.planes.push(plane)
 
