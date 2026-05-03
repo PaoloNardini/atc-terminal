@@ -121,13 +121,64 @@ export class Plane {
   actor: any = null
 
   constructor() {
-    this.actor = createActor(machine).start()
-    console.log('actor created: ' + this.actor.getSnapshot().value)
+    this.actor = createActor(machine, {
+      state: machine.resolveState({
+        value: {
+          Vertical: 'Rest',
+          Horizontal: 'Rest',
+          Speed: 'Rest',
+          FlightPhase: 'Rest',
+        },
+        context: {
+          FL: 0,
+          HDG: 0,
+          ROC: 0,
+          ROT: 0,
+          KTS: 275,
+          GROUND: true,
+          PHASE: 'Rest',
+          V2: 150,
+          MAS: 120,
+          isDeparting: false,
+          latitude: 0,
+          longitude: 0,
+        },
+      }),
+    }).start()
+
+    const snapshot = this.actor.getSnapshot()
+    console.log('actor created: Vertical = ' + snapshot.value.Vertical)
+    console.log('actor created: Horizontal = ' + snapshot.value.Horizontal)
+    console.log('actor created: FlightPhase = ' + snapshot.value.FlightPhase)
+    console.log('actor created: KTS = ' + snapshot.context.KTS)
+  }
+
+  getCoordinate = (): Coordinate => {
+    return new Coordinate(this.latitude, this.longitude)
   }
 
   setCoordinate(coordinate: Coordinate) {
+    // Set both coordinates in Plane object and FSM
     this.latitude = coordinate.getLatitude()
     this.longitude = coordinate.getLongitude()
+
+    this.actor.send({
+      type: 'Update Position',
+      latitude: this.latitude,
+      longitude: this.longitude,
+    })
+  }
+
+  getLatLon = (): LatLon => {
+    return new LatLon(this.actor.getSnapshot().context.latitude, this.actor.getSnapshot().context.longitude)
+  }
+
+  getHeading = (): number => {
+    return this.actor.getSnapshot().context.HDG
+  }
+
+  getSpeedKts = (): number => {
+    return this.actor.getSnapshot().context.KTS
   }
 
   /**
@@ -284,7 +335,7 @@ export class Plane {
 
   adjustHeadingToNextFix = () => {
     if (this.next_fix_latitude && this.next_fix_longitude) {
-      var origin = new LatLon(this.latitude, this.longitude)
+      var origin = this.getLatLon()
       var dest = new LatLon(this.next_fix_latitude, this.next_fix_longitude)
       this.turnToHeading(origin.finalBearingTo(dest), undefined)
     }
@@ -295,7 +346,7 @@ export class Plane {
     longitude: number,
     turn_direction?: string
   ) => {
-    var origin = new LatLon(this.latitude, this.longitude)
+    var origin = this.getLatLon()
     var dest = new LatLon(latitude, longitude)
     this.turnToHeading(origin.finalBearingTo(dest), turn_direction)
     // TODO check heading
@@ -304,7 +355,7 @@ export class Plane {
 
   // Check distance to a coordinate point
   checkDistanceToPoint = (latitude: number, longitude: number): number => {
-    const planeCoords = new LatLon(this.latitude, this.longitude)
+    const planeCoords = this.getLatLon()
     const pointCoords = new LatLon(latitude, longitude)
     return geomath.metersToMiles(planeCoords.distanceTo(pointCoords))
   }
@@ -519,14 +570,15 @@ export const planeMove = (plane: Plane, elapsedSeconds: number): void => {
 
   // COORDINATES
 
+  const coord = plane.getCoordinate()
   var latlon = geomath.coordsFromCoarseDistance(
-    plane.latitude,
-    plane.longitude,
-    plane.heading,
-    (plane.speed / 3600) * elapsedSeconds
+    coord.getLatitude(),
+    coord.getLongitude(),
+    plane.getHeading(),
+    (plane.getSpeedKts() / 3600) * elapsedSeconds
   )
-  plane.latitude = latlon.lat
-  plane.longitude = latlon.lon
+  //
+  plane.setCoordinate(new Coordinate(latlon.lat, latlon.lon))
 }
 
 /**
@@ -887,15 +939,17 @@ export const planeInterceptRadial = (
     return
   }
 
+  const coord = plane.getCoordinate()
+
   var current_distance = geomath.distanceToCenter(
-    plane.latitude,
-    plane.longitude,
+    coord.getLatitude(),
+    coord.getLongitude(),
     plane.intercept.navaid.latitude,
     plane.intercept.navaid.longitude
   )
   // Check current radial
   var inverse_radial = geomath.inverseBearing(plane.intercept.radial)
-  var origin = new LatLon(plane.latitude, plane.longitude)
+  var origin = plane.getLatLon()
   var dest = new LatLon(
     plane.intercept.navaid.latitude,
     plane.intercept.navaid.longitude
@@ -957,9 +1011,10 @@ export const planeInterceptRadial = (
     plane.intercept.inbound == true &&
     plane.intercept.interceptPoint != undefined
   ) {
+    const coord = plane.getCoordinate()
     distance_intercept_point = geomath.distanceToCenter(
-      plane.latitude,
-      plane.longitude,
+      coord.getLatitude(),
+      coord.getLongitude(),
       plane.intercept.interceptPoint.lat,
       plane.intercept.interceptPoint.lon
     )
@@ -1101,9 +1156,10 @@ export const planeInterceptRadial = (
       distance_intercept_point
     )
   } else {
+    const coord = plane.getCoordinate()
     distance_intercept_point = geomath.distanceToCenter(
-      plane.latitude,
-      plane.longitude,
+      coord.getLatitude(),
+      coord.getLongitude(),
       plane.intercept.interceptPoint.lat,
       plane.intercept.interceptPoint.lon
     )

@@ -23,6 +23,8 @@ export interface AirplaneContext {
   V2: number;
   MAS: number;
   isDeparting: boolean;
+  latitude: number;
+  longitude: number;
 }
 
 export type AirplaneEvents =
@@ -49,7 +51,8 @@ export type AirplaneEvents =
   | { type: "Landing" }
   | { type: "Landed" }
   | { type: "Taxi to Park" }
-  | { type: "Park" };
+  | { type: "Park" }
+  | { type: "Update Position"; latitude: number; longitude: number };
 
 export const machine = setup({
   types: {
@@ -101,6 +104,10 @@ export const machine = setup({
     setPhaseLanded: assign({ PHASE: "Landed" }),
     setDeparting: assign({ isDeparting: true }),
     setInbound: assign({ isDeparting: false }),
+    updatePosition: assign({
+      latitude: ({ event }) => (event.type === "Update Position" ? event.latitude : 0),
+      longitude: ({ event }) => (event.type === "Update Position" ? event.longitude : 0),
+    }),
   },
   guards: {
     isValidClimb: ({ context, event }) => {
@@ -163,6 +170,13 @@ export const machine = setup({
     V2: 150,
     MAS: 120,
     isDeparting: true,
+    latitude: 0,
+    longitude: 0,
+  },
+  on: {
+    "Update Position": {
+      actions: "updatePosition",
+    },
   },
   states: {
     Vertical: {
